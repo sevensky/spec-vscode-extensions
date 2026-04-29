@@ -107,3 +107,51 @@ The Spec Explorer SHALL provide a context menu command to copy the name of a cha
 - And I paste (Ctrl+V / Cmd+V)
 - Then the copied name appears as plain text
 
+### Requirement: Change Task Progress Indicator
+The Spec Explorer SHALL display a task progress status indicator inline with each change item in the Changes group. The indicator is derived from the change's `tasks.md` file.
+
+#### Scenario: Missing tasks.md
+- Given a change is displayed in the Changes group
+- And `openspec/changes/<change-id>/tasks.md` does not exist
+- When the Changes group is rendered
+- Then the change item shows a muted warning status indicator
+- And the tooltip reads "No tasks.md found"
+
+#### Scenario: tasks.md has no recognized task lines
+- Given a change has `tasks.md`
+- And the file contains no checkbox task lines (`- [ ]` or `- [x]`)
+- When the Changes group is rendered
+- Then the change item shows an empty/unknown status indicator
+- And no percent value is displayed
+- And the tooltip reads "tasks.md contains no recognized tasks"
+
+#### Scenario: All tasks complete
+- Given a change has `tasks.md`
+- And every recognized task line is marked complete (`- [x]`)
+- When the Changes group is rendered
+- Then the change item shows a completed status indicator
+- And the description shows "100%"
+- And the tooltip reads "All tasks complete"
+
+#### Scenario: Partial task completion
+- Given a change has `tasks.md`
+- And at least one task is complete and at least one is incomplete
+- When the Changes group is rendered
+- Then the change item shows an in-progress status indicator
+- And the description shows `<floor(checked/total*100)>%`
+- And the tooltip reads "<checked> of <total> tasks complete (<percent>%)"
+
+#### Scenario: No tasks started
+- Given a change has `tasks.md`
+- And no task lines are marked complete
+- When the Changes group is rendered
+- Then the change item shows a not-started (0%) indicator
+- And the description shows "0%"
+- And the tooltip reads "0 of <total> tasks complete (0%)"
+
+#### Scenario: Status refreshes after tasks.md changes
+- Given the Spec Explorer is visible
+- When `tasks.md` for a change is created, edited, or deleted
+- Then the corresponding change row indicator updates automatically
+- And no extension reload is required
+
