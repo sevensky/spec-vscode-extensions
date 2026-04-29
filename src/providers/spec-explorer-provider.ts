@@ -4,6 +4,7 @@ import {
 	type ExtensionContext,
 	type TreeDataProvider,
 	EventEmitter,
+	ThemeColor,
 	ThemeIcon,
 	TreeItem,
 	TreeItemCollapsibleState,
@@ -11,6 +12,17 @@ import {
 	Uri,
 } from "vscode";
 import type { SpecManager } from "../features/spec/spec-manager";
+
+type ChangeStatusState = "missing" | "empty" | "partial" | "complete";
+
+interface ChangeStatus {
+	state: ChangeStatusState;
+	total: number;
+	checked: number;
+	percent: number;
+}
+
+const PROGRESS_ICON_MAX_BUCKET = 90;
 
 export class SpecExplorerProvider implements TreeDataProvider<SpecItem> {
 	static readonly viewId = "openspec-for-copilot.views.specExplorer";
@@ -56,6 +68,66 @@ export class SpecExplorerProvider implements TreeDataProvider<SpecItem> {
 		}
 	}
 
+	private async computeChangeStatus(changeName: string): Promise<ChangeStatus> {
+		const tasksPath = `openspec/changes/${changeName}/tasks.md`;
+
+		if (!(await this.fileExists(tasksPath))) {
+			return {
+				state: "missing",
+				total: 0,
+				checked: 0,
+				percent: 0,
+			};
+		}
+
+		if (!workspace.workspaceFolders) {
+			return {
+				state: "missing",
+				total: 0,
+				checked: 0,
+				percent: 0,
+			};
+		}
+
+		const tasksUri = Uri.joinPath(workspace.workspaceFolders[0].uri, tasksPath);
+		const fileContents = await workspace.fs.readFile(tasksUri);
+		const tasksContent = Buffer.from(fileContents).toString("utf8");
+
+		const completeMatches = tasksContent.match(/^\s*-\s*\[x\]\s+.+$/gm) ?? [];
+		const incompleteMatches =
+			tasksContent.match(/^\s*-\s*\[\s\]\s+.+$/gm) ?? [];
+
+		const checked = completeMatches.length;
+		const total = checked + incompleteMatches.length;
+
+		if (total === 0) {
+			return {
+				state: "empty",
+				total,
+				checked,
+				percent: 0,
+			};
+		}
+
+		const percent = Math.floor((checked / total) * 100);
+
+		if (checked === total) {
+			return {
+				state: "complete",
+				total,
+				checked,
+				percent,
+			};
+		}
+
+		return {
+			state: "partial",
+			total,
+			checked,
+			percent,
+		};
+	}
+
 	getTreeItem(element: SpecItem): TreeItem {
 		return element;
 	}
@@ -99,16 +171,24 @@ export class SpecExplorerProvider implements TreeDataProvider<SpecItem> {
 
 		if (element.contextValue === "group-changes") {
 			const changes = await this.specManager.getChanges();
-			return changes.map(
-				(name) =>
-					new SpecItem(
+			const items = await Promise.all(
+				changes.map(async (name) => {
+					const changeStatus = await this.computeChangeStatus(name);
+					return new SpecItem(
 						name,
 						TreeItemCollapsibleState.Collapsed,
 						"change",
 						this.context,
-						name
-					)
+						name,
+						undefined,
+						undefined,
+						undefined,
+						undefined,
+						changeStatus
+					);
+				})
 			);
+			return items;
 		}
 
 		if (element.contextValue === "spec") {
@@ -279,6 +359,7 @@ class SpecItem extends TreeItem {
 	readonly command?: Command;
 	private readonly filePath?: string;
 	readonly parentName?: string;
+	readonly changeStatus?: ChangeStatus;
 
 	// biome-ignore lint/nursery/useMaxParams: ignore
 	constructor(
@@ -290,7 +371,8 @@ class SpecItem extends TreeItem {
 		documentType?: string,
 		command?: Command,
 		filePath?: string,
-		parentName?: string
+		parentName?: string,
+		changeStatus?: ChangeStatus
 	) {
 		super(label, collapsibleState);
 		this.label = label;
@@ -302,16 +384,18 @@ class SpecItem extends TreeItem {
 		this.command = command;
 		this.filePath = filePath;
 		this.parentName = parentName;
+		this.changeStatus = changeStatus;
 
 		this.updateIconAndTooltip();
 	}
 
 	private updateIconAndTooltip() {
-		if (
-			this.contextValue === "spec" ||
-			this.contextValue === "change" ||
-			this.contextValue === "change-spec"
-		) {
+		if (this.contextValue === "change") {
+			this.updateChangeIconAndTooltip();
+			return;
+		}
+
+		if (this.contextValue === "spec" || this.contextValue === "change-spec") {
 			this.iconPath = new ThemeIcon("package");
 			this.tooltip = `${this.contextValue}: ${this.label}`;
 			return;
@@ -352,5 +436,68 @@ class SpecItem extends TreeItem {
 		if (this.filePath) {
 			this.description = this.filePath;
 		}
+	}
+
+	private getProgressBucket(percent: number): number {
+		if (percent <= 0) {
+			return 0;
+		}
+
+		const rounded = Math.round(percent / 10) * 10;
+		return Math.min(PROGRESS_ICON_MAX_BUCKET, Math.max(10, rounded));
+	}
+
+	private getProgressIconUri(percent: number): Uri {
+		const bucket = this.getProgressBucket(percent);
+		return Uri.joinPath(
+			this.context.extensionUri,
+			`icons/progress/progress-${bucket}.svg`
+		);
+	}
+
+	private updateChangeIconAndTooltip() {
+		if (!this.changeStatus) {
+			this.iconPath = new ThemeIcon("package");
+			this.tooltip = `${this.contextValue}: ${this.label}`;
+			return;
+		}
+
+		if (this.changeStatus.state === "missing") {
+			this.iconPath = new ThemeIcon(
+				"warning",
+				new ThemeColor("list.warningForeground")
+			);
+			this.tooltip = "No tasks.md found";
+			this.description = undefined;
+			return;
+		}
+
+		if (this.changeStatus.state === "empty") {
+			this.iconPath = new ThemeIcon(
+				"circle-outline",
+				new ThemeColor("descriptionForeground")
+			);
+			this.tooltip = "tasks.md contains no recognized tasks";
+			this.description = undefined;
+			return;
+		}
+
+		if (this.changeStatus.state === "complete") {
+			this.iconPath = new ThemeIcon(
+				"pass-filled",
+				new ThemeColor("charts.green")
+			);
+			this.tooltip = "All tasks complete";
+			this.description = "100%";
+			return;
+		}
+
+		const progressIconUri = this.getProgressIconUri(this.changeStatus.percent);
+		this.iconPath = {
+			light: progressIconUri,
+			dark: progressIconUri,
+		};
+		this.tooltip = `${this.changeStatus.checked} of ${this.changeStatus.total} tasks complete (${this.changeStatus.percent}%)`;
+		this.description = `${this.changeStatus.percent}%`;
 	}
 }

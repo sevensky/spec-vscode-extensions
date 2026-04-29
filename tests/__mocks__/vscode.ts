@@ -107,6 +107,16 @@ export type TreeItemCollapsibleState =
 
 export class ThemeIcon {
 	readonly id: string;
+	readonly color: ThemeColor | undefined;
+
+	constructor(id: string, color?: ThemeColor) {
+		this.id = id;
+		this.color = color;
+	}
+}
+
+export class ThemeColor {
+	readonly id: string;
 
 	constructor(id: string) {
 		this.id = id;
