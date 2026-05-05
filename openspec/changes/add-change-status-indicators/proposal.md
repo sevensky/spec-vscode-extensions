@@ -118,9 +118,9 @@ Reading every `tasks.md` on each tree render may add latency.
 - Low to moderate if parsing logic is shared and unit-tested
 
 ## Open Questions
-- Should `total == 0` in an existing `tasks.md` display as `0%`, `n/a`, or warning? Warning.
-- Should uppercase checkbox markers (e.g., `- [X]`) be counted as complete? YES.
-- Should percent rounding use nearest integer or floor? Nearest integer.
+- Resolved: `total == 0` in an existing `tasks.md` displays a warning-like `empty` state.
+- Resolved: uppercase checkbox markers (e.g., `- [X]`) are treated as incomplete.
+- Resolved: percent rounding uses floor.
 
 ## Reference Materials
 - `src/providers/spec-explorer-provider.ts`

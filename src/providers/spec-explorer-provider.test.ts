@@ -212,6 +212,32 @@ describe("SpecExplorerProvider", () => {
 		expect(changeItem.tooltip).toBe("1 of 2 tasks complete (50%)");
 	});
 
+	it("parses incomplete tasks with multiple spaces inside brackets", async () => {
+		vi.mocked(workspace.fs.stat).mockResolvedValue({} as any);
+		vi.mocked(workspace.fs.readFile).mockResolvedValue(
+			new TextEncoder().encode("- [x] done\n- [  ] todo")
+		);
+
+		const changeItem = await getChangeItem("multi-space-incomplete");
+
+		expect(getIconPath(changeItem)).toContain("progress-50.svg");
+		expect(changeItem.description).toBe("50%");
+		expect(changeItem.tooltip).toBe("1 of 2 tasks complete (50%)");
+	});
+
+	it("falls back safely when tasks.md read fails", async () => {
+		vi.mocked(workspace.fs.stat).mockResolvedValue({} as any);
+		vi.mocked(workspace.fs.readFile).mockRejectedValue(
+			new Error("Permission denied")
+		);
+
+		const changeItem = await getChangeItem("unreadable-tasks");
+
+		expect(getIconPath(changeItem)).toBe("circle-outline");
+		expect(changeItem.description).toBeUndefined();
+		expect(changeItem.tooltip).toBe("tasks.md contains no recognized tasks");
+	});
+
 	it("maps 72% progress to the 70 bucket icon", async () => {
 		vi.mocked(workspace.fs.stat).mockResolvedValue({} as any);
 		vi.mocked(workspace.fs.readFile).mockResolvedValue(

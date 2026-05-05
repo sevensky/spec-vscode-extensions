@@ -90,42 +90,52 @@ export class SpecExplorerProvider implements TreeDataProvider<SpecItem> {
 		}
 
 		const tasksUri = Uri.joinPath(workspace.workspaceFolders[0].uri, tasksPath);
-		const fileContents = await workspace.fs.readFile(tasksUri);
-		const tasksContent = Buffer.from(fileContents).toString("utf8");
 
-		const completeMatches = tasksContent.match(/^\s*-\s*\[x\]\s+.+$/gm) ?? [];
-		const incompleteMatches =
-			tasksContent.match(/^\s*-\s*\[\s\]\s+.+$/gm) ?? [];
+		try {
+			const fileContents = await workspace.fs.readFile(tasksUri);
+			const tasksContent = Buffer.from(fileContents).toString("utf8");
 
-		const checked = completeMatches.length;
-		const total = checked + incompleteMatches.length;
+			const completeMatches = tasksContent.match(/^\s*-\s*\[x\]\s+.+$/gm) ?? [];
+			const incompleteMatches =
+				tasksContent.match(/^\s*-\s*\[\s*\]\s+.+$/gm) ?? [];
 
-		if (total === 0) {
+			const checked = completeMatches.length;
+			const total = checked + incompleteMatches.length;
+
+			if (total === 0) {
+				return {
+					state: "empty",
+					total,
+					checked,
+					percent: 0,
+				};
+			}
+
+			const percent = Math.floor((checked / total) * 100);
+
+			if (checked === total) {
+				return {
+					state: "complete",
+					total,
+					checked,
+					percent,
+				};
+			}
+
 			return {
-				state: "empty",
-				total,
-				checked,
-				percent: 0,
-			};
-		}
-
-		const percent = Math.floor((checked / total) * 100);
-
-		if (checked === total) {
-			return {
-				state: "complete",
+				state: "partial",
 				total,
 				checked,
 				percent,
 			};
+		} catch {
+			return {
+				state: "empty",
+				total: 0,
+				checked: 0,
+				percent: 0,
+			};
 		}
-
-		return {
-			state: "partial",
-			total,
-			checked,
-			percent,
-		};
 	}
 
 	getTreeItem(element: SpecItem): TreeItem {

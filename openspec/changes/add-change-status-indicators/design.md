@@ -28,19 +28,19 @@ Lines that are not checkbox task lines are ignored when computing `total` and `c
 - Percent computed as `Math.floor(checked / total * 100)`.
 - Floor rather than round: optimistic rounding feels misleading.
 - Displayed as an integer with `%` suffix, e.g. `33%`.
-- Only shown for `partial` state.
+- Shown for `partial` and `complete` states.
 
 ### D4: Icon Strategy (Phase 1)
-Use VS Code ThemeIcon identifiers. No custom SVG assets in Phase 1.
+Use VS Code ThemeIcons for discrete states and custom SVG progress assets for partial progress.
 
-| State | ThemeIcon | ThemeColor |
-|-------|-----------|------------|
-| `missing` | `warning` | `list.warningForeground` |
-| `empty` | `circle-outline` | `descriptionForeground` |
-| `partial` | `circle-large-outline` | `charts.yellow` |
-| `complete` | `pass-filled` | `charts.green` |
+| State | Indicator | Notes |
+|-------|-----------|-------|
+| `missing` | ThemeIcon `warning` | Uses `list.warningForeground` |
+| `empty` | ThemeIcon `circle-outline` | Uses `descriptionForeground` |
+| `partial` | Custom SVG asset from `icons/progress/progress-*.svg` | Represents partial completion with a ring bucket |
+| `complete` | ThemeIcon `pass-filled` | Uses `charts.green` |
 
-These icons are part of the VS Code built-in icon set. No extra assets required.
+Phase 1 includes custom SVG progress assets for the `partial` state only.
 
 ### D5: Description Field Usage
 The `description` field of a change `TreeItem` will be used for the percent badge rather than embedding it in the label. This keeps the change name clean for keyboard navigation and copy behavior.
@@ -90,7 +90,7 @@ interface ChangeStatus {
 ```
 
 ### D9: Refresh Strategy
-The existing `tasks.md` file watcher already fires tree refresh when task files change (see `extension.ts` pattern `**/*tasks.md`). No new watcher is needed. The provider's `refresh()` method triggers re-computation on next `getChildren()` call.
+The existing watcher setup already fires tree refresh when files change under the configured specs path (default `openspec/**/*`), which includes `tasks.md`. No new watcher is needed. The provider's `refresh()` method triggers re-computation on next `getChildren()` call.
 
 ### D10: Performance
 - Status is computed per-change during `getChildren()` for the `group-changes` item expansion.
