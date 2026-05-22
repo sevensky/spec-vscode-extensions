@@ -2,6 +2,24 @@
 
 ---
 
+## v1.1.0 2026-05-22
+
+### Added
+
+- enhance change status handling in SpecExplorerProvider
+
+### Changed
+
+- feature/minor-change
+- add .agents to .gitignore
+- Merge pull request #34 from macro88/feature/spec-status-indicators
+- add spec for change status indicators with inline progress for tasks
+- Merge pull request #33 from atman-33/version-bump/v1.0.0
+
+### Fixed
+
+- address PR review feedback for status indicators
+
 ## v1.0.0 2026-01-29
 
 ### Added
