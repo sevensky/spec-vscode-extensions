@@ -1,4 +1,12 @@
 import { Uri, window, workspace } from "vscode";
+import { t } from "../i18n";
+import {
+	AGENT_COMMAND_CONFIGS,
+	type AgentCommandConfig,
+	type CommandId,
+	COMMAND_IDS,
+} from "./agent-command-paths";
+import type { AiAgent } from "./config-manager";
 
 export interface PromptFileResult {
 	content: string;
@@ -6,9 +14,7 @@ export interface PromptFileResult {
 	filePath: string;
 }
 
-const PROMPTS_DIR = [".github", "prompts"] as const;
 const README_FILENAME = "README.md";
-const LEARN_MORE_ACTION = "Learn More";
 
 const isFileNotFoundError = (error: unknown): boolean => {
 	if (!error || typeof error !== "object") {
@@ -26,13 +32,19 @@ const isFileNotFoundError = (error: unknown): boolean => {
 	);
 };
 
+/**
+ * Reads a prompt file for the given agent and command.
+ * The path and filename are determined by the agent's command config.
+ */
 export const readPromptFile = async (
 	workspaceUri: Uri,
-	v1Filename: string,
-	legacyFilename: string
+	agent: AiAgent,
+	commandId: CommandId
 ): Promise<PromptFileResult> => {
-	const v1Path = Uri.joinPath(workspaceUri, ...PROMPTS_DIR, v1Filename);
-	const legacyPath = Uri.joinPath(workspaceUri, ...PROMPTS_DIR, legacyFilename);
+	const config: AgentCommandConfig = AGENT_COMMAND_CONFIGS[agent];
+	const ids = COMMAND_IDS[commandId];
+	const v1Filename = config.v1Filename(ids.v1);
+	const v1Path = Uri.joinPath(workspaceUri, ...config.dir, v1Filename);
 
 	try {
 		const fileData = await workspace.fs.readFile(v1Path);
@@ -48,65 +60,68 @@ export const readPromptFile = async (
 		}
 	}
 
-	try {
-		const fileData = await workspace.fs.readFile(legacyPath);
-		const content = new TextDecoder().decode(fileData);
+	// Legacy fallback (only github-copilot has legacy format)
+	if (config.legacyFilename) {
+		const legacyFilename = config.legacyFilename(ids.legacy);
+		const legacyPath = Uri.joinPath(workspaceUri, ...config.dir, legacyFilename);
 
-		const selection = await window.showWarningMessage(
-			createDeprecationWarning(legacyFilename, v1Filename),
-			LEARN_MORE_ACTION
-		);
-		if (selection === LEARN_MORE_ACTION) {
-			const readmeUri = Uri.joinPath(workspaceUri, README_FILENAME);
-			try {
-				const doc = await workspace.openTextDocument(readmeUri);
-				await window.showTextDocument(doc);
-			} catch {
-				// Ignore README open failures.
+		try {
+			const fileData = await workspace.fs.readFile(legacyPath);
+			const content = new TextDecoder().decode(fileData);
+
+			const learnMoreLabel = t("common.learnMore");
+			const selection = await window.showWarningMessage(
+				createDeprecationWarning(legacyFilename, v1Filename),
+				learnMoreLabel
+			);
+			if (selection === learnMoreLabel) {
+				const readmeUri = Uri.joinPath(workspaceUri, README_FILENAME);
+				try {
+					const doc = await workspace.openTextDocument(readmeUri);
+					await window.showTextDocument(doc);
+				} catch {
+					// Ignore README open failures.
+				}
 			}
-		}
 
-		return {
-			content,
-			isLegacy: true,
-			filePath: legacyPath.fsPath,
-		};
-	} catch (error) {
-		if (!isFileNotFoundError(error)) {
-			throw error;
+			return {
+				content,
+				isLegacy: true,
+				filePath: legacyPath.fsPath,
+			};
+		} catch (error) {
+			if (!isFileNotFoundError(error)) {
+				throw error;
+			}
 		}
 	}
 
-	throw new Error(createMigrationError(v1Filename, workspaceUri.fsPath));
+	throw new Error(createMigrationError(agent, commandId, workspaceUri.fsPath));
 };
 
+/**
+ * Creates a migration error message for a missing prompt file.
+ * The message is tailored to the specific agent and command.
+ */
 export const createMigrationError = (
-	v1Filename: string,
+	agent: AiAgent,
+	commandId: CommandId,
 	workspacePath: string
-): string =>
-	`OpenSpec v1 prompt files not found.
-
-Required: .github/prompts/${v1Filename}
-
-To migrate to OpenSpec v1:
-1. Install OpenSpec CLI v1:
-   npm install -g openspec@latest
-
-2. Initialize OpenSpec v1 in your workspace:
-   cd ${workspacePath}
-   openspec init
-
-This will generate the required v1 prompt files in .github/prompts/
-
-For more information, see README.md in your workspace.`;
+): string => {
+	const config = AGENT_COMMAND_CONFIGS[agent];
+	const ids = COMMAND_IDS[commandId];
+	const v1Filename = config.v1Filename(ids.v1);
+	const requiredPath = [...config.dir, v1Filename].join("/");
+	return t("prompt.migrationError", {
+		filename: v1Filename,
+		workspace: workspacePath,
+		agent,
+		requiredPath,
+	});
+};
 
 export const createDeprecationWarning = (
 	legacyFile: string,
 	v1File: string
 ): string =>
-	`⚠️ Using legacy OpenSpec v0.x prompt file: ${legacyFile}
-
-Please migrate to OpenSpec v1 by running 'openspec init' in your workspace.
-This will create the new prompt file: ${v1File}
-
-Legacy support will be removed in a future release.`;
+	t("prompt.legacyDeprecation", { legacy: legacyFile, current: v1File });

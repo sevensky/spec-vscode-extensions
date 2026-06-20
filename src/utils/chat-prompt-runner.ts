@@ -1,4 +1,5 @@
 import { commands } from "vscode";
+import { ClaudeService } from "../services/claude-service";
 import { CodexService } from "../services/codex-service";
 import { ConfigManager } from "./config-manager";
 
@@ -37,7 +38,9 @@ export const buildChatPrompt = (
 
 	// Append language instruction
 	if (language !== "English") {
-		finalPrompt += `\n\n(Please respond in ${language}.)`;
+		// 简体中文用明确的中文指令，比英文 "Please respond in Chinese (Simplified)" 更可靠
+		const instruction = language === "Chinese (Simplified)" ? "请用简体中文回答。" : `(Please respond in ${language}.)`;
+		finalPrompt += `\n\n${instruction}`;
 	}
 
 	return finalPrompt;
@@ -53,6 +56,11 @@ export const sendPromptToChat = async (
 
 	if (aiAgent === "codex") {
 		await CodexService.addPromptToThread(finalPrompt);
+		return;
+	}
+
+	if (aiAgent === "claude") {
+		await ClaudeService.addPromptToThread(finalPrompt);
 		return;
 	}
 

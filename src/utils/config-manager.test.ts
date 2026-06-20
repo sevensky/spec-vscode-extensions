@@ -59,4 +59,17 @@ describe("ConfigManager", () => {
 			},
 		});
 	});
+
+	// 3b. aiAgent="claude" should be returned as "claude" (not fallback to github-copilot)
+	it("should return claude aiAgent when configured", () => {
+		vi.mocked(workspace.getConfiguration).mockReturnValue({
+			get: vi.fn().mockImplementation((key: string) => {
+				if (key === "aiAgent") return "claude";
+				return undefined;
+			}),
+		} as any);
+		ConfigManager["instance"] = new (ConfigManager as any)();
+		const cm = ConfigManager.getInstance();
+		expect(cm.getSettings().aiAgent).toBe("claude");
+	});
 });

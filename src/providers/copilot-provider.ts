@@ -1,5 +1,6 @@
 import { promises } from "fs";
 import { join } from "path";
+import { t } from "../i18n";
 import {
 	type ExtensionContext,
 	type OutputChannel,
@@ -131,7 +132,7 @@ export class CopilotProvider {
 			this.outputChannel.appendLine(
 				`ERROR: Failed to send to Copilot: ${error}`
 			);
-			window.showErrorMessage(`Failed to run Copilot: ${error}`);
+			window.showErrorMessage(t("error.runCopilotFailed", { error: String(error) }));
 			throw error;
 		}
 	}

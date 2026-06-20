@@ -1,6 +1,7 @@
 import type { WorkspaceFolder } from "vscode";
 import { Uri, window, workspace } from "vscode";
 import { sendPromptToChat } from "../../../utils/chat-prompt-runner";
+import { t } from "../../../i18n";
 import type { ExtensionServices } from "../../../activation/extension-services";
 
 const readUtf8OrThrow = async (uri: Uri, label: string) => {
@@ -9,7 +10,7 @@ const readUtf8OrThrow = async (uri: Uri, label: string) => {
 		return new TextDecoder().decode(data);
 	} catch (error) {
 		throw new Error(
-			`Missing or unreadable ${label}: ${uri.fsPath} (${error instanceof Error ? error.message : String(error)})`
+			t("error.unreadableFile", { label, path: uri.fsPath, detail: error instanceof Error ? error.message : String(error) })
 		);
 	}
 };
@@ -17,7 +18,7 @@ const readUtf8OrThrow = async (uri: Uri, label: string) => {
 const getChangeIdOrThrow = (item: unknown) => {
 	const changeId = (item as { specName?: unknown } | null)?.specName;
 	if (typeof changeId !== "string" || changeId.length === 0) {
-		throw new Error("Could not determine change ID.");
+		throw new Error(t("error.determineChangeId"));
 	}
 	return changeId;
 };
@@ -25,7 +26,7 @@ const getChangeIdOrThrow = (item: unknown) => {
 const getWorkspaceFolderOrThrow = (): WorkspaceFolder => {
 	const ws = workspace.workspaceFolders?.[0];
 	if (!ws) {
-		throw new Error("No workspace folder found");
+		throw new Error(t("common.noWorkspace"));
 	}
 	return ws;
 };
@@ -58,11 +59,10 @@ const ensureCreateGitHubIssuePromptTemplate = async (
 			templateBytes = await workspace.fs.readFile(templateUri);
 		} catch (error) {
 			throw new Error(
-				"Missing packaged prompt template: " +
-					templateUri.fsPath +
-					" (" +
-					(error instanceof Error ? error.message : String(error)) +
-					")"
+				t("error.missingPromptTemplate", {
+					path: templateUri.fsPath,
+					detail: error instanceof Error ? error.message : String(error),
+				})
 			);
 		}
 

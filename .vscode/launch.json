@@ -7,10 +7,21 @@
       "request": "launch",
       "args": [
         "--extensionDevelopmentPath=${workspaceFolder}",
-        "--enable-proposed-api=atman-33.openspec-for-copilot"
+        "--enable-proposed-api=atman-33.openspec-for-copilot",
+        "/www/wwwroot/vscode-extensions/sample-workspace"
       ],
       "outFiles": ["${workspaceFolder}/dist/**/*.js"],
       "preLaunchTask": "npm: compile"
-    }
+    },
+    {
+      "name": "示例 workspace(干净演示)",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--disable-extensions", 
+        "--extensionDevelopmentPath=/www/wwwroot/bairui_drama/vscode-extensions/artifact-workbench",
+        "/www/wwwroot/vscode-extensions/sample-workspace"
+      ]
+    } 
   ]
 }

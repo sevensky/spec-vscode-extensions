@@ -1,5 +1,6 @@
 import { basename, dirname, join } from "path";
 import { homedir } from "os";
+import { t } from "../i18n";
 import {
 	type Command,
 	commands,
@@ -74,21 +75,21 @@ export class PromptsExplorerProvider implements TreeDataProvider<PromptItem> {
 		}
 
 		if (!rootUri) {
-			await window.showWarningMessage("Open a workspace to create prompts.");
+			await window.showWarningMessage(t("prompt.openWorkspaceToCreate"));
 			return;
 		}
 
 		const fileName = await window.showInputBox({
-			prompt: "Enter prompt file name",
-			placeHolder: "sample-prompt.md",
+			prompt: t("prompt.inputFileName"),
+			placeHolder: t("prompt.fileNamePlaceholder"),
 			validateInput: (value) => {
 				const trimmed = value.trim();
 				if (!trimmed) {
-					return "File name is required";
+					return t("prompt.fileNameRequired");
 				}
 				// biome-ignore lint/performance/useTopLevelRegex: ignore
 				if (/[\\:*?"<>|]/.test(trimmed)) {
-					return "Invalid characters in file name";
+					return t("prompt.invalidChars");
 				}
 				return;
 			},
@@ -108,7 +109,7 @@ export class PromptsExplorerProvider implements TreeDataProvider<PromptItem> {
 		const parts = normalizedName.split(/[\\/]+/).filter(Boolean);
 		if (parts.some((segment) => segment === "..")) {
 			await window.showErrorMessage(
-				"Parent directory traversal is not allowed."
+				t("error.parentDirTraversal")
 			);
 			return;
 		}
@@ -127,8 +128,8 @@ export class PromptsExplorerProvider implements TreeDataProvider<PromptItem> {
 		} catch (error) {
 			await window.showErrorMessage(
 				error instanceof Error
-					? `Failed to create prompt: ${error.message}`
-					: "Failed to create prompt."
+					? t("error.createPromptFailed", { msg: error.message })
+					: t("error.createPromptGeneric")
 			);
 			return;
 		}
@@ -138,25 +139,25 @@ export class PromptsExplorerProvider implements TreeDataProvider<PromptItem> {
 
 	renamePrompt = async (item?: PromptItem): Promise<void> => {
 		if (!item?.resourceUri) {
-			await window.showInformationMessage("Select a file to rename.");
+			await window.showInformationMessage(t("prompt.selectRename"));
 			return;
 		}
 
 		const sourceUri = item.resourceUri;
 		const currentName = basename(sourceUri.fsPath);
 		const newName = await window.showInputBox({
-			prompt: "Enter new file name",
+			prompt: t("prompt.inputNewFileName"),
 			value: currentName,
 			validateInput: (value) => {
 				const trimmed = value.trim();
 				if (!trimmed) {
-					return "File name is required";
+					return t("prompt.fileNameRequired");
 				}
 				if (invalidFileNamePattern.test(trimmed)) {
-					return "Invalid characters in file name";
+					return t("prompt.invalidChars");
 				}
 				if (trimmed === "." || trimmed === ".." || trimmed.includes("..")) {
-					return "Relative segments are not allowed";
+					return t("prompt.relativeSegments");
 				}
 				return;
 			},
@@ -174,8 +175,8 @@ export class PromptsExplorerProvider implements TreeDataProvider<PromptItem> {
 			await workspace.fs.rename(sourceUri, targetUri, { overwrite: false });
 		} catch (error) {
 			const message =
-				error instanceof Error ? error.message : "Failed to rename file.";
-			await window.showErrorMessage(`Failed to rename file: ${message}`);
+				error instanceof Error ? error.message : t("error.renameFileFailed", { msg: "" });
+			await window.showErrorMessage(t("error.renameFileFailed", { msg: message }));
 			return;
 		}
 
@@ -184,7 +185,7 @@ export class PromptsExplorerProvider implements TreeDataProvider<PromptItem> {
 
 	runPrompt = async (item?: PromptItem): Promise<void> => {
 		if (!item?.resourceUri) {
-			await window.showInformationMessage("Select a prompt to run.");
+			await window.showInformationMessage(t("prompt.selectRun"));
 			return;
 		}
 
@@ -193,8 +194,8 @@ export class PromptsExplorerProvider implements TreeDataProvider<PromptItem> {
 		} catch (error) {
 			const message =
 				error instanceof Error
-					? `Failed to run prompt: ${error.message}`
-					: "Failed to run prompt.";
+					? t("error.runPromptFailed", { msg: error.message })
+					: t("error.runPromptGeneric");
 			await window.showErrorMessage(message);
 		}
 	};
@@ -233,42 +234,42 @@ export class PromptsExplorerProvider implements TreeDataProvider<PromptItem> {
 
 		return [
 			new PromptItem(
-				"Global",
+				t("treeview.global"),
 				TreeItemCollapsibleState.Collapsed,
 				"prompt-group-global",
 				{
 					description: globalDescription,
-					tooltip: `Global prompts located at ${globalDescription}`,
+					tooltip: t("treeview.locatedAt", { label: t("treeview.global"), path: globalDescription }),
 					source: "global",
 				}
 			),
 			new PromptItem(
-				"Project Prompts",
+				t("treeview.projectPrompts"),
 				TreeItemCollapsibleState.Collapsed,
 				"prompt-group-project",
 				{
 					description: projectDescription,
-					tooltip: `Project prompts located at ${projectDescription}`,
+					tooltip: t("treeview.locatedAt", { label: t("treeview.projectPrompts"), path: projectDescription }),
 					source: "project-prompts",
 				}
 			),
 			new PromptItem(
-				"Project Instructions",
+				t("treeview.projectInstructions"),
 				TreeItemCollapsibleState.Collapsed,
 				"prompt-group-project-instructions",
 				{
 					description: instructionsDescription,
-					tooltip: `Project instructions located at ${instructionsDescription}`,
+					tooltip: t("treeview.locatedAt", { label: t("treeview.projectInstructions"), path: instructionsDescription }),
 					source: "project-instructions",
 				}
 			),
 			new PromptItem(
-				"Project Agents",
+				t("treeview.projectAgents"),
 				TreeItemCollapsibleState.Collapsed,
 				"prompt-group-project-agents",
 				{
 					description: agentsDescription,
-					tooltip: `Project agents located at ${agentsDescription}`,
+					tooltip: t("treeview.locatedAt", { label: t("treeview.projectAgents"), path: agentsDescription }),
 					source: "project-agents",
 				}
 			),
@@ -302,7 +303,7 @@ export class PromptsExplorerProvider implements TreeDataProvider<PromptItem> {
 		if (!rootUri) {
 			return Promise.resolve([
 				new PromptItem(
-					"Open a workspace to manage prompts",
+					t("treeview.openWorkspaceToManagePrompts"),
 					TreeItemCollapsibleState.None,
 					"prompts-empty"
 				),
@@ -317,7 +318,7 @@ export class PromptsExplorerProvider implements TreeDataProvider<PromptItem> {
 		if (!rootUri) {
 			return Promise.resolve([
 				new PromptItem(
-					"Open a workspace to manage instructions",
+					t("treeview.openWorkspaceToManageInstructions"),
 					TreeItemCollapsibleState.None,
 					"prompts-empty"
 				),
@@ -332,7 +333,7 @@ export class PromptsExplorerProvider implements TreeDataProvider<PromptItem> {
 		if (!rootUri) {
 			return Promise.resolve([
 				new PromptItem(
-					"Open a workspace to manage agents",
+					t("treeview.openWorkspaceToManageAgents"),
 					TreeItemCollapsibleState.None,
 					"prompts-empty"
 				),
@@ -347,7 +348,7 @@ export class PromptsExplorerProvider implements TreeDataProvider<PromptItem> {
 		if (!rootUri) {
 			return [
 				new PromptItem(
-					"Global prompts directory not found",
+					t("treeview.globalPromptsDirNotFound"),
 					TreeItemCollapsibleState.None,
 					"prompts-empty"
 				),
@@ -377,11 +378,11 @@ export class PromptsExplorerProvider implements TreeDataProvider<PromptItem> {
 			}
 			return [
 				new PromptItem(
-					"No prompts found",
+					t("treeview.noPromptsFound"),
 					TreeItemCollapsibleState.None,
 					"prompts-empty",
 					{
-						tooltip: `Add prompts under ${label}`,
+						tooltip: t("treeview.addPromptsUnder", { label: label }),
 					}
 				),
 			];
@@ -393,7 +394,7 @@ export class PromptsExplorerProvider implements TreeDataProvider<PromptItem> {
 				const uri = Uri.file(pathString);
 				const command: Command = {
 					command: "vscode.open",
-					title: "Open Prompt",
+					title: t("treeview.openPrompt"),
 					arguments: [uri],
 				};
 				const isRunnable = pathString.endsWith(".prompt.md");
@@ -413,7 +414,7 @@ export class PromptsExplorerProvider implements TreeDataProvider<PromptItem> {
 
 	private readonly createLoadingItem = (): PromptItem =>
 		new PromptItem(
-			"Loading prompts...",
+			t("treeview.loadingPrompts"),
 			TreeItemCollapsibleState.None,
 			"prompts-loading"
 		);
@@ -594,13 +595,13 @@ class PromptItem extends TreeItem {
 	> = {
 		"prompts-loading": (item, options) => {
 			item.iconPath = new ThemeIcon("sync~spin");
-			item.tooltip = options?.tooltip ?? "Loading prompts...";
+			item.tooltip = options?.tooltip ?? t("treeview.loadingPrompts");
 		},
 		"prompts-empty": (item, options) => {
 			item.iconPath = new ThemeIcon("info");
 			item.tooltip =
 				options?.tooltip ??
-				"Create prompts under the configured prompts directory";
+				t("treeview.createPromptsHint");
 		},
 		prompt: (item, options) => {
 			item.iconPath = new ThemeIcon("file-code");

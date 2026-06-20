@@ -7,7 +7,7 @@ import {
 	VSC_CONFIG_NAMESPACE,
 } from "../constants";
 
-export type AiAgent = "github-copilot" | "codex";
+export type AiAgent = "github-copilot" | "codex" | "claude" | "trae" | "codebuddy";
 export interface OpenSpecSettings {
 	paths: {
 		specs: string;
@@ -109,7 +109,10 @@ export class ConfigManager {
 	private getAiAgent(): AiAgent {
 		const config = workspace.getConfiguration(VSC_CONFIG_NAMESPACE);
 		const raw = config.get<string>("aiAgent") ?? DEFAULT_CONFIG.aiAgent;
-		return raw === "codex" ? "codex" : "github-copilot";
+		// 显式匹配已知 agent，未知值回落到默认 github-copilot
+		if (raw === "codex") return "codex";
+		if (raw === "claude") return "claude";
+		return "github-copilot";
 	}
 
 	private getCustomInstructions(): OpenSpecSettings["customInstructions"] {

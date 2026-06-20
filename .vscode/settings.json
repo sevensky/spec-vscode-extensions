@@ -22,5 +22,10 @@
   },
   "[typescriptreact]": {
     "editor.defaultFormatter": "biomejs.biome"
-  }
+  },
+  "files.watcherExclude": {
+    "**/.sdf/**": true
+  },
+  
+  "npm.packageManager": "pnpm"
 }

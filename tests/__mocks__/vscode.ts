@@ -163,3 +163,8 @@ export class EventEmitter<T> {
 		this.listeners.length = 0;
 	});
 }
+
+// env mock — language 控制 i18n 测试中的 locale
+export const env = {
+	language: "en",
+};

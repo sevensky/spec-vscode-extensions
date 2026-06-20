@@ -26,6 +26,8 @@ repomix-output*
 .codex
 .claude
 .skillportrc
+.trae/
+.specify/
 
 .github/agents
 .github/instructions/*

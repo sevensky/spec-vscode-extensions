@@ -1,5 +1,6 @@
 import { homedir } from "os";
 import { join } from "path";
+import { t } from "../../i18n";
 import {
 	type ExtensionContext,
 	type OutputChannel,
@@ -48,12 +49,13 @@ export class SteeringManager {
 		// Check if file already exists
 		try {
 			await workspace.fs.stat(Uri.file(filePath));
+			const overwriteLabel = t("common.overwrite");
 			const overwrite = await window.showWarningMessage(
-				"Global configuration file (~/.github/copilot-instructions.md) already exists. Overwrite?",
-				"Overwrite",
-				"Cancel"
+				t("steering.globalExists"),
+				overwriteLabel,
+				t("common.cancel")
 			);
-			if (overwrite !== "Overwrite") {
+			if (overwrite !== overwriteLabel) {
 				return;
 			}
 		} catch {
@@ -83,7 +85,7 @@ This file controls default behavior for GitHub Copilot across all projects.
 	 */
 	async createProjectDocumentation() {
 		if (!workspace.workspaceFolders) {
-			window.showErrorMessage("No workspace folder open.");
+			window.showErrorMessage(t("common.noWorkspaceOpen"));
 			return;
 		}
 		const workspaceRoot = workspace.workspaceFolders[0].uri.fsPath;
@@ -100,12 +102,13 @@ This file controls default behavior for GitHub Copilot across all projects.
 		// Check if file already exists
 		try {
 			await workspace.fs.stat(Uri.file(filePath));
+			const overwriteLabel = t("common.overwrite");
 			const overwrite = await window.showWarningMessage(
-				"Project AGENTS.md (openspec/AGENTS.md) already exists. Overwrite?",
-				"Overwrite",
-				"Cancel"
+				t("steering.agentsExists"),
+				overwriteLabel,
+				t("common.cancel")
 			);
-			if (overwrite !== "Overwrite") {
+			if (overwrite !== overwriteLabel) {
 				return;
 			}
 		} catch {

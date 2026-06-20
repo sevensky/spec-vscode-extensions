@@ -10,6 +10,7 @@ import {
 } from "vscode";
 import { PromptLoader } from "../../services/prompt-loader";
 import { ConfigManager } from "../../utils/config-manager";
+import { t } from "../../i18n";
 import { NotificationUtils } from "../../utils/notification-utils";
 import { sendPromptToChat } from "../../utils/chat-prompt-runner";
 import { readPromptFile } from "../../utils/openspec-prompt-utils";
@@ -49,7 +50,7 @@ export class SpecManager {
 			this.outputChannel.appendLine(
 				`[SpecManager] Failed to open Create Spec dialog: ${message}`
 			);
-			window.showErrorMessage(`Failed to open Create Spec dialog: ${message}`);
+			window.showErrorMessage(t("error.openCreateSpecDialogFailed", { msg: String(message) }));
 		}
 	}
 
@@ -121,7 +122,7 @@ This document has not been created yet.`;
 	async delete(specName: string): Promise<void> {
 		const workspaceFolder = workspace.workspaceFolders?.[0];
 		if (!workspaceFolder) {
-			window.showErrorMessage("No workspace folder open");
+			window.showErrorMessage(t("common.noWorkspaceOpen"));
 			return;
 		}
 
@@ -136,13 +137,13 @@ This document has not been created yet.`;
 				recursive: true,
 			});
 			await NotificationUtils.showAutoDismissNotification(
-				`Spec "${specName}" deleted successfully`
+				t("prompt.deleteSuccess", { name: specName })
 			);
 		} catch (error) {
 			this.outputChannel.appendLine(
 				`[SpecManager] Failed to delete spec: ${error}`
 			);
-			window.showErrorMessage(`Failed to delete spec: ${error}`);
+			window.showErrorMessage(t("error.deleteSpecFailed", { error: String(error) }));
 		}
 	}
 
@@ -191,7 +192,7 @@ This document has not been created yet.`;
 	) {
 		const workspaceFolder = workspace.workspaceFolders?.[0];
 		if (!workspaceFolder) {
-			window.showErrorMessage("No workspace folder open");
+			window.showErrorMessage(t("common.noWorkspaceOpen"));
 			return;
 		}
 
@@ -200,10 +201,11 @@ This document has not been created yet.`;
 
 		let promptContent = "";
 		try {
+			const { aiAgent } = this.configManager.getSettings();
 			const result = await readPromptFile(
 				workspaceFolder.uri,
-				"opsx-apply.prompt.md",
-				"openspec-apply.prompt.md"
+				aiAgent,
+				"apply"
 			);
 			if (result.isLegacy) {
 				this.outputChannel.appendLine(
@@ -213,7 +215,7 @@ This document has not been created yet.`;
 			promptContent = result.content;
 		} catch (error) {
 			const message =
-				error instanceof Error ? error.message : "Failed to read prompt file.";
+				error instanceof Error ? error.message : t("error.readPromptFile");
 			this.outputChannel.appendLine(`[SpecManager] ${message}`);
 			window.showErrorMessage(message);
 			return;

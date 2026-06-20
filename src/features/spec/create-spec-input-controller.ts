@@ -11,6 +11,7 @@ import {
 import type { PromptLoader } from "../../services/prompt-loader";
 import type { ConfigManager } from "../../utils/config-manager";
 import { sendPromptToChat } from "../../utils/chat-prompt-runner";
+import { t } from "../../i18n";
 import { getWebviewContent } from "../../utils/get-webview-content";
 import { readPromptFile } from "../../utils/openspec-prompt-utils";
 import type {
@@ -97,7 +98,7 @@ export class CreateSpecInputController {
 
 		const workspaceFolder = workspace.workspaceFolders?.[0];
 		if (!workspaceFolder) {
-			window.showErrorMessage("No workspace folder open");
+			window.showErrorMessage(t("common.noWorkspaceOpen"));
 			return;
 		}
 
@@ -105,7 +106,7 @@ export class CreateSpecInputController {
 
 		this.panel = this.createPanel();
 		if (!this.panel) {
-			window.showErrorMessage("Unable to open Create Spec dialog");
+			window.showErrorMessage(t("error.unableOpenCreateSpec"));
 			return;
 		}
 
@@ -226,7 +227,7 @@ export class CreateSpecInputController {
 
 		const workspaceFolder = workspace.workspaceFolders?.[0];
 		if (!workspaceFolder) {
-			window.showErrorMessage("No workspace folder open");
+			window.showErrorMessage(t("common.noWorkspaceOpen"));
 			return;
 		}
 
@@ -247,10 +248,11 @@ export class CreateSpecInputController {
 		const payload = formatDescription(normalized);
 
 		try {
+			const { aiAgent } = this.configManager.getSettings();
 			const result = await readPromptFile(
 				workspaceFolder.uri,
-				"opsx-new.prompt.md",
-				"openspec-proposal.prompt.md"
+				aiAgent,
+				"propose"
 			);
 			if (result.isLegacy) {
 				this.outputChannel.appendLine(
@@ -279,7 +281,7 @@ export class CreateSpecInputController {
 				type: "create-spec/submit:error",
 				payload: { message },
 			});
-			window.showErrorMessage(`Failed to create spec prompt: ${message}`);
+			window.showErrorMessage(t("error.createSpecPromptFailed", { msg: String(message) }));
 		}
 	}
 
@@ -302,13 +304,14 @@ export class CreateSpecInputController {
 			return;
 		}
 
+		const discardLabel = t("common.discard");
 		const result = await window.showWarningMessage(
-			"You have unsaved spec input. Close the dialog and discard your changes?",
+			t("spec.unsavedInput"),
 			{
 				modal: true,
-				detail: "Choose Cancel to resume editing and keep your current input.",
+				detail: t("spec.unsavedInputDetail"),
 			},
-			"Discard"
+			discardLabel
 		);
 
 		const selection = isMessageItem(result) ? result.title : result;

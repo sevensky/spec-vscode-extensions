@@ -18,6 +18,7 @@ import {
 	type ChangeEvent,
 	type FormEvent,
 } from "react";
+import { t } from "@/i18n";
 
 const EMPTY_FORM: CreateSpecFormData = {
 	productContext: "",
@@ -159,7 +160,7 @@ export const CreateSpecView = () => {
 	const validateForm = useCallback((current: CreateSpecFormData): boolean => {
 		const trimmedContext = current.productContext.trim();
 		if (!trimmedContext) {
-			setFieldErrors({ productContext: "Product Context is required." });
+			setFieldErrors({ productContext: t("createSpec.productContextRequired") });
 			productContextRef.current?.focus();
 			return false;
 		}
@@ -263,7 +264,7 @@ export const CreateSpecView = () => {
 				}
 				case "create-spec/submit:error": {
 					setIsSubmitting(false);
-					setSubmissionError(payload.payload?.message ?? "Failed to submit.");
+					setSubmissionError(payload.payload?.message ?? t("createSpec.submitFailed"));
 					break;
 				}
 				case "create-spec/confirm-close": {
@@ -317,7 +318,7 @@ export const CreateSpecView = () => {
 		if (closeWarningVisible) {
 			return (
 				<StatusBanner role="status" tone="warning">
-					Changes are still available. Close action was cancelled.
+					{t("createSpec.changesAvailable")}
 				</StatusBanner>
 			);
 		}
@@ -325,7 +326,7 @@ export const CreateSpecView = () => {
 		if (isSubmitting) {
 			return (
 				<StatusBanner role="status" tone="info">
-					Sending spec prompt…
+					{t("createSpec.sending")}
 				</StatusBanner>
 			);
 		}
@@ -336,14 +337,14 @@ export const CreateSpecView = () => {
 	const lastSavedLabel = formatTimestamp(draftSavedAt);
 	const autosaveStatus = useMemo(() => {
 		if (lastSavedLabel) {
-			return `Draft saved at ${lastSavedLabel}`;
+			return t("createSpec.draftSaved", { time: lastSavedLabel });
 		}
 
 		if (isDirty) {
-			return "Unsaved changes";
+			return t("createSpec.unsavedChanges");
 		}
 
-		return "All changes saved";
+		return t("createSpec.allSaved");
 	}, [isDirty, lastSavedLabel]);
 
 	return (
@@ -351,11 +352,10 @@ export const CreateSpecView = () => {
 			<header className="sticky top-0 z-10 flex items-start justify-between gap-4 bg-[var(--vscode-editor-background)] pt-6 pb-4">
 				<div className="flex flex-col gap-2">
 					<h1 className="font-semibold text-2xl text-[color:var(--vscode-foreground)]">
-						Create New Spec
+						{t("createSpec.title")}
 					</h1>
 					<p className="text-[color:var(--vscode-descriptionForeground,rgba(255,255,255,0.65))] text-sm">
-						Provide context for the new specification. Product Context is
-						required; other sections are optional but recommended.
+						{t("createSpec.subtitle")}
 					</p>
 				</div>
 				<div className="flex shrink-0 gap-2">
@@ -365,7 +365,7 @@ export const CreateSpecView = () => {
 						type="button"
 						variant="ghost"
 					>
-						Cancel
+						{t("common.cancel")}
 					</Button>
 					<Button
 						disabled={isSubmitting}
@@ -373,7 +373,7 @@ export const CreateSpecView = () => {
 						type="submit"
 						variant="default"
 					>
-						{isSubmitting ? "Creating…" : "Create Spec"}
+						{isSubmitting ? t("common.creating") : t("createSpec.createButton")}
 					</Button>
 				</div>
 			</header>

@@ -1,4 +1,4 @@
-import { Uri, type Webview } from "vscode";
+import { env, Uri, type Webview } from "vscode";
 
 export const getWebviewContent = (
 	webview: Webview,
@@ -13,9 +13,10 @@ export const getWebviewContent = (
 	);
 
 	const nonce = getNonce();
+	const locale = env.language;
 
 	return `<!DOCTYPE html>
-        <html lang="en">
+        <html lang="${locale}">
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -24,7 +25,7 @@ export const getWebviewContent = (
             <title>OpenSpec for Copilot</title>
         </head>
         <body>
-            <div id="root" data-page="${page}"></div>
+            <div id="root" data-page="${page}" data-locale="${locale}"></div>
             <script type="module" nonce="${nonce}" src="${scriptUri}"></script>
         </body>
         </html>`;

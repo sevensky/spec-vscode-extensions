@@ -5,6 +5,7 @@ import type { ExtensionContext } from "vscode";
 import type { PromptsExplorerProvider } from "../../providers/prompts-explorer-provider";
 import { sendPromptToChat } from "../../utils/chat-prompt-runner";
 import { ConfigManager } from "../../utils/config-manager";
+import { t } from "../../i18n";
 import type { ExtensionServices } from "../extension-services";
 
 export const registerPromptsCommands = (
@@ -38,7 +39,7 @@ export const registerPromptsCommands = (
 			async (item?: any) => {
 				const ws = workspace.workspaceFolders?.[0];
 				if (!ws) {
-					window.showErrorMessage("No workspace folder found");
+					window.showErrorMessage(t("common.noWorkspace"));
 					return;
 				}
 
@@ -63,10 +64,10 @@ export const registerPromptsCommands = (
 				}
 
 				const name = await window.showInputBox({
-					title: "Create Prompt",
-					placeHolder: "prompt name (kebab-case)",
-					prompt: `A markdown file will be created under ${promptsPathLabel}`,
-					validateInput: (value) => (value ? undefined : "Name is required"),
+					title: t("prompt.create.title"),
+					placeHolder: t("prompt.create.placeHolder"),
+					prompt: t("prompt.create.promptLabel", { path: promptsPathLabel }),
+					validateInput: (value) => (value ? undefined : t("prompt.create.nameRequired")),
 				});
 				if (!name) {
 					return;
@@ -76,14 +77,14 @@ export const registerPromptsCommands = (
 				try {
 					await workspace.fs.createDirectory(targetDir);
 					const content = Buffer.from(
-						`# ${name}\n\nDescribe your prompt here. This file will be sent to Copilot when executed.\n`
+						`# ${name}\n\n${t("prompt.templatePlaceholder")}\n`
 					);
 					await workspace.fs.writeFile(file, content);
 					const doc = await workspace.openTextDocument(file);
 					await window.showTextDocument(doc);
 					promptsExplorer.refresh();
 				} catch (error) {
-					window.showErrorMessage(`Failed to create prompt: ${error}`);
+					window.showErrorMessage(t("error.createPromptFailed", { msg: String(error) }));
 				}
 			}
 		),
@@ -113,7 +114,7 @@ export const registerPromptsCommands = (
 					}
 
 					if (!targetUri) {
-						window.showErrorMessage("No prompt file selected");
+						window.showErrorMessage(t("error.noPromptSelected"));
 						return;
 					}
 
@@ -123,7 +124,7 @@ export const registerPromptsCommands = (
 						instructionType: "runPrompt",
 					});
 				} catch (error) {
-					window.showErrorMessage(`Failed to run prompt: ${error}`);
+					window.showErrorMessage(t("error.runPromptFailed", { msg: String(error) }));
 				}
 			}
 		),
@@ -140,19 +141,20 @@ export const registerPromptsCommands = (
 					return;
 				}
 				const uri = item.resourceUri as Uri;
+				const deleteLabel = t("common.delete");
 				const confirm = await window.showWarningMessage(
-					`Are you sure you want to delete '${basename(uri.fsPath)}'?`,
+					t("prompt.create.confirmDelete", { name: basename(uri.fsPath) }),
 					{ modal: true },
-					"Delete"
+					deleteLabel
 				);
-				if (confirm !== "Delete") {
+				if (confirm !== deleteLabel) {
 					return;
 				}
 				try {
 					await workspace.fs.delete(uri);
 					promptsExplorer.refresh();
 				} catch (error) {
-					window.showErrorMessage(`Failed to delete prompt: ${error}`);
+					window.showErrorMessage(t("error.deletePromptFailed", { msg: String(error) }));
 				}
 			}
 		),

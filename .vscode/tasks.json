@@ -7,6 +7,30 @@
       "group": "build",
       "problemMatcher": "$tsc",
       "label": "npm: compile"
+    },{
+      "type": "npm",
+      "script": "watch",
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "esbuild",
+        "pattern": {
+          "regexp": "^(.*?):(\\d+):(\\d+):\\s*(.+)$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "message": 4
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "esbuild",
+          "endsPattern": "Done in"
+        }
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "label": "npm: watch"
     }
   ]
 }

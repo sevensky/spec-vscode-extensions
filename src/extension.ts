@@ -6,6 +6,7 @@ import {
 	workspace,
 } from "vscode";
 import { registerCommands } from "./activation/register-commands";
+import { t } from "./i18n";
 import { setupFileWatchers } from "./activation/setup-file-watchers";
 import { setupSaveGuards } from "./activation/setup-save-guards";
 import type { ExtensionServices } from "./activation/extension-services";
@@ -33,7 +34,7 @@ export async function activate(context: ExtensionContext) {
 		outputChannel.appendLine("PromptLoader initialized successfully");
 	} catch (error) {
 		outputChannel.appendLine(`Failed to initialize PromptLoader: ${error}`);
-		window.showErrorMessage(`Failed to initialize prompt system: ${error}`);
+		window.showErrorMessage(t("error.initPromptSystemFailed", { error: String(error) }));
 	}
 
 	// Check workspace status

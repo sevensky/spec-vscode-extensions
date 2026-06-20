@@ -9,6 +9,12 @@ vi.mock("../services/codex-service", () => ({
 	},
 }));
 
+vi.mock("../services/claude-service", () => ({
+	ClaudeService: {
+		addPromptToThread: vi.fn(),
+	},
+}));
+
 // Mock ConfigManager
 vi.mock("./config-manager", () => ({
 	ConfigManager: {
@@ -242,6 +248,30 @@ describe("chat-prompt-runner", () => {
 		await sendPromptToChat("Test prompt");
 
 		expect(CodexService.addPromptToThread).toHaveBeenCalledWith("Test prompt");
+		expect(commands.executeCommand).not.toHaveBeenCalledWith(
+			"workbench.action.chat.open",
+			expect.anything()
+		);
+	});
+
+	it("should send the prompt to Claude when aiAgent is claude", async () => {
+		const { ClaudeService } = await import("../services/claude-service");
+
+		mockGetSettings.mockReturnValue({
+			aiAgent: "claude",
+			chatLanguage: "English",
+			customInstructions: {
+				global: "",
+				createSpec: "",
+				startAllTask: "",
+				archiveChange: "",
+				runPrompt: "",
+			},
+		});
+
+		await sendPromptToChat("Test prompt");
+
+		expect(ClaudeService.addPromptToThread).toHaveBeenCalledWith("Test prompt");
 		expect(commands.executeCommand).not.toHaveBeenCalledWith(
 			"workbench.action.chat.open",
 			expect.anything()

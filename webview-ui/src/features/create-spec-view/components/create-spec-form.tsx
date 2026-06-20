@@ -1,4 +1,5 @@
 import { TextareaPanel } from "@/components/textarea-panel";
+import { t } from "@/i18n";
 import type { ChangeEvent, FormEvent, MutableRefObject } from "react";
 import type { CreateSpecFieldErrors, CreateSpecFormData } from "../types";
 
@@ -55,7 +56,7 @@ export const CreateSpecForm = ({
 					containerClassName="shadow-[0_16px_32px_rgba(0,0,0,0.25)]"
 					disabled={isSubmitting}
 					onChange={onFieldChange("productContext")}
-					placeholder="Describe the goal, background, and what you want to achieve…"
+					placeholder={t("createSpec.productContextPlaceholder")}
 					rows={4}
 					textareaClassName="min-h-[6rem] max-h-[60vh] overflow-y-auto text-sm leading-6"
 					textareaProps={{
@@ -93,7 +94,7 @@ export const CreateSpecForm = ({
 				<TextareaPanel
 					disabled={isSubmitting}
 					onChange={onFieldChange("keyScenarios")}
-					placeholder="e.g. When user clicks save, then a notification appears..."
+					placeholder={t("createSpec.keyScenariosPlaceholder")}
 					rows={4}
 					textareaClassName="min-h-[6rem] max-h-[60vh] overflow-y-auto text-sm leading-6"
 					textareaProps={{
@@ -115,7 +116,7 @@ export const CreateSpecForm = ({
 				<TextareaPanel
 					disabled={isSubmitting}
 					onChange={onFieldChange("technicalConstraints")}
-					placeholder="Libraries, patterns, or existing systems to consider…"
+					placeholder={t("createSpec.technicalConstraintsPlaceholder")}
 					rows={3}
 					textareaClassName="min-h-[5rem] max-h-[60vh] overflow-y-auto text-sm leading-6"
 					textareaProps={{
@@ -137,7 +138,7 @@ export const CreateSpecForm = ({
 				<TextareaPanel
 					disabled={isSubmitting}
 					onChange={onFieldChange("relatedFiles")}
-					placeholder="src/utils/auth.ts, src/components/Login.tsx..."
+					placeholder={t("createSpec.relatedFilesPlaceholder")}
 					rows={2}
 					textareaClassName="min-h-[4rem] max-h-[60vh] overflow-y-auto text-sm leading-6"
 					textareaProps={{
@@ -159,7 +160,7 @@ export const CreateSpecForm = ({
 				<TextareaPanel
 					disabled={isSubmitting}
 					onChange={onFieldChange("openQuestions")}
-					placeholder="Any uncertainties or risks?"
+					placeholder={t("createSpec.openQuestionsPlaceholder")}
 					rows={2}
 					textareaClassName="min-h-[4rem] max-h-[60vh] overflow-y-auto text-sm leading-6"
 					textareaProps={{

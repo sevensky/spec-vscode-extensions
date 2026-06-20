@@ -17,6 +17,7 @@ import {
 	type ChangeEvent,
 	type FormEvent,
 } from "react";
+import { t } from "@/i18n";
 
 const EMPTY_FORM: CreateSteeringFormData = {
 	summary: "",
@@ -153,7 +154,7 @@ export const CreateSteeringView = () => {
 		(current: CreateSteeringFormData): boolean => {
 			const trimmedSummary = current.summary.trim();
 			if (!trimmedSummary) {
-				setFieldErrors({ summary: "Guidance summary is required." });
+				setFieldErrors({ summary: t("createSteering.guidanceSummaryRequired") });
 				summaryRef.current?.focus();
 				return false;
 			}
@@ -262,7 +263,7 @@ export const CreateSteeringView = () => {
 				case "create-steering/submit:error": {
 					setIsSubmitting(false);
 					setSubmissionError(
-						payload.payload?.message ?? "Failed to submit steering prompt."
+						payload.payload?.message ?? t("createSteering.submitFailed")
 					);
 					break;
 				}
@@ -317,7 +318,7 @@ export const CreateSteeringView = () => {
 		if (closeWarningVisible) {
 			return (
 				<StatusBanner role="status" tone="warning">
-					Changes are still available. Close action was cancelled.
+					{t("createSpec.changesAvailable")}
 				</StatusBanner>
 			);
 		}
@@ -325,7 +326,7 @@ export const CreateSteeringView = () => {
 		if (isSubmitting) {
 			return (
 				<StatusBanner role="status" tone="info">
-					Sending steering prompt…
+					{t("createSpec.sending")}
 				</StatusBanner>
 			);
 		}
@@ -336,14 +337,14 @@ export const CreateSteeringView = () => {
 	const lastSavedLabel = formatTimestamp(draftSavedAt);
 	const autosaveStatus = useMemo(() => {
 		if (lastSavedLabel) {
-			return `Draft saved at ${lastSavedLabel}`;
+			return t("createSpec.draftSaved", { time: lastSavedLabel });
 		}
 
 		if (isDirty) {
-			return "Unsaved changes";
+			return t("createSpec.unsavedChanges");
 		}
 
-		return "All changes saved";
+		return t("createSpec.allSaved");
 	}, [isDirty, lastSavedLabel]);
 
 	return (

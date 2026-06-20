@@ -1,4 +1,5 @@
 import { existsSync } from "fs";
+import { t } from "../i18n";
 import { join } from "path";
 import {
 	type Command,
@@ -133,7 +134,7 @@ export class SteeringExplorerProvider
 				if (hasProjectInstructions) {
 					items.push(
 						new SteeringItem(
-							"AGENTS",
+							t("treeview.agents"),
 							TreeItemCollapsibleState.Expanded,
 							"project-instructions-group",
 							"",
@@ -143,14 +144,14 @@ export class SteeringExplorerProvider
 				} else {
 					items.push(
 						new SteeringItem(
-							"Create Project Instructions",
+							t("treeview.createProjectInstructions"),
 							TreeItemCollapsibleState.None,
 							"create-project-instructions",
 							"",
 							this.context,
 							{
 								command: SteeringExplorerProvider.createProjectRuleCommandId,
-								title: "Create Project Instructions",
+								title: t("treeview.createProjectInstructions"),
 							}
 						)
 					);
@@ -161,7 +162,7 @@ export class SteeringExplorerProvider
 				if (existsSync(projectSpecMd)) {
 					items.push(
 						new SteeringItem(
-							"Project Spec",
+							t("treeview.projectSpec"),
 							TreeItemCollapsibleState.Expanded,
 							"project-spec-group",
 							"",
@@ -187,14 +188,14 @@ export class SteeringExplorerProvider
 				if (existsSync(projectCopilotMd)) {
 					items.push(
 						new SteeringItem(
-							"Copilot Instructions",
+							t("treeview.copilotInstructions"),
 							TreeItemCollapsibleState.None,
 							"project-copilot-instructions",
 							projectCopilotMd,
 							this.context,
 							{
 								command: "vscode.open",
-								title: "Open Copilot Instructions",
+								title: t("treeview.openCopilotInstructions"),
 								arguments: [Uri.file(projectCopilotMd)],
 							}
 						)
@@ -205,14 +206,14 @@ export class SteeringExplorerProvider
 				if (existsSync(agentsMd)) {
 					items.push(
 						new SteeringItem(
-							"Agent Instructions",
+							t("treeview.agentInstructions"),
 							TreeItemCollapsibleState.None,
 							"project-agents-md",
 							agentsMd,
 							this.context,
 							{
 								command: "vscode.open",
-								title: "Open Agent Instructions",
+								title: t("treeview.openAgentInstructions"),
 								arguments: [Uri.file(agentsMd)],
 							}
 						)
@@ -223,14 +224,14 @@ export class SteeringExplorerProvider
 				if (existsSync(rootAgentsMd)) {
 					items.push(
 						new SteeringItem(
-							"Root Instructions",
+							t("treeview.rootInstructions"),
 							TreeItemCollapsibleState.None,
 							"root-agents-md",
 							rootAgentsMd,
 							this.context,
 							{
 								command: "vscode.open",
-								title: "Open Root Instructions",
+								title: t("treeview.openRootInstructions"),
 								arguments: [Uri.file(rootAgentsMd)],
 							}
 						)
@@ -248,14 +249,14 @@ export class SteeringExplorerProvider
 				if (existsSync(projectSpecMd)) {
 					items.push(
 						new SteeringItem(
-							"Project Definition",
+							t("treeview.projectDefinition"),
 							TreeItemCollapsibleState.None,
 							"project-spec-md",
 							projectSpecMd,
 							this.context,
 							{
 								command: "vscode.open",
-								title: "Open Project Definition",
+								title: t("treeview.openProjectDefinition"),
 								arguments: [Uri.file(projectSpecMd)],
 							}
 						)
@@ -301,28 +302,28 @@ class SteeringItem extends TreeItem {
 		// Set appropriate icons based on type
 		if (contextValue === "project-instructions-group") {
 			this.iconPath = new ThemeIcon("folder");
-			this.tooltip = "AGENTS";
+			this.tooltip = t("treeview.agents");
 		} else if (contextValue === "create-project-instructions") {
 			this.iconPath = new ThemeIcon("folder-active");
-			this.tooltip = "Click to create Project Instructions";
+			this.tooltip = t("treeview.clickToCreate");
 		} else if (contextValue === "project-copilot-instructions") {
 			this.iconPath = new ThemeIcon("github");
-			this.tooltip = `Copilot Instructions: ${resourcePath}`;
+			this.tooltip = `${t("treeview.copilotInstructions")}: ${resourcePath}`;
 			this.description = ".github/copilot-instructions.md";
 		} else if (contextValue === "project-agents-md") {
 			this.iconPath = new ThemeIcon("robot");
-			this.tooltip = `Agent Instructions: ${resourcePath}`;
+			this.tooltip = `${t("treeview.agentInstructions")}: ${resourcePath}`;
 			this.description = "openspec/AGENTS.md";
 		} else if (contextValue === "root-agents-md") {
 			this.iconPath = new ThemeIcon("file-text");
-			this.tooltip = `Root Instructions: ${resourcePath}`;
+			this.tooltip = `${t("treeview.rootInstructions")}: ${resourcePath}`;
 			this.description = "AGENTS.md";
 		} else if (contextValue === "project-spec-group") {
 			this.iconPath = new ThemeIcon("book");
-			this.tooltip = "Project Specification";
+			this.tooltip = t("treeview.projectSpec");
 		} else if (contextValue === "project-spec-md") {
 			this.iconPath = new ThemeIcon("file-code");
-			this.tooltip = `Project Definition: ${resourcePath}`;
+			this.tooltip = `${t("treeview.projectDefinition")}: ${resourcePath}`;
 			this.description = "openspec/project.md";
 		} else if (contextValue === "separator") {
 			this.iconPath = undefined;
@@ -331,7 +332,7 @@ class SteeringItem extends TreeItem {
 			this.iconPath = new ThemeIcon("folder-library");
 			this.description = undefined;
 			// Make it visually distinct but not clickable
-			this.tooltip = "Generated project steering documents";
+			this.tooltip = t("treeview.projectSpec");
 		} else if (contextValue === "steering-document") {
 			// Different icons for different steering documents
 			if (label === "product") {
@@ -343,7 +344,7 @@ class SteeringItem extends TreeItem {
 			} else {
 				this.iconPath = new ThemeIcon("file");
 			}
-			this.tooltip = `Steering document: ${resourcePath}`;
+			this.tooltip = `${t("treeview.projectDefinition")}: ${resourcePath}`;
 			this.description = filename; // Show the relative path
 		}
 	}

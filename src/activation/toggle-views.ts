@@ -1,5 +1,6 @@
 import { ConfigurationTarget, window, workspace } from "vscode";
 import { VSC_CONFIG_NAMESPACE } from "../constants";
+import { t } from "../i18n";
 
 export const toggleViews = async () => {
 	const config = workspace.getConfiguration(VSC_CONFIG_NAMESPACE);
@@ -25,7 +26,7 @@ export const toggleViews = async () => {
 
 	const selected = await window.showQuickPick(items, {
 		canPickMany: true,
-		placeHolder: "Select views to show",
+		placeHolder: t("view.selectViewsPlaceholder"),
 	});
 
 	if (!selected) {
@@ -50,5 +51,5 @@ export const toggleViews = async () => {
 		ConfigurationTarget.Workspace
 	);
 
-	window.showInformationMessage("View visibility updated!");
+	window.showInformationMessage(t("view.visibilityUpdated"));
 };

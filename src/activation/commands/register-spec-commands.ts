@@ -1,11 +1,13 @@
 import { commands, env, window, workspace } from "vscode";
 import type { ExtensionContext, Uri } from "vscode";
+import { t } from "../../i18n";
 import type { SpecExplorerProvider } from "../../providers/spec-explorer-provider";
 import type { ExtensionServices } from "../extension-services";
 import { createDetailedDesignCommandHandler } from "../../features/spec/commands/create-detailed-design";
 import { createGitHubIssueCommandHandler } from "../../features/spec/commands/create-github-issue";
 import { updateSpecsFromDetailedDesignCommandHandler } from "../../features/spec/commands/update-specs-from-detailed-design";
 import { sendPromptToChat } from "../../utils/chat-prompt-runner";
+import { ConfigManager } from "../../utils/config-manager";
 import { readPromptFile } from "../../utils/openspec-prompt-utils";
 interface SpecCommandItem {
 	label?: string;
@@ -31,7 +33,7 @@ export const registerSpecCommands = (
 			} catch (error) {
 				const message = error instanceof Error ? error.message : String(error);
 				outputChannel.appendLine(`[Spec] create command failed: ${message}`);
-				window.showErrorMessage(`Failed to create spec prompt: ${message}`);
+				window.showErrorMessage(t("error.createSpecPromptFailed", { msg: String(message) }));
 			}
 		}
 	);
@@ -83,7 +85,7 @@ export const registerSpecCommands = (
 					const message =
 						error instanceof Error ? error.message : String(error);
 					outputChannel.appendLine(`[Task Execute Single] Failed: ${message}`);
-					window.showErrorMessage(`Failed to execute task: ${message}`);
+					window.showErrorMessage(t("task.executeFailed", { msg: String(message) }));
 				}
 			}
 		),
@@ -103,7 +105,7 @@ export const registerSpecCommands = (
 			async (item: SpecCommandItem) => {
 				const label = item?.label;
 				if (!label) {
-					window.showErrorMessage("Could not determine item name.");
+					window.showErrorMessage(t("error.determineItemName"));
 					return;
 				}
 				await specManager.delete(label);
@@ -114,7 +116,7 @@ export const registerSpecCommands = (
 			async (item: SpecCommandItem) => {
 				const name: string | undefined = item?.specName ?? item?.label;
 				if (!name) {
-					window.showErrorMessage("Could not determine item name.");
+					window.showErrorMessage(t("error.determineItemName"));
 					return;
 				}
 				await env.clipboard.writeText(name);
@@ -134,21 +136,22 @@ export const registerSpecCommands = (
 			async (item: SpecCommandItem) => {
 				const changeId: string | undefined = item?.specName;
 				if (!changeId) {
-					window.showErrorMessage("Could not determine change ID.");
+					window.showErrorMessage(t("error.determineChangeId"));
 					return;
 				}
 
 				const ws = workspace.workspaceFolders?.[0];
 				if (!ws) {
-					window.showErrorMessage("No workspace folder found");
+					window.showErrorMessage(t("common.noWorkspace"));
 					return;
 				}
 
 				try {
+					const { aiAgent } = ConfigManager.getInstance().getSettings();
 					const result = await readPromptFile(
 						ws.uri,
-						"opsx-archive.prompt.md",
-						"openspec-archive.prompt.md"
+						aiAgent,
+						"archive"
 					);
 					if (result.isLegacy) {
 						outputChannel.appendLine(
@@ -166,7 +169,7 @@ export const registerSpecCommands = (
 				} catch (error) {
 					const message =
 						error instanceof Error ? error.message : String(error);
-					window.showErrorMessage(`Failed to read archive prompt: ${message}`);
+					window.showErrorMessage(t("error.readArchivePromptFailed", { msg: String(message) }));
 				}
 			}
 		),

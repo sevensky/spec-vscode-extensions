@@ -12,6 +12,7 @@ import {
 	Uri,
 } from "vscode";
 import type { SpecManager } from "../features/spec/spec-manager";
+import { t } from "../i18n";
 
 type ChangeStatusState = "missing" | "empty" | "partial" | "complete";
 
@@ -151,13 +152,13 @@ export class SpecExplorerProvider implements TreeDataProvider<SpecItem> {
 		if (!element) {
 			return [
 				new SpecItem(
-					"Changes",
+					t("treeview.changes"),
 					TreeItemCollapsibleState.Expanded,
 					"group-changes",
 					this.context
 				),
 				new SpecItem(
-					"Current Specs",
+					t("treeview.currentSpecs"),
 					TreeItemCollapsibleState.Expanded,
 					"group-specs",
 					this.context
@@ -205,7 +206,7 @@ export class SpecExplorerProvider implements TreeDataProvider<SpecItem> {
 			const specPath = `openspec/specs/${element.specName}/spec.md`;
 			return [
 				new SpecItem(
-					"Spec",
+					t("treeview.spec"),
 					TreeItemCollapsibleState.None,
 					"spec-document",
 					this.context,
@@ -213,7 +214,7 @@ export class SpecExplorerProvider implements TreeDataProvider<SpecItem> {
 					"spec",
 					{
 						command: SpecExplorerProvider.openSpecCommandId,
-						title: "Open Spec",
+						title: t("treeview.openSpec"),
 						arguments: [specPath, "spec"],
 					},
 					specPath
@@ -228,7 +229,7 @@ export class SpecExplorerProvider implements TreeDataProvider<SpecItem> {
 			if (await this.fileExists(`${basePath}/proposal.md`)) {
 				items.push(
 					new SpecItem(
-						"Proposal",
+						t("treeview.proposal"),
 						TreeItemCollapsibleState.None,
 						"spec-document",
 						this.context,
@@ -236,7 +237,7 @@ export class SpecExplorerProvider implements TreeDataProvider<SpecItem> {
 						"proposal",
 						{
 							command: SpecExplorerProvider.openSpecCommandId,
-							title: "Open Proposal",
+							title: t("treeview.openProposal"),
 							arguments: [`${basePath}/proposal.md`, "proposal"],
 						},
 						`${basePath}/proposal.md`
@@ -247,7 +248,7 @@ export class SpecExplorerProvider implements TreeDataProvider<SpecItem> {
 			if (await this.fileExists(`${basePath}/tasks.md`)) {
 				items.push(
 					new SpecItem(
-						"Tasks",
+						t("treeview.tasks"),
 						TreeItemCollapsibleState.None,
 						"spec-document",
 						this.context,
@@ -255,7 +256,7 @@ export class SpecExplorerProvider implements TreeDataProvider<SpecItem> {
 						"tasks",
 						{
 							command: SpecExplorerProvider.openSpecCommandId,
-							title: "Open Tasks",
+							title: t("treeview.openTasks"),
 							arguments: [`${basePath}/tasks.md`, "tasks"],
 						},
 						`${basePath}/tasks.md`
@@ -266,7 +267,7 @@ export class SpecExplorerProvider implements TreeDataProvider<SpecItem> {
 			if (await this.fileExists(`${basePath}/design.md`)) {
 				items.push(
 					new SpecItem(
-						"Design",
+						t("treeview.design"),
 						TreeItemCollapsibleState.None,
 						"spec-document",
 						this.context,
@@ -274,7 +275,7 @@ export class SpecExplorerProvider implements TreeDataProvider<SpecItem> {
 						"design",
 						{
 							command: SpecExplorerProvider.openSpecCommandId,
-							title: "Open Design",
+							title: t("treeview.openDesign"),
 							arguments: [`${basePath}/design.md`, "design"],
 						},
 						`${basePath}/design.md`
@@ -285,7 +286,7 @@ export class SpecExplorerProvider implements TreeDataProvider<SpecItem> {
 			if (await this.fileExists(`${basePath}/detailed-design.md`)) {
 				items.push(
 					new SpecItem(
-						"Detailed Design",
+						t("treeview.detailedDesign"),
 						TreeItemCollapsibleState.None,
 						"spec-document",
 						this.context,
@@ -293,7 +294,7 @@ export class SpecExplorerProvider implements TreeDataProvider<SpecItem> {
 						"detailed-design",
 						{
 							command: SpecExplorerProvider.openSpecCommandId,
-							title: "Open Detailed Design",
+							title: t("treeview.openDetailedDesign"),
 							arguments: [`${basePath}/detailed-design.md`, "design"],
 						},
 						`${basePath}/detailed-design.md`
@@ -303,7 +304,7 @@ export class SpecExplorerProvider implements TreeDataProvider<SpecItem> {
 
 			items.push(
 				new SpecItem(
-					"Specs",
+					t("treeview.specs"),
 					TreeItemCollapsibleState.Collapsed,
 					"change-specs-group",
 					this.context,
@@ -339,7 +340,7 @@ export class SpecExplorerProvider implements TreeDataProvider<SpecItem> {
 
 			return [
 				new SpecItem(
-					"Spec",
+					t("treeview.spec"),
 					TreeItemCollapsibleState.None,
 					"spec-document",
 					this.context,
@@ -347,7 +348,7 @@ export class SpecExplorerProvider implements TreeDataProvider<SpecItem> {
 					"spec",
 					{
 						command: SpecExplorerProvider.openSpecCommandId,
-						title: "Open Spec",
+						title: t("treeview.openSpec"),
 						arguments: [specPath, "spec"],
 					},
 					specPath
@@ -477,7 +478,7 @@ class SpecItem extends TreeItem {
 				"warning",
 				new ThemeColor("list.warningForeground")
 			);
-			this.tooltip = "No tasks.md found";
+			this.tooltip = t("treeview.noTasksFile");
 			this.description = undefined;
 			return;
 		}
@@ -487,7 +488,7 @@ class SpecItem extends TreeItem {
 				"circle-outline",
 				new ThemeColor("descriptionForeground")
 			);
-			this.tooltip = "tasks.md contains no recognized tasks";
+			this.tooltip = t("treeview.noRecognizedTasks");
 			this.description = undefined;
 			return;
 		}
@@ -497,7 +498,7 @@ class SpecItem extends TreeItem {
 				"pass-filled",
 				new ThemeColor("charts.green")
 			);
-			this.tooltip = "All tasks complete";
+			this.tooltip = t("treeview.allTasksComplete");
 			this.description = "100%";
 			return;
 		}
@@ -507,7 +508,7 @@ class SpecItem extends TreeItem {
 			light: progressIconUri,
 			dark: progressIconUri,
 		};
-		this.tooltip = `${this.changeStatus.checked} of ${this.changeStatus.total} tasks complete (${this.changeStatus.percent}%)`;
+		this.tooltip = t("treeview.tasksProgress", { checked: String(this.changeStatus.checked), total: String(this.changeStatus.total), percent: String(this.changeStatus.percent) });
 		this.description = `${this.changeStatus.percent}%`;
 	}
 }

@@ -1,4 +1,5 @@
 import { vscode } from "@/bridge/vscode";
+import { t } from "@/i18n";
 import { PillButton } from "@/components/pill-button";
 import { TextareaPanel } from "@/components/textarea-panel";
 import {
@@ -63,10 +64,10 @@ export const InteractiveView = () => {
 		<div className="mx-auto flex h-full max-w-3xl flex-col gap-5 px-3 py-0.5">
 			<header className="flex flex-col gap-2">
 				<h1 className="font-semibold text-[color:var(--vscode-foreground)] text-xl leading-tight">
-					Interactive Playground
+					{t("interactive.title")}
 				</h1>
 				<p className="text-[color:var(--vscode-descriptionForeground,rgba(255,255,255,0.65))] text-sm">
-					Compose a request for the extension and review the response below.
+					{t("interactive.description")}
 				</p>
 			</header>
 
@@ -74,7 +75,7 @@ export const InteractiveView = () => {
 				containerClassName="px-2 shadow-[0_16px_32px_rgba(0,0,0,0.25)]"
 				onChange={(event) => setMessage(event.target.value)}
 				onKeyDown={handleComposerKeyDown}
-				placeholder="Send a message to the extension..."
+				placeholder={t("interactive.placeholder")}
 				rows={5}
 				textareaClassName="min-h-[6rem] text-sm leading-6"
 				textareaRef={textareaRef}
@@ -82,7 +83,7 @@ export const InteractiveView = () => {
 			>
 				<div className="flex flex-wrap items-center justify-between gap-3 p-2">
 					<span className="text-[color:var(--vscode-descriptionForeground,rgba(255,255,255,0.6))] text-xs">
-						Press ⌘⏎ / Ctrl+Enter to send
+						{t("interactive.sendHint")}
 					</span>
 					<div className="flex items-center gap-2">
 						<PillButton
@@ -90,14 +91,14 @@ export const InteractiveView = () => {
 							disabled={isMessageEmpty}
 							onClick={handleClearMessage}
 						>
-							Clear
+							{t("common.clear")}
 						</PillButton>
 						<PillButton
 							className="bg-[color:var(--vscode-button-background,#7c3aed)] text-[color:var(--vscode-button-foreground,#ffffff)] hover:bg-[color:var(--vscode-button-hover-background,var(--vscode-button-background,#7c3aed)))]"
 							disabled={isMessageEmpty}
 							onClick={handleSendMessage}
 						>
-							Send
+							{t("common.send")}
 						</PillButton>
 					</div>
 				</div>
@@ -106,11 +107,11 @@ export const InteractiveView = () => {
 			<section className="flex min-h-[10rem] flex-col gap-4 rounded-2xl border border-[color:color-mix(in_srgb,var(--vscode-foreground)_12%,transparent)] bg-[color:color-mix(in_srgb,var(--vscode-editor-background)_70%,transparent)] px-3 py-2 shadow-[0_8px_24px_rgba(0,0,0,0.25)]">
 				<div className="flex flex-wrap items-center justify-between gap-3">
 					<h2 className="font-medium text-[color:var(--vscode-foreground)] text-base">
-						Latest response
+						{t("interactive.latestResponse")}
 					</h2>
 					{hasResponse && (
 						<PillButton onClick={() => setResponse("")}>
-							Clear response
+							{t("interactive.clearResponse")}
 						</PillButton>
 					)}
 				</div>
@@ -124,7 +125,7 @@ export const InteractiveView = () => {
 				>
 					{hasResponse
 						? response
-						: "Responses from the extension will show up here once available."}
+						: t("interactive.emptyResponse")}
 				</div>
 			</section>
 		</div>

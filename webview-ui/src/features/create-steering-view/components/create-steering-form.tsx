@@ -1,4 +1,5 @@
 import { TextareaPanel } from "@/components/textarea-panel";
+import { t } from "@/i18n";
 import { Button } from "@/components/ui/button";
 import type { ChangeEvent, FormEvent, MutableRefObject } from "react";
 import type {
@@ -56,7 +57,7 @@ export const CreateSteeringForm = ({
 					containerClassName="shadow-[0_16px_32px_rgba(0,0,0,0.25)]"
 					disabled={isSubmitting}
 					onChange={onFieldChange("summary")}
-					placeholder="Describe the core guidance you want agents to follow…"
+					placeholder={t("createSteering.guidanceSummaryPlaceholder")}
 					rows={4}
 					textareaClassName="min-h-[6rem] max-h-[60vh] overflow-y-auto text-sm leading-6"
 					textareaProps={{
@@ -94,7 +95,7 @@ export const CreateSteeringForm = ({
 				<TextareaPanel
 					disabled={isSubmitting}
 					onChange={onFieldChange("audience")}
-					placeholder="Who should follow this guidance? Include roles, teams, or repos…"
+					placeholder={t("createSteering.audiencePlaceholder")}
 					rows={3}
 					textareaClassName="min-h-[5rem] max-h-[60vh] overflow-y-auto text-sm leading-6"
 					textareaProps={{
@@ -116,7 +117,7 @@ export const CreateSteeringForm = ({
 				<TextareaPanel
 					disabled={isSubmitting}
 					onChange={onFieldChange("keyPractices")}
-					placeholder="List the behaviors, patterns, or examples the agent must follow…"
+					placeholder={t("createSteering.keyPracticesPlaceholder")}
 					rows={3}
 					textareaClassName="min-h-[5rem] max-h-[60vh] overflow-y-auto text-sm leading-6"
 					textareaProps={{
@@ -138,7 +139,7 @@ export const CreateSteeringForm = ({
 				<TextareaPanel
 					disabled={isSubmitting}
 					onChange={onFieldChange("antiPatterns")}
-					placeholder="Capture anti-patterns, gotchas, or things agents must never do…"
+					placeholder={t("createSteering.pitfallsPlaceholder")}
 					rows={3}
 					textareaClassName="min-h-[5rem] max-h-[60vh] overflow-y-auto text-sm leading-6"
 					textareaProps={{
@@ -165,7 +166,7 @@ export const CreateSteeringForm = ({
 					Cancel
 				</Button>
 				<Button disabled={isSubmitting} type="submit" variant="default">
-					{isSubmitting ? "Creating…" : "Create Steering"}
+					{isSubmitting ? t("common.creating") : t("createSteering.createButton")}
 				</Button>
 			</div>
 		</footer>

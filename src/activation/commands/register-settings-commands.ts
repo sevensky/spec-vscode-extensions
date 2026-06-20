@@ -1,5 +1,6 @@
 import { commands, env, Uri, window, workspace } from "vscode";
 import type { ExtensionContext } from "vscode";
+import { t } from "../../i18n";
 import { VSC_CONFIG_NAMESPACE } from "../../constants";
 import type { ExtensionServices } from "../extension-services";
 import { toggleViews } from "../toggle-views";
@@ -37,7 +38,7 @@ export const registerSettingsCommands = (
 					await workspace.fs.stat(configUri);
 				} catch {
 					window.showWarningMessage(
-						`MCP config not found at ${configUri.fsPath}.`
+						t("mcp.configNotFound", { path: configUri.fsPath })
 					);
 					return;
 				}
@@ -48,7 +49,7 @@ export const registerSettingsCommands = (
 				} catch (error) {
 					const message =
 						error instanceof Error ? error.message : String(error);
-					window.showErrorMessage(`Failed to open MCP config: ${message}`);
+					window.showErrorMessage(t("error.openMcpConfigFailed", { msg: String(message) }));
 				}
 			}
 		),

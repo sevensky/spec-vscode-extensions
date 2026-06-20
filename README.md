@@ -7,7 +7,7 @@
 
 OpenSpec for Copilot is a VS Code extension that brings Spec-Driven Development (SDD) to your workflow, leveraging [OpenSpec](https://github.com/Fission-AI/OpenSpec) prompts and chat agents like **GitHub Copilot Chat**.
 
-It allows you to visually manage Specs, Steering documents (AGENTS.md), and custom prompts, seamlessly integrating with GitHub Copilot Chat by default, with optional **Codex Chat** support.
+It allows you to visually manage Specs, Steering documents (AGENTS.md), and custom prompts, seamlessly integrating with GitHub Copilot Chat by default, with optional support for **Codex Chat**, **Claude Code**, **Trae**, and **CodeBuddy**.
 
 ![Create new Spec](./screenshots/image.png)
 
@@ -87,14 +87,14 @@ OpenSpec for Copilot v1.0.0+ requires OpenSpec CLI v1. If you're upgrading from 
 
 3. **Verify prompt files were created:**
    Check that `.github/prompts/` contains:
-   - `opsx-new.prompt.md`
+   - `opsx-propose.prompt.md`
    - `opsx-apply.prompt.md`
    - `opsx-archive.prompt.md`
    - `opsx-continue.prompt.md`
    - `opsx-ff.prompt.md`
    - `opsx-explore.prompt.md`
-   - `opsx-verify.prompt.md`
    - `opsx-sync.prompt.md`
+   - `opsx-verify.prompt.md`
    - `opsx-bulk-archive.prompt.md`
    - `opsx-onboard.prompt.md`
 
@@ -161,8 +161,8 @@ All settings live under the `openspec-for-copilot` namespace.
 
 | Setting | Type | Default | Purpose |
 | --- | --- | --- | --- |
-| `aiAgent` | string | `github-copilot` | Select which chat agent to use for sending prompts (`github-copilot` or `codex`). |
-| `chatLanguage` | string | `English` | The language GitHub Copilot should use for responses. |
+| `aiAgent` | string | `github-copilot` | Select which chat agent to use for sending prompts (`github-copilot`, `codex`, `claude`, `trae`, or `codebuddy`). |
+| `chatLanguage` | string | `English` | The language the agent should use for responses. Supports `Chinese (Simplified)` among others. |
 | `copilot.specsPath` | string | `openspec` | Workspace-relative path for generated specs. |
 | `copilot.promptsPath` | string | `.github/prompts` | Workspace-relative path for Markdown prompts. |
 | `views.specs.visible` | boolean | `true` | Show or hide the Specs explorer. |
@@ -176,6 +176,21 @@ All settings live under the `openspec-for-copilot` namespace.
 | `customInstructions.runPrompt` | string | `""` | Custom instructions for "Run Prompt". |
 
 Note: In Codex mode, prompts are written to temporary Markdown files under `~/.codex/.tmp/` and sent via `chatgpt.addToThread`.
+
+### Claude mode
+
+When `aiAgent` is set to `claude`, the extension sends prompts to the **Claude Code CLI** via a terminal:
+
+- Requires the `claude` CLI installed and on your PATH ([Claude Code](https://docs.anthropic.com/en/docs/claude-code)).
+- Prompts are written to temporary Markdown files under `~/.claude/.tmp/` and dispatched with `claude "$(cat <file>)"` in a new terminal.
+- If the `claude` binary is not found, an error message prompts you to install it or switch back to `github-copilot` / `codex`.
+- Temporary files are cleaned up after 30 seconds (best-effort) and files older than 7 days are removed on each run.
+
+### 简体中文 / Chinese (Simplified)
+
+设置 `chatLanguage` 为 `Chinese (Simplified)` 后，每次发送 prompt 会追加 `请用简体中文回答。` 指令，模型将用简体中文回复。该设置对所有 agent（github-copilot / codex / claude / trae / codebuddy）均生效。
+
+Setting `chatLanguage` to `Chinese (Simplified)` appends `请用简体中文回答。` to every prompt so the model responds in Simplified Chinese. This applies to all agents (github-copilot / codex / claude / trae / codebuddy).
 
 Paths accept custom locations inside the workspace; the extension mirrors watchers to match custom directories.
 
@@ -224,6 +239,40 @@ scripts/
 ### Packaging
 - Produce a VSIX with `npm run package` (requires `vsce`).
 - The output bundle lives in `dist/extension.js`; webview assets emit to `dist/webview/app/`.
+
+### Linked Extension Mode (No VSIX, No F5)
+
+For local development where you want the extension auto-loaded in **any workspace** (without opening this project, without packaging a `.vsix`, and without pressing `F5`), symlink the project directory into the VS Code/Trae extensions folder.
+
+The helper script `scripts/link-extension.sh` manages this for you:
+
+```bash
+# Create the symlink (replaces any previously installed .vsix version)
+pnpm link:ext
+
+# Check current mode (symlink vs static vsix directory)
+pnpm ext:status
+
+# Remove the symlink (restore .vsix install mode if needed)
+pnpm unlink:ext
+```
+
+How it works:
+
+```
+<extensions-dir>/atman-dev.openspec-for-copilot-1.1.0-universal
+    ↓ symlink
+<project-dir>/  ← contains dist/extension.js produced by `pnpm build`
+```
+
+After linking:
+1. Open any workspace in VS Code/Trae — the extension loads automatically.
+2. After code changes: run `pnpm build`, then `Ctrl+Shift+P` → `Reload Window`.
+3. The extension directory can be overridden via the `TRAPE_EXTENSIONS_DIR` environment variable (defaults to `/root/.trae-cn-server/extensions`).
+
+Notes:
+- VS Code scans the entire symlinked directory (including `node_modules`), so startup may be slightly slower — functionality is unaffected.
+- If changes don't appear after `pnpm build`, use `Reload Window` rather than restarting the editor process.
 
 ## License
 MIT License. See [`LICENSE`](LICENSE).

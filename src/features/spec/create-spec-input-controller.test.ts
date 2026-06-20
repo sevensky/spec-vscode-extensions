@@ -18,7 +18,10 @@ describe("CreateSpecInputController", () => {
 	let onDidReceiveMessageMock: ReturnType<typeof vi.fn>;
 	let workspaceStateGetMock: ReturnType<typeof vi.fn>;
 	let workspaceStateUpdateMock: ReturnType<typeof vi.fn>;
-	let configManager: { getPath: ReturnType<typeof vi.fn> };
+	let configManager: {
+		getPath: ReturnType<typeof vi.fn>;
+		getSettings: ReturnType<typeof vi.fn>;
+	};
 	let promptLoader: { renderPrompt: ReturnType<typeof vi.fn> };
 	let outputChannel: { appendLine: ReturnType<typeof vi.fn> };
 	let htmlValue: string;
@@ -65,6 +68,7 @@ describe("CreateSpecInputController", () => {
 
 		configManager = {
 			getPath: vi.fn().mockReturnValue("openspec"),
+			getSettings: vi.fn().mockReturnValue({ aiAgent: "github-copilot" }),
 		};
 
 		promptLoader = {

@@ -17,7 +17,9 @@ describe("get-webview-content", () => {
 		const page = "test-page";
 		const html = getWebviewContent(mockWebview, mockExtensionUri, page);
 
-		expect(html).toContain('<div id="root" data-page="test-page"></div>');
+		expect(html).toContain('id="root"');
+		expect(html).toContain('data-page="test-page"');
+		expect(html).toContain('data-locale="');
 		expect(html).toContain(
 			'src="file:///mock/extension/dist/webview/app/index.js"'
 		);
