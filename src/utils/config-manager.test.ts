@@ -64,12 +64,77 @@ describe("ConfigManager", () => {
 	it("should return claude aiAgent when configured", () => {
 		vi.mocked(workspace.getConfiguration).mockReturnValue({
 			get: vi.fn().mockImplementation((key: string) => {
-				if (key === "aiAgent") return "claude";
+				if (key === "aiAgent") {
+					return "claude";
+				}
 				return undefined;
 			}),
 		} as any);
-		ConfigManager["instance"] = new (ConfigManager as any)();
+		ConfigManager.instance = new (ConfigManager as any)();
 		const cm = ConfigManager.getInstance();
 		expect(cm.getSettings().aiAgent).toBe("claude");
+	});
+
+	// 4. New key agent.promptsPath should be read
+	it("should read agent.promptsPath when set", () => {
+		vi.mocked(workspace.getConfiguration).mockReturnValue({
+			get: vi.fn().mockImplementation((key: string) => {
+				if (key === "agent.promptsPath") {
+					return ".agent/prompts";
+				}
+				return undefined;
+			}),
+		} as any);
+		ConfigManager.instance = new (ConfigManager as any)();
+		const cm = ConfigManager.getInstance();
+		expect(cm.getSettings().paths.prompts).toBe(".agent/prompts");
+	});
+
+	// 5. Legacy key copilot.promptsPath should still work (fallback)
+	it("should fallback to copilot.promptsPath when agent.promptsPath is not set", () => {
+		vi.mocked(workspace.getConfiguration).mockReturnValue({
+			get: vi.fn().mockImplementation((key: string) => {
+				if (key === "copilot.promptsPath") {
+					return ".github/prompts";
+				}
+				return undefined;
+			}),
+		} as any);
+		ConfigManager.instance = new (ConfigManager as any)();
+		const cm = ConfigManager.getInstance();
+		expect(cm.getSettings().paths.prompts).toBe(".github/prompts");
+	});
+
+	// 6. New key agent.specsPath should be read
+	it("should read agent.specsPath when set", () => {
+		vi.mocked(workspace.getConfiguration).mockReturnValue({
+			get: vi.fn().mockImplementation((key: string) => {
+				if (key === "agent.specsPath") {
+					return "custom-specs";
+				}
+				return undefined;
+			}),
+		} as any);
+		ConfigManager.instance = new (ConfigManager as any)();
+		const cm = ConfigManager.getInstance();
+		expect(cm.getSettings().paths.specs).toBe("custom-specs");
+	});
+
+	// 7. New key takes precedence over legacy key
+	it("should prefer agent.promptsPath over copilot.promptsPath", () => {
+		vi.mocked(workspace.getConfiguration).mockReturnValue({
+			get: vi.fn().mockImplementation((key: string) => {
+				if (key === "agent.promptsPath") {
+					return ".agent/prompts";
+				}
+				if (key === "copilot.promptsPath") {
+					return ".github/prompts";
+				}
+				return undefined;
+			}),
+		} as any);
+		ConfigManager.instance = new (ConfigManager as any)();
+		const cm = ConfigManager.getInstance();
+		expect(cm.getSettings().paths.prompts).toBe(".agent/prompts");
 	});
 });

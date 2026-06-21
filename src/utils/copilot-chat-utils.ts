@@ -1,50 +1,6 @@
-import {
-	commands,
-	Position,
-	Range,
-	Selection,
-	TextEditorRevealType,
-	window,
-	workspace,
-	type TextDocumentShowOptions,
-	type Uri,
-} from "vscode";
-
-const COPILOT_ADD_TO_CHAT_COMMAND_ID = "chatgpt.addToThread";
-
-const selectEntireDocument = async (
-	documentUri: Uri,
-	showOptions: TextDocumentShowOptions = { preview: false }
-) => {
-	const targetUriString = documentUri.toString();
-	let editor = window.activeTextEditor;
-	const matchesTarget = (candidate?: typeof editor) =>
-		candidate?.document.uri.toString() === targetUriString;
-
-	if (!matchesTarget(editor)) {
-		editor = window.visibleTextEditors.find((item) => matchesTarget(item));
-	}
-
-	if (!editor) {
-		const document = await workspace.openTextDocument(documentUri);
-		editor = await window.showTextDocument(document, showOptions);
-	} else if (!matchesTarget(window.activeTextEditor)) {
-		await window.showTextDocument(editor.document, showOptions);
-	}
-
-	const document = editor.document;
-	const lastLineIndex = Math.max(document.lineCount - 1, 0);
-	const endPosition = document.lineAt(lastLineIndex).range.end;
-	const fullRange = new Range(new Position(0, 0), endPosition);
-
-	editor.selection = new Selection(fullRange.start, fullRange.end);
-	editor.revealRange(fullRange, TextEditorRevealType.Default);
-};
-
-export const addDocumentToCopilotChat = async (
-	documentUri: Uri,
-	showOptions?: TextDocumentShowOptions
-): Promise<void> => {
-	await selectEntireDocument(documentUri, showOptions);
-	await commands.executeCommand(COPILOT_ADD_TO_CHAT_COMMAND_ID);
-};
+/**
+ * @deprecated Use `agent-chat-utils.ts` instead.
+ * This file is kept only for backward compatibility and will be removed in a future version.
+ */
+// biome-ignore lint/performance/noBarrelFile: 有意的 deprecated 兼容 re-export，过渡期保留
+export { addDocumentToAgentChat as addDocumentToCopilotChat } from "./agent-chat-utils";

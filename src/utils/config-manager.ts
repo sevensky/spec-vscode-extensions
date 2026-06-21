@@ -7,7 +7,12 @@ import {
 	VSC_CONFIG_NAMESPACE,
 } from "../constants";
 
-export type AiAgent = "github-copilot" | "codex" | "claude" | "trae" | "codebuddy";
+export type AiAgent =
+	| "github-copilot"
+	| "codex"
+	| "claude"
+	| "trae"
+	| "codebuddy";
 export interface OpenSpecSettings {
 	paths: {
 		specs: string;
@@ -84,8 +89,13 @@ export class ConfigManager {
 		Record<keyof typeof DEFAULT_PATHS, string>
 	> {
 		const config = workspace.getConfiguration(VSC_CONFIG_NAMESPACE);
-		const promptsPath = config.get<string>("copilot.promptsPath")?.trim();
-		const specsPath = config.get<string>("copilot.specsPath")?.trim();
+		// 优先读新 key（agent.*），fallback 到旧 key（copilot.*）以兼容老用户配置
+		const promptsPath =
+			config.get<string>("agent.promptsPath")?.trim() ||
+			config.get<string>("copilot.promptsPath")?.trim();
+		const specsPath =
+			config.get<string>("agent.specsPath")?.trim() ||
+			config.get<string>("copilot.specsPath")?.trim();
 
 		const configuredPaths: Partial<Record<keyof typeof DEFAULT_PATHS, string>> =
 			{};
@@ -110,8 +120,12 @@ export class ConfigManager {
 		const config = workspace.getConfiguration(VSC_CONFIG_NAMESPACE);
 		const raw = config.get<string>("aiAgent") ?? DEFAULT_CONFIG.aiAgent;
 		// 显式匹配已知 agent，未知值回落到默认 github-copilot
-		if (raw === "codex") return "codex";
-		if (raw === "claude") return "claude";
+		if (raw === "codex") {
+			return "codex";
+		}
+		if (raw === "claude") {
+			return "claude";
+		}
 		return "github-copilot";
 	}
 
