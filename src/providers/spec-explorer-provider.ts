@@ -508,7 +508,11 @@ class SpecItem extends TreeItem {
 			light: progressIconUri,
 			dark: progressIconUri,
 		};
-		this.tooltip = t("treeview.tasksProgress", { checked: String(this.changeStatus.checked), total: String(this.changeStatus.total), percent: String(this.changeStatus.percent) });
+		this.tooltip = t("treeview.tasksProgress", {
+			checked: String(this.changeStatus.checked),
+			total: String(this.changeStatus.total),
+			percent: String(this.changeStatus.percent),
+		});
 		this.description = `${this.changeStatus.percent}%`;
 	}
 }

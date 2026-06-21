@@ -108,9 +108,7 @@ export class PromptsExplorerProvider implements TreeDataProvider<PromptItem> {
 		// biome-ignore lint/performance/useTopLevelRegex: ignore
 		const parts = normalizedName.split(/[\\/]+/).filter(Boolean);
 		if (parts.some((segment) => segment === "..")) {
-			await window.showErrorMessage(
-				t("error.parentDirTraversal")
-			);
+			await window.showErrorMessage(t("error.parentDirTraversal"));
 			return;
 		}
 
@@ -175,8 +173,12 @@ export class PromptsExplorerProvider implements TreeDataProvider<PromptItem> {
 			await workspace.fs.rename(sourceUri, targetUri, { overwrite: false });
 		} catch (error) {
 			const message =
-				error instanceof Error ? error.message : t("error.renameFileFailed", { msg: "" });
-			await window.showErrorMessage(t("error.renameFileFailed", { msg: message }));
+				error instanceof Error
+					? error.message
+					: t("error.renameFileFailed", { msg: "" });
+			await window.showErrorMessage(
+				t("error.renameFileFailed", { msg: message })
+			);
 			return;
 		}
 
@@ -239,7 +241,10 @@ export class PromptsExplorerProvider implements TreeDataProvider<PromptItem> {
 				"prompt-group-global",
 				{
 					description: globalDescription,
-					tooltip: t("treeview.locatedAt", { label: t("treeview.global"), path: globalDescription }),
+					tooltip: t("treeview.locatedAt", {
+						label: t("treeview.global"),
+						path: globalDescription,
+					}),
 					source: "global",
 				}
 			),
@@ -249,7 +254,10 @@ export class PromptsExplorerProvider implements TreeDataProvider<PromptItem> {
 				"prompt-group-project",
 				{
 					description: projectDescription,
-					tooltip: t("treeview.locatedAt", { label: t("treeview.projectPrompts"), path: projectDescription }),
+					tooltip: t("treeview.locatedAt", {
+						label: t("treeview.projectPrompts"),
+						path: projectDescription,
+					}),
 					source: "project-prompts",
 				}
 			),
@@ -259,7 +267,10 @@ export class PromptsExplorerProvider implements TreeDataProvider<PromptItem> {
 				"prompt-group-project-instructions",
 				{
 					description: instructionsDescription,
-					tooltip: t("treeview.locatedAt", { label: t("treeview.projectInstructions"), path: instructionsDescription }),
+					tooltip: t("treeview.locatedAt", {
+						label: t("treeview.projectInstructions"),
+						path: instructionsDescription,
+					}),
 					source: "project-instructions",
 				}
 			),
@@ -269,7 +280,10 @@ export class PromptsExplorerProvider implements TreeDataProvider<PromptItem> {
 				"prompt-group-project-agents",
 				{
 					description: agentsDescription,
-					tooltip: t("treeview.locatedAt", { label: t("treeview.projectAgents"), path: agentsDescription }),
+					tooltip: t("treeview.locatedAt", {
+						label: t("treeview.projectAgents"),
+						path: agentsDescription,
+					}),
 					source: "project-agents",
 				}
 			),
@@ -382,7 +396,7 @@ export class PromptsExplorerProvider implements TreeDataProvider<PromptItem> {
 					TreeItemCollapsibleState.None,
 					"prompts-empty",
 					{
-						tooltip: t("treeview.addPromptsUnder", { label: label }),
+						tooltip: t("treeview.addPromptsUnder", { label }),
 					}
 				),
 			];
@@ -599,9 +613,7 @@ class PromptItem extends TreeItem {
 		},
 		"prompts-empty": (item, options) => {
 			item.iconPath = new ThemeIcon("info");
-			item.tooltip =
-				options?.tooltip ??
-				t("treeview.createPromptsHint");
+			item.tooltip = options?.tooltip ?? t("treeview.createPromptsHint");
 		},
 		prompt: (item, options) => {
 			item.iconPath = new ThemeIcon("file-code");

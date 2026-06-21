@@ -18,13 +18,13 @@
       "type": "extensionHost",
       "request": "launch",
       "args": [
-        "--disable-extensions", 
+        "--disable-extensions",
         "--extensionDevelopmentPath=${workspaceFolder}",
         "--enable-proposed-api=bairui-dev.spec-vscode-extensions",
         "/www/wwwroot/vscode-extensions/sample-workspace"
       ],
       "outFiles": ["${workspaceFolder}/dist/**/*.js"],
       "preLaunchTask": "pnpm: watch"
-    } 
+    }
   ]
 }

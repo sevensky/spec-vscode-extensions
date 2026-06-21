@@ -34,7 +34,9 @@ export async function activate(context: ExtensionContext) {
 		outputChannel.appendLine("PromptLoader initialized successfully");
 	} catch (error) {
 		outputChannel.appendLine(`Failed to initialize PromptLoader: ${error}`);
-		window.showErrorMessage(t("error.initPromptSystemFailed", { error: String(error) }));
+		window.showErrorMessage(
+			t("error.initPromptSystemFailed", { error: String(error) })
+		);
 	}
 
 	// Check workspace status

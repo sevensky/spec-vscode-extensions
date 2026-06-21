@@ -33,7 +33,9 @@ export const registerSpecCommands = (
 			} catch (error) {
 				const message = error instanceof Error ? error.message : String(error);
 				outputChannel.appendLine(`[Spec] create command failed: ${message}`);
-				window.showErrorMessage(t("error.createSpecPromptFailed", { msg: String(message) }));
+				window.showErrorMessage(
+					t("error.createSpecPromptFailed", { msg: String(message) })
+				);
 			}
 		}
 	);
@@ -85,7 +87,9 @@ export const registerSpecCommands = (
 					const message =
 						error instanceof Error ? error.message : String(error);
 					outputChannel.appendLine(`[Task Execute Single] Failed: ${message}`);
-					window.showErrorMessage(t("task.executeFailed", { msg: String(message) }));
+					window.showErrorMessage(
+						t("task.executeFailed", { msg: String(message) })
+					);
 				}
 			}
 		),
@@ -148,11 +152,7 @@ export const registerSpecCommands = (
 
 				try {
 					const { aiAgent } = ConfigManager.getInstance().getSettings();
-					const result = await readPromptFile(
-						ws.uri,
-						aiAgent,
-						"archive"
-					);
+					const result = await readPromptFile(ws.uri, aiAgent, "archive");
 					if (result.isLegacy) {
 						outputChannel.appendLine(
 							`[Archive Change] Using legacy prompt file: ${result.filePath}`
@@ -169,7 +169,9 @@ export const registerSpecCommands = (
 				} catch (error) {
 					const message =
 						error instanceof Error ? error.message : String(error);
-					window.showErrorMessage(t("error.readArchivePromptFailed", { msg: String(message) }));
+					window.showErrorMessage(
+						t("error.readArchivePromptFailed", { msg: String(message) })
+					);
 				}
 			}
 		),

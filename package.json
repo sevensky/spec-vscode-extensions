@@ -13,10 +13,17 @@
   "engines": {
     "vscode": "^1.84.0"
   },
-  "categories": ["AI","Programming Languages","Other"],
+  "categories": [
+    "AI",
+    "Programming Languages",
+    "Other"
+  ],
   "activationEvents": [],
   "main": "dist/extension.js",
-  "extensionKind": ["workspace","ui"],
+  "extensionKind": [
+    "workspace",
+    "ui"
+  ],
   "scripts": {
     "install:all": "pnpm install && cd webview-ui && pnpm install",
     "build-prompts": "node scripts/build-prompts.js",

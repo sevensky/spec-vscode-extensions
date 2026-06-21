@@ -49,14 +49,17 @@ export const registerSettingsCommands = (
 				} catch (error) {
 					const message =
 						error instanceof Error ? error.message : String(error);
-					window.showErrorMessage(t("error.openMcpConfigFailed", { msg: String(message) }));
+					window.showErrorMessage(
+						t("error.openMcpConfigFailed", { msg: String(message) })
+					);
 				}
 			}
 		),
 		// biome-ignore lint/suspicious/useAwait: ignore
 		commands.registerCommand("openspec-for-agent.help.open", async () => {
 			outputChannel.appendLine("Opening OpenSpec help...");
-			const helpUrl = "https://github.com/sevensky/spec-vscode-extensions#readme";
+			const helpUrl =
+				"https://github.com/sevensky/spec-vscode-extensions#readme";
 			env.openExternal(Uri.parse(helpUrl));
 		}),
 		// biome-ignore lint/suspicious/useAwait: ignore

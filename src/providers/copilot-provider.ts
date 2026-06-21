@@ -132,7 +132,9 @@ export class CopilotProvider {
 			this.outputChannel.appendLine(
 				`ERROR: Failed to send to Copilot: ${error}`
 			);
-			window.showErrorMessage(t("error.runCopilotFailed", { error: String(error) }));
+			window.showErrorMessage(
+				t("error.runCopilotFailed", { error: String(error) })
+			);
 			throw error;
 		}
 	}

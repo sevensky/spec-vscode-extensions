@@ -67,7 +67,8 @@ export const registerPromptsCommands = (
 					title: t("prompt.create.title"),
 					placeHolder: t("prompt.create.placeHolder"),
 					prompt: t("prompt.create.promptLabel", { path: promptsPathLabel }),
-					validateInput: (value) => (value ? undefined : t("prompt.create.nameRequired")),
+					validateInput: (value) =>
+						value ? undefined : t("prompt.create.nameRequired"),
 				});
 				if (!name) {
 					return;
@@ -84,7 +85,9 @@ export const registerPromptsCommands = (
 					await window.showTextDocument(doc);
 					promptsExplorer.refresh();
 				} catch (error) {
-					window.showErrorMessage(t("error.createPromptFailed", { msg: String(error) }));
+					window.showErrorMessage(
+						t("error.createPromptFailed", { msg: String(error) })
+					);
 				}
 			}
 		),
@@ -124,7 +127,9 @@ export const registerPromptsCommands = (
 						instructionType: "runPrompt",
 					});
 				} catch (error) {
-					window.showErrorMessage(t("error.runPromptFailed", { msg: String(error) }));
+					window.showErrorMessage(
+						t("error.runPromptFailed", { msg: String(error) })
+					);
 				}
 			}
 		),
@@ -154,7 +159,9 @@ export const registerPromptsCommands = (
 					await workspace.fs.delete(uri);
 					promptsExplorer.refresh();
 				} catch (error) {
-					window.showErrorMessage(t("error.deletePromptFailed", { msg: String(error) }));
+					window.showErrorMessage(
+						t("error.deletePromptFailed", { msg: String(error) })
+					);
 				}
 			}
 		),
