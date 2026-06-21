@@ -178,8 +178,8 @@ OpenSpec for Agent v1.0.0+ 要求 OpenSpec CLI v1。若从早期版本升级：
 | ---------------------------------- | ------- | ----------------- | ---------------------------------------------------------------------------- |
 | `aiAgent`                          | string  | `github-copilot`  | 选择用于发送提示词的 chat agent（`github-copilot`、`codex`、`claude`、`trae`、`codebuddy`）。 |
 | `chatLanguage`                     | string  | `English`         | agent 回复使用的语言，支持 `Chinese (Simplified)` 等。                                   |
-| `copilot.specsPath`                | string  | `openspec`        | 生成 specs 的工作区相对路径。                                                           |
-| `copilot.promptsPath`              | string  | `.github/prompts` | Markdown 提示词的工作区相对路径。                                                        |
+| `agent.specsPath`                | string  | `openspec`        | 生成 specs 的工作区相对路径。                                                           |
+| `agent.promptsPath`              | string  | `.agent/prompts`  | Markdown 提示词的工作区相对路径。                                                        |
 | `views.specs.visible`              | boolean | `true`            | 显示或隐藏 Specs 浏览器。                                                             |
 | `views.prompts.visible`            | boolean | `true`            | 切换 Prompts 浏览器。                                                              |
 | `views.steering.visible`           | boolean | `true`            | 切换 Steering 浏览器。                                                             |

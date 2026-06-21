@@ -4,7 +4,7 @@ export const VSC_CONFIG_NAMESPACE = "openspec-for-agent";
 // Default configuration
 export const DEFAULT_CONFIG = {
 	paths: {
-		prompts: ".github/prompts",
+		prompts: ".agent/prompts",
 		specs: "openspec",
 	},
 	aiAgent: "github-copilot",

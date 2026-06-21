@@ -163,8 +163,8 @@ All settings live under the `openspec-for-agent` namespace.
 | --- | --- | --- | --- |
 | `aiAgent` | string | `github-copilot` | Select which chat agent to use for sending prompts (`github-copilot`, `codex`, `claude`, `trae`, or `codebuddy`). |
 | `chatLanguage` | string | `English` | The language the agent should use for responses. Supports `Chinese (Simplified)` among others. |
-| `copilot.specsPath` | string | `openspec` | Workspace-relative path for generated specs. |
-| `copilot.promptsPath` | string | `.github/prompts` | Workspace-relative path for Markdown prompts. |
+| `agent.specsPath` | string | `openspec` | Workspace-relative path for generated specs. |
+| `agent.promptsPath` | string | `.agent/prompts` | Workspace-relative path for Markdown prompts. |
 | `views.specs.visible` | boolean | `true` | Show or hide the Specs explorer. |
 | `views.prompts.visible` | boolean | `true` | Toggle the Prompts explorer. |
 | `views.steering.visible` | boolean | `true` | Toggle the Steering explorer. |

@@ -71,16 +71,16 @@
           "default": true,
           "description": "%config.desc.views_settings_visible%"
         },
-        "openspec-for-agent.copilot.specsPath": {
+        "openspec-for-agent.agent.specsPath": {
           "type": "string",
           "default": "openspec",
-          "description": "%config.desc.copilot_specsPath%",
+          "description": "%config.desc.agent_specsPath%",
           "order": 1
         },
-        "openspec-for-agent.copilot.promptsPath": {
+        "openspec-for-agent.agent.promptsPath": {
           "type": "string",
-          "default": ".github/prompts",
-          "description": "%config.desc.copilot_promptsPath%",
+          "default": ".agent/prompts",
+          "description": "%config.desc.agent_promptsPath%",
           "order": 2
         },
         "openspec-for-agent.aiAgent": {
