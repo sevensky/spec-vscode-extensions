@@ -7,7 +7,7 @@
 系统 MUST 在 `chatLanguage` 配置为 `Chinese (Simplified)` 时，在构建的最终 prompt 中明确包含类似 `请用简体中文回答。` 的指令，以保证目标模型以中文输出。
 
 #### Scenario: chatLanguage 为简体中文
-- **WHEN** 用户将 `openspec-for-copilot.chatLanguage` 设为 `Chinese (Simplified)`。
+- **WHEN** 用户将 `openspec-for-agent.chatLanguage` 设为 `Chinese (Simplified)`。
 - **THEN** 系统 MUST 在 `buildChatPrompt` 返回的最终 prompt 中追加 `请用简体中文回答。` 或等效中文指令，并保证在没有其他自定义指令覆盖时生效。
 
 ### Requirement: 本地化文档与使用说明

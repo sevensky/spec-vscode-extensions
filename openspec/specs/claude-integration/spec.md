@@ -7,7 +7,7 @@
 系统 MUST 提供 `claude` 作为有效的 `aiAgent` 配置选项，并能将最终构建的 prompt 正确路由到 Claude 提供者实现（例如 `ClaudeService` 或 VS Code Chat 的 Claude 提供者）。
 
 #### Scenario: 通过设置选择 Claude
-- **WHEN** 用户在扩展设置中将 `openspec-for-copilot.aiAgent` 设为 `claude`。
+- **WHEN** 用户在扩展设置中将 `openspec-for-agent.aiAgent` 设为 `claude`。
 - **THEN** 系统 MUST 将后续的所有 prompt 路由到 Claude 的实现路径（例如调用 `ClaudeService.addPromptToThread` 或使用与 Claude 提供者兼容的 VS Code Chat 命令）。
 
 #### Scenario: 未安装 Claude 支持时的降级

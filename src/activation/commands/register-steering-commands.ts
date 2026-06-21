@@ -12,18 +12,18 @@ export const registerSteeringCommands = (
 
 	context.subscriptions.push(
 		commands.registerCommand(
-			"openspec-for-copilot.steering.createUserRule",
+			"openspec-for-agent.steering.createUserRule",
 			async () => {
 				await steeringManager.createUserConfiguration();
 			}
 		),
 		commands.registerCommand(
-			"openspec-for-copilot.steering.createProjectRule",
+			"openspec-for-agent.steering.createProjectRule",
 			async () => {
 				await steeringManager.createProjectDocumentation();
 			}
 		),
-		commands.registerCommand("openspec-for-copilot.steering.refresh", () => {
+		commands.registerCommand("openspec-for-agent.steering.refresh", () => {
 			outputChannel.appendLine(
 				"[Manual Refresh] Refreshing steering explorer..."
 			);

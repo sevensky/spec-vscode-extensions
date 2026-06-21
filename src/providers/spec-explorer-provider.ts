@@ -26,14 +26,14 @@ interface ChangeStatus {
 const PROGRESS_ICON_MAX_BUCKET = 90;
 
 export class SpecExplorerProvider implements TreeDataProvider<SpecItem> {
-	static readonly viewId = "openspec-for-copilot.views.specExplorer";
+	static readonly viewId = "openspec-for-agent.views.specExplorer";
 	static readonly navigateRequirementsCommandId =
-		"openspec-for-copilot.spec.navigate.requirements";
+		"openspec-for-agent.spec.navigate.requirements";
 	static readonly navigateDesignCommandId =
-		"openspec-for-copilot.spec.navigate.design";
+		"openspec-for-agent.spec.navigate.design";
 	static readonly navigateTasksCommandId =
-		"openspec-for-copilot.spec.navigate.tasks";
-	static readonly openSpecCommandId = "openspec-for-copilot.spec.open";
+		"openspec-for-agent.spec.navigate.tasks";
+	static readonly openSpecCommandId = "openspec-for-agent.spec.open";
 
 	private readonly _onDidChangeTreeData: EventEmitter<
 		SpecItem | undefined | null | void
@@ -508,7 +508,11 @@ class SpecItem extends TreeItem {
 			light: progressIconUri,
 			dark: progressIconUri,
 		};
-		this.tooltip = t("treeview.tasksProgress", { checked: String(this.changeStatus.checked), total: String(this.changeStatus.total), percent: String(this.changeStatus.percent) });
+		this.tooltip = t("treeview.tasksProgress", {
+			checked: String(this.changeStatus.checked),
+			total: String(this.changeStatus.total),
+			percent: String(this.changeStatus.percent),
+		});
 		this.description = `${this.changeStatus.percent}%`;
 	}
 }

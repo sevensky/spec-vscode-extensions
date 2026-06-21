@@ -2,14 +2,21 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "type": "npm",
-      "script": "compile",
+      "type": "shell",
+      "command": "pnpm run compile",
       "group": "build",
       "problemMatcher": "$tsc",
-      "label": "npm: compile"
-    },{
-      "type": "npm",
-      "script": "watch",
+      "label": "pnpm: compile"
+    },
+    {
+      "type": "shell",
+      "command": "pnpm run package",
+      "group": "build",
+      "label": "pnpm: package"
+    },
+    {
+      "type": "shell",
+      "command": "pnpm run watch",
       "isBackground": true,
       "problemMatcher": {
         "owner": "esbuild",
@@ -30,7 +37,7 @@
         "reveal": "always",
         "panel": "dedicated"
       },
-      "label": "npm: watch"
+      "label": "pnpm: watch"
     }
   ]
 }

@@ -15,7 +15,7 @@ The Prompts explorer currently builds three groups (Global, Project Prompts, Pro
 ## Decisions
 1. **Tree source abstraction:** Reuse `createPromptItems` by introducing a new `PromptSource` literal (`"project-agents"`) and a helper that resolves `.github/agents`. This keeps filtering/empty-state logic centralized.
 2. **Ordering enforcement:** Extend `getRootItems` to insert the new group after `Project Instructions` and cover the requirement via unit tests to prevent regressions.
-3. **Rename implementation:** Register a new command (e.g., `openspec-for-copilot.prompts.rename`) that prompts for a new filename, validates input with the same guardrails as `createPrompt`, and calls `workspace.fs.rename(sourceUri, targetUri, { overwrite: false })`. Refresh the tree on success and show actionable `window.showErrorMessage` text on failure.
+3. **Rename implementation:** Register a new command (e.g., `openspec-for-agent.prompts.rename`) that prompts for a new filename, validates input with the same guardrails as `createPrompt`, and calls `workspace.fs.rename(sourceUri, targetUri, { overwrite: false })`. Refresh the tree on success and show actionable `window.showErrorMessage` text on failure.
 4. **Menu contributions:** Add the rename command to the `view/item/context` menus for prompt tree items, positioned before the existing delete command, and update the delete label to "Delete" to reflect its generalized use.
 
 ## Risks / Trade-offs

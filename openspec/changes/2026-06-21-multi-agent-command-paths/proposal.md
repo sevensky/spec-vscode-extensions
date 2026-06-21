@@ -8,7 +8,7 @@
 
 ## What Changes
 
-### 扩展端（本仓库 openspec-for-copilot-main）
+### 扩展端（本仓库 openspec-for-agent-main）
 
 1. **扩展 `AiAgent` 类型**：加入 `"trae" | "codebuddy"`，同步更新 `package.json` 的 `aiAgent` enum。
 2. **新建 agent → 命令路径映射**：参考 CLI adapters，定义各 agent 的命令目录、v1 文件名模式、legacy 文件名。

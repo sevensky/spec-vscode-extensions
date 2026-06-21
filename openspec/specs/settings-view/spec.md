@@ -4,12 +4,12 @@
 TBD - created by archiving change update-settings-view-for-copilot. Update Purpose after archive.
 ## Requirements
 ### Requirement: Settings View Branding
-The Settings view MUST reflect the new "OpenSpec for Copilot" branding.
+The Settings view MUST reflect the new "OpenSpec for Agent" branding.
 
 #### Scenario: View Title
 - **GIVEN** the extension is active
 - **WHEN** the user opens the Settings view
-- **THEN** the view welcome content should display "Configure OpenSpec for Copilot"
+- **THEN** the view welcome content should display "Configure OpenSpec for Agent"
 
 ### Requirement: MCP Configuration Access
 Users MUST be able to easily access the MCP configuration file.
@@ -27,5 +27,5 @@ Users MUST be directed to the correct documentation.
 #### Scenario: Open Help
 - **GIVEN** the extension is active
 - **WHEN** the user invokes the "Help" action
-- **THEN** the browser should open `https://github.com/atman-33/openspec-for-copilot#readme`
+- **THEN** the browser should open `https://github.com/sevensky/spec-vscode-extensions#readme`
 

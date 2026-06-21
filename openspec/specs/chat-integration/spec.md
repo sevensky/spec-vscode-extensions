@@ -49,13 +49,13 @@ The `sendPromptToChat` utility MUST append configured custom instructions to the
 When Codex mode writes prompt files under `~/.codex/.tmp/`, the extension MUST delete old Markdown files to prevent unbounded growth.
 
 #### Scenario: Cleanup Old Files
-- Given `openspec-for-copilot.aiAgent` is `codex`
+- Given `openspec-for-agent.aiAgent` is `codex`
 - And there are `.md` files in `~/.codex/.tmp/` older than 7 days
 - When the extension sends a prompt via Codex
 - Then the extension MUST delete those old `.md` files on a best-effort basis.
 
 #### Scenario: Do Not Delete Recent Files
-- Given `openspec-for-copilot.aiAgent` is `codex`
+- Given `openspec-for-agent.aiAgent` is `codex`
 - And there are `.md` files in `~/.codex/.tmp/` newer than 7 days
 - When the extension sends a prompt via Codex
 - Then the extension MUST NOT delete those recent `.md` files.
@@ -64,12 +64,12 @@ When Codex mode writes prompt files under `~/.codex/.tmp/`, the extension MUST d
 The extension MUST allow users to configure which AI agent to use for chat interactions.
 
 #### Scenario: Default Configuration
-- Given the user has not configured `openspec-for-copilot.aiAgent`
+- Given the user has not configured `openspec-for-agent.aiAgent`
 - When the extension reads the configuration
 - Then the value MUST be `github-copilot`.
 
 #### Scenario: Select Codex
-- Given the user sets `openspec-for-copilot.aiAgent` to `codex`
+- Given the user sets `openspec-for-agent.aiAgent` to `codex`
 - When the extension sends a prompt to chat
 - Then the extension MUST use the Codex integration workflow.
 
@@ -77,7 +77,7 @@ The extension MUST allow users to configure which AI agent to use for chat inter
 When the AI agent is set to `codex`, the extension MUST send prompts via the `chatgpt.addToThread` command using a temporary file.
 
 #### Scenario: Send Prompt to Codex
-- Given `openspec-for-copilot.aiAgent` is `codex`
+- Given `openspec-for-agent.aiAgent` is `codex`
 - When the extension sends a prompt "Create a spec for X"
 - Then a temporary file MUST be created at `~/.codex/.tmp/YYYYMMDD-<UUID>.md`.
 - And the file content MUST be "Create a spec for X".

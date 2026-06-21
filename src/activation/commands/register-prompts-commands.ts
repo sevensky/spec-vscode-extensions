@@ -16,26 +16,26 @@ export const registerPromptsCommands = (
 	const { outputChannel } = services;
 
 	context.subscriptions.push(
-		commands.registerCommand("openspec-for-copilot.prompts.refresh", () => {
+		commands.registerCommand("openspec-for-agent.prompts.refresh", () => {
 			outputChannel.appendLine(
 				"[Manual Refresh] Refreshing prompts explorer..."
 			);
 			promptsExplorer.refresh();
 		}),
 		commands.registerCommand(
-			"openspec-for-copilot.prompts.createInstructions",
+			"openspec-for-agent.prompts.createInstructions",
 			async () => {
 				await commands.executeCommand("workbench.command.new.instructions");
 			}
 		),
 		commands.registerCommand(
-			"openspec-for-copilot.prompts.createCopilotPrompt",
+			"openspec-for-agent.prompts.createCopilotPrompt",
 			async () => {
 				await commands.executeCommand("workbench.command.new.prompt");
 			}
 		),
 		commands.registerCommand(
-			"openspec-for-copilot.prompts.create",
+			"openspec-for-agent.prompts.create",
 			async (item?: any) => {
 				const ws = workspace.workspaceFolders?.[0];
 				if (!ws) {
@@ -67,7 +67,8 @@ export const registerPromptsCommands = (
 					title: t("prompt.create.title"),
 					placeHolder: t("prompt.create.placeHolder"),
 					prompt: t("prompt.create.promptLabel", { path: promptsPathLabel }),
-					validateInput: (value) => (value ? undefined : t("prompt.create.nameRequired")),
+					validateInput: (value) =>
+						value ? undefined : t("prompt.create.nameRequired"),
 				});
 				if (!name) {
 					return;
@@ -84,12 +85,14 @@ export const registerPromptsCommands = (
 					await window.showTextDocument(doc);
 					promptsExplorer.refresh();
 				} catch (error) {
-					window.showErrorMessage(t("error.createPromptFailed", { msg: String(error) }));
+					window.showErrorMessage(
+						t("error.createPromptFailed", { msg: String(error) })
+					);
 				}
 			}
 		),
 		commands.registerCommand(
-			"openspec-for-copilot.prompts.run",
+			"openspec-for-agent.prompts.run",
 			// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: ignore
 			async (filePathOrItem?: any) => {
 				try {
@@ -124,18 +127,20 @@ export const registerPromptsCommands = (
 						instructionType: "runPrompt",
 					});
 				} catch (error) {
-					window.showErrorMessage(t("error.runPromptFailed", { msg: String(error) }));
+					window.showErrorMessage(
+						t("error.runPromptFailed", { msg: String(error) })
+					);
 				}
 			}
 		),
 		commands.registerCommand(
-			"openspec-for-copilot.prompts.rename",
+			"openspec-for-agent.prompts.rename",
 			async (item?: any) => {
 				await promptsExplorer.renamePrompt(item);
 			}
 		),
 		commands.registerCommand(
-			"openspec-for-copilot.prompts.delete",
+			"openspec-for-agent.prompts.delete",
 			async (item: any) => {
 				if (!item?.resourceUri) {
 					return;
@@ -154,12 +159,14 @@ export const registerPromptsCommands = (
 					await workspace.fs.delete(uri);
 					promptsExplorer.refresh();
 				} catch (error) {
-					window.showErrorMessage(t("error.deletePromptFailed", { msg: String(error) }));
+					window.showErrorMessage(
+						t("error.deletePromptFailed", { msg: String(error) })
+					);
 				}
 			}
 		),
 		commands.registerCommand(
-			"openspec-for-copilot.prompts.createAgentFile",
+			"openspec-for-agent.prompts.createAgentFile",
 			async () => {
 				await commands.executeCommand("workbench.command.new.agent");
 			}

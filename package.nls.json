@@ -22,8 +22,8 @@
   "command.title.settings_open": "OpenSpec Settings",
   "command.title.settings_openGlobalConfig": "Open MCP Config (mcp.json)",
   "command.title.help_open": "OpenSpec Help",
-  "command.category": "OpenSpec for Copilot",
-  "config.title": "OpenSpec for Copilot",
+  "command.category": "OpenSpec for Agent",
+  "config.title": "OpenSpec for Agent",
   "config.desc.views_specs_visible": "Controls visibility of the Specs view in the activity bar.",
   "config.desc.views_prompts_visible": "Controls visibility of the Prompts view in the activity bar.",
   "config.desc.views_steering_visible": "Controls visibility of the Steering view in the activity bar.",
@@ -41,6 +41,6 @@
   "view.name.promptsExplorer": "Prompts",
   "view.name.steeringExplorer": "Steering",
   "view.name.overview": "Settings",
-  "displayName": "OpenSpec for Copilot",
+  "displayName": "OpenSpec for Agent",
   "extension.description": "Spec-driven development with OpenSpec"
 }

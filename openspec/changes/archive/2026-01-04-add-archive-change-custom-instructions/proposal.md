@@ -4,7 +4,7 @@
 Users want to tailor Copilot behavior specifically for the "Archive Change" workflow, similar to the existing custom instructions for "Start All Task".
 
 ## What Changes
-- Add a new VS Code setting `openspec-for-copilot.customInstructions.archiveChange`.
+- Add a new VS Code setting `openspec-for-agent.customInstructions.archiveChange`.
 - Ensure the setting appears directly below "Start All Task" in VS Code Settings UI.
 - Extend the prompt context model to support `instructionType: "archiveChange"`.
 - Update the "Archive Change" command to pass the new context so prompts include the configured instruction.

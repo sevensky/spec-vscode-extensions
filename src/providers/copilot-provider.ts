@@ -86,7 +86,7 @@ export class CopilotProvider {
 	 */
 	async invokeCopilotSplitView(
 		prompt: string,
-		title = "OpenSpec for Copilot Code"
+		title = "OpenSpec for Agent Code"
 	): Promise<Terminal> {
 		try {
 			// Create temp file with the prompt
@@ -132,7 +132,9 @@ export class CopilotProvider {
 			this.outputChannel.appendLine(
 				`ERROR: Failed to send to Copilot: ${error}`
 			);
-			window.showErrorMessage(t("error.runCopilotFailed", { error: String(error) }));
+			window.showErrorMessage(
+				t("error.runCopilotFailed", { error: String(error) })
+			);
 			throw error;
 		}
 	}

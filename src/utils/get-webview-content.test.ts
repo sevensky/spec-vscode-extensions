@@ -26,7 +26,7 @@ describe("get-webview-content", () => {
 		expect(html).toContain(
 			'href="file:///mock/extension/dist/webview/app/assets/index.css"'
 		);
-		expect(html).toContain("<title>OpenSpec for Copilot</title>");
+		expect(html).toContain("<title>OpenSpec for Agent</title>");
 	});
 
 	// 2. Edge Case: Test getNonce function for correct length and format.

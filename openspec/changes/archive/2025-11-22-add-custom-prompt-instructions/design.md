@@ -7,10 +7,10 @@ We need to inject user-defined custom instructions into prompts sent to GitHub C
 
 ### Configuration
 We will add the following settings to `package.json`:
-- `openspec-for-copilot.customInstructions.global`: String (multiline)
-- `openspec-for-copilot.customInstructions.createSpec`: String (multiline)
-- `openspec-for-copilot.customInstructions.startAllTask`: String (multiline)
-- `openspec-for-copilot.customInstructions.runPrompt`: String (multiline)
+- `openspec-for-agent.customInstructions.global`: String (multiline)
+- `openspec-for-agent.customInstructions.createSpec`: String (multiline)
+- `openspec-for-agent.customInstructions.startAllTask`: String (multiline)
+- `openspec-for-agent.customInstructions.runPrompt`: String (multiline)
 
 ### Injection Logic
 The `ChatPromptRunner` (specifically `sendPromptToChat`) is the central point for sending prompts. We will enhance it to accept an optional context parameter indicating the source of the prompt.

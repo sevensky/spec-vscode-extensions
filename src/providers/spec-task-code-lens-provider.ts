@@ -58,7 +58,7 @@ export class SpecTaskCodeLensProvider implements CodeLensProvider {
 				new CodeLens(range, {
 					title: "$(play) Execute This Task",
 					tooltip: "Execute only this task",
-					command: "openspec-for-copilot.spec.implTaskSingle",
+					command: "openspec-for-agent.spec.implTaskSingle",
 					arguments: [document.uri, lineNumber + 1, taskText],
 				})
 			);
@@ -73,7 +73,7 @@ export class SpecTaskCodeLensProvider implements CodeLensProvider {
 				new CodeLens(topRange, {
 					title: "$(play) Start All Tasks",
 					tooltip: "Click to generate OpenSpec apply prompt",
-					command: "openspec-for-copilot.spec.implTask",
+					command: "openspec-for-agent.spec.implTask",
 					arguments: [document.uri],
 				})
 			);
@@ -82,7 +82,7 @@ export class SpecTaskCodeLensProvider implements CodeLensProvider {
 				new CodeLens(topRange, {
 					title: "$(check) All Tasks Completed",
 					tooltip: "All tasks are completed",
-					command: "openspec-for-copilot.noop",
+					command: "openspec-for-agent.noop",
 				})
 			);
 		}

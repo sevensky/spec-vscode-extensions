@@ -22,8 +22,8 @@
   "command.title.settings_open": "OpenSpec 设置",
   "command.title.settings_openGlobalConfig": "打开 MCP 配置 (mcp.json)",
   "command.title.help_open": "OpenSpec 帮助",
-  "command.category": "OpenSpec for Copilot",
-  "config.title": "OpenSpec for Copilot",
+  "command.category": "OpenSpec for Agent",
+  "config.title": "OpenSpec for Agent",
   "config.desc.views_specs_visible": "控制活动栏中 Specs 视图的可见性。",
   "config.desc.views_prompts_visible": "控制活动栏中提示词视图的可见性。",
   "config.desc.views_steering_visible": "控制活动栏中 Steering 视图的可见性。",
@@ -41,6 +41,6 @@
   "view.name.promptsExplorer": "提示词",
   "view.name.steeringExplorer": "Steering",
   "view.name.overview": "设置",
-  "displayName": "OpenSpec for Copilot",
+  "displayName": "OpenSpec for Agent",
   "extension.description": "在 VS Code 中用 OpenSpec 规范驱动开发。"
 }

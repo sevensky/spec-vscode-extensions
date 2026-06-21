@@ -1,7 +1,7 @@
 # Tasks: localize-settings-descriptions
 
 > 将 `package.nls.zh-cn.json` 中 11 项英文配置描述翻译为简体中文。
-> 路径：`vscode-extensions/openspec-for-copilot-main/package.nls.zh-cn.json`
+> 路径：`vscode-extensions/openspec-for-agent-main/package.nls.zh-cn.json`
 
 ## 1. 视图可见性配置（4 项）
 

@@ -14,7 +14,7 @@ This applies to `tasks.md` files located within the `openspec` directory or conf
 Given a `tasks.md` file with at least one incomplete task (e.g., `- [ ] Task 1`)
 When the CodeLens is rendered at the top of the file
 Then it displays "$(play) Start All Tasks"
-And clicking it triggers the `openspec-for-copilot.spec.implTask` command to execute all incomplete tasks.
+And clicking it triggers the `openspec-for-agent.spec.implTask` command to execute all incomplete tasks.
 
 #### Scenario: All tasks completed
 Given a `tasks.md` file where all tasks are marked as complete (e.g., `- [x] Task 1`)
@@ -41,7 +41,7 @@ When the file is opened
 Then a CodeLens button appears above Task 1 line displaying "$(play) Execute This Task"
 And a CodeLens button appears above Task 2 line displaying "$(play) Execute This Task"
 And no CodeLens button appears above Task 3 (already completed)
-And clicking the button above Task 1 triggers `openspec-for-copilot.spec.implTaskSingle` with Task 1 context.
+And clicking the button above Task 1 triggers `openspec-for-agent.spec.implTaskSingle` with Task 1 context.
 
 #### Scenario: Individual task execution updates only target task
 Given a `tasks.md` file with tasks:
