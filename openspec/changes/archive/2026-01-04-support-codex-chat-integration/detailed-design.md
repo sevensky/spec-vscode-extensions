@@ -1,12 +1,12 @@
 ### 1. Overview
 This change adds support for Codex Chat (via the ChatGPT extension) as a destination for chat instructions, in addition to the existing GitHub Copilot Chat.
-Users will be able to select the AI agent to use via the `openspec-for-copilot.aiAgent` setting.
+Users will be able to select the AI agent to use via the `openspec-for-agent.aiAgent` setting.
 When Codex Chat is selected, the instruction content is written to a temporary file, opened in the editor, and the `chatgpt.addToThread` command is executed.
 
 ### 2. Scope & Constraints
 
 #### In Scope
-- Add `openspec-for-copilot.aiAgent` setting to `package.json`.
+- Add `openspec-for-agent.aiAgent` setting to `package.json`.
 - Support reading the new setting in `ConfigManager`.
 - Implement agent dispatch logic in `ChatPromptRunner` (or `sendPromptToChat`).
 - Implement the workflow for Codex (create temporary file, open, select, execute command).
@@ -52,14 +52,14 @@ sequenceDiagram
 
 ### 4. Implementation Details
 
-#### 4.1. Configuration Definition (`openspec-for-copilot/package.json`)
+#### 4.1. Configuration Definition (`openspec-for-agent/package.json`)
 
 **Purpose**: Allow users to select the AI agent.
 
-**Changes**: Add `openspec-for-copilot.aiAgent` to the `configuration` section.
+**Changes**: Add `openspec-for-agent.aiAgent` to the `configuration` section.
 
 ```json
-"openspec-for-copilot.aiAgent": {
+"openspec-for-agent.aiAgent": {
   "type": "string",
   "default": "github-copilot",
   "enum": [
@@ -71,7 +71,7 @@ sequenceDiagram
 }
 ```
 
-#### 4.2. Configuration Management (`openspec-for-copilot/src/utils/config-manager.ts`)
+#### 4.2. Configuration Management (`openspec-for-agent/src/utils/config-manager.ts`)
 
 **Purpose**: Enable reading the new setting value.
 
@@ -110,7 +110,7 @@ private getDefaultSettings(): OpenSpecSettings {
 }
 ```
 
-#### 4.3. Chat Sending Logic (`openspec-for-copilot/src/utils/chat-prompt-runner.ts`)
+#### 4.3. Chat Sending Logic (`openspec-for-agent/src/utils/chat-prompt-runner.ts`)
 
 **Purpose**: Switch the destination based on the configuration.
 
@@ -141,7 +141,7 @@ export const sendPromptToChat = async (
 };
 ```
 
-#### 4.4. Codex Integration Utility (`openspec-for-copilot/src/utils/codex-chat-utils.ts`)
+#### 4.4. Codex Integration Utility (`openspec-for-agent/src/utils/codex-chat-utils.ts`)
 
 **Purpose**: Implement the sending process to Codex (ChatGPT).
 
@@ -201,12 +201,12 @@ export const sendPromptToCodex = async (prompt: string): Promise<void> => {
 #### 6.2. Manual Verification Scenarios
 
 **Scenario A: GitHub Copilot (Default)**
-1. Confirm that the `openspec-for-copilot.aiAgent` setting is `github-copilot` (or unset).
+1. Confirm that the `openspec-for-agent.aiAgent` setting is `github-copilot` (or unset).
 2. Execute any command (e.g., "Create Spec").
 3. Verify that the GitHub Copilot Chat panel opens and the prompt is entered.
 
 **Scenario B: Codex**
-1. Change the `openspec-for-copilot.aiAgent` setting to `codex`.
+1. Change the `openspec-for-agent.aiAgent` setting to `codex`.
 2. Execute any command.
 3. Verify that a new Markdown file is created under `~/.codex/.tmp/`.
 4. Verify that the file opens in the editor and the text is selected.

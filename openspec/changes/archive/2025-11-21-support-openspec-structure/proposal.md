@@ -2,7 +2,7 @@
 
 ## Context
 The current extension implementation expects specs to be located in `.codex/specs` and follows a specific structure (`requirements.md`, `design.md`, `tasks.md`).
-The project is migrating to `openspec-for-copilot`, which uses a different folder structure under `openspec/`:
+The project is migrating to `openspec-for-agent`, which uses a different folder structure under `openspec/`:
 - `openspec/specs/`: Contains current system specifications.
 - `openspec/changes/`: Contains change proposals.
 

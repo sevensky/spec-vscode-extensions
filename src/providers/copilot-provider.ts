@@ -86,7 +86,7 @@ export class CopilotProvider {
 	 */
 	async invokeCopilotSplitView(
 		prompt: string,
-		title = "OpenSpec for Copilot Code"
+		title = "OpenSpec for Agent Code"
 	): Promise<Terminal> {
 		try {
 			// Create temp file with the prompt

@@ -1,5 +1,5 @@
 // VSCode configuration namespace for this extension
-export const VSC_CONFIG_NAMESPACE = "openspec-for-copilot";
+export const VSC_CONFIG_NAMESPACE = "openspec-for-agent";
 
 // Default configuration
 export const DEFAULT_CONFIG = {

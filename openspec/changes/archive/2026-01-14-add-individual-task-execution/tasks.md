@@ -4,11 +4,11 @@
 - [x] Update `SpecTaskCodeLensProvider.provideCodeLenses` to parse task lines using regex pattern `/^(\s*)-\s*\[\s*\]\s*(.+)$/gm`
 - [x] Generate CodeLens instances for each incomplete task at the line immediately before the task line
 - [x] Set CodeLens button label to "$(play) Execute This Task" with tooltip "Execute only this task"
-- [x] Pass task metadata (line number, task text, document URI) as command arguments to `openspec-for-copilot.spec.implTaskSingle`
+- [x] Pass task metadata (line number, task text, document URI) as command arguments to `openspec-for-agent.spec.implTaskSingle`
 - [x] Add unit tests for task line parsing with various formats (indentation, spacing, special characters)
 
 ## Phase 2: Command Registration
-- [x] Register new command `openspec-for-copilot.spec.implTaskSingle` in `register-spec-commands.ts`
+- [x] Register new command `openspec-for-agent.spec.implTaskSingle` in `register-spec-commands.ts`
 - [x] Extract task context from command arguments (task line number, task text)
 - [x] Call `specManager.runOpenSpecApply` with task-specific parameters
 - [x] Add error handling for invalid task context or missing task data

@@ -17,7 +17,7 @@ Modify `sendPromptToChat` (and any other entry points for chat) to append the la
 ## Detailed Design
 
 ### Configuration
-Add `openspec-for-copilot.chatLanguage` setting in `package.json`.
+Add `openspec-for-agent.chatLanguage` setting in `package.json`.
 - Type: `string`
 - Enum: `["en", "ja", "es", "fr", "de", "zh-cn", "zh-tw", "it", "pt-br", "ko", "ru"]`
 - Default: `"en"`

@@ -1,6 +1,6 @@
 ## 背景
 
-`openspec-for-copilot-main` 当前扩展已经支持 GitHub Copilot Chat 和 Codex 两种后端，会通过 `aiAgent` 配置来选择发送 Prompt 的方式。扩展本身也提供了 `chatLanguage` 配置，用于在 prompt 中追加语言要求。
+`openspec-for-agent-main` 当前扩展已经支持 GitHub Copilot Chat 和 Codex 两种后端，会通过 `aiAgent` 配置来选择发送 Prompt 的方式。扩展本身也提供了 `chatLanguage` 配置，用于在 prompt 中追加语言要求。
 
 当前存在两个痛点：
 1. 国内/中文用户希望直接使用 Claude 系列大模型，而不是仅限 Copilot 或 Codex。
@@ -11,7 +11,7 @@
 ## 目标 / 非目标
 
 **目标：**
-- 为扩展新增 Claude 后端支持，使用户可以从 `openspec-for-copilot.aiAgent` 中选择 `claude`。
+- 为扩展新增 Claude 后端支持，使用户可以从 `openspec-for-agent.aiAgent` 中选择 `claude`。
 - 在扩展内部建立清晰的 AI 提供者抽象层，隔离 GitHub Copilot、Codex、Claude 的差异。
 - 将中文语言支持补齐到 prompt 构建、文档说明和扩展配置说明中。
 - 保留现有 GitHub Copilot / Codex 流程，避免对现有用户造成破坏性变更。

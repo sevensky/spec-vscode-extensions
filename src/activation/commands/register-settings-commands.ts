@@ -19,7 +19,7 @@ export const registerSettingsCommands = (
 	const { outputChannel } = services;
 
 	context.subscriptions.push(
-		commands.registerCommand("openspec-for-copilot.settings.open", async () => {
+		commands.registerCommand("openspec-for-agent.settings.open", async () => {
 			outputChannel.appendLine("Opening OpenSpec settings...");
 			await commands.executeCommand(
 				"workbench.action.openSettings",
@@ -27,7 +27,7 @@ export const registerSettingsCommands = (
 			);
 		}),
 		commands.registerCommand(
-			"openspec-for-copilot.settings.openGlobalConfig",
+			"openspec-for-agent.settings.openGlobalConfig",
 			async () => {
 				outputChannel.appendLine("Opening MCP config...");
 
@@ -54,18 +54,18 @@ export const registerSettingsCommands = (
 			}
 		),
 		// biome-ignore lint/suspicious/useAwait: ignore
-		commands.registerCommand("openspec-for-copilot.help.open", async () => {
+		commands.registerCommand("openspec-for-agent.help.open", async () => {
 			outputChannel.appendLine("Opening OpenSpec help...");
-			const helpUrl = "https://github.com/atman-33/openspec-for-copilot#readme";
+			const helpUrl = "https://github.com/sevensky/spec-vscode-extensions#readme";
 			env.openExternal(Uri.parse(helpUrl));
 		}),
 		// biome-ignore lint/suspicious/useAwait: ignore
-		commands.registerCommand("openspec-for-copilot.help.install", async () => {
+		commands.registerCommand("openspec-for-agent.help.install", async () => {
 			outputChannel.appendLine("Opening OpenSpec installation guide...");
 			const installUrl = "https://github.com/Fission-AI/OpenSpec#readme";
 			env.openExternal(Uri.parse(installUrl));
 		}),
-		commands.registerCommand("openspec-for-copilot.menu.open", async () => {
+		commands.registerCommand("openspec-for-agent.menu.open", async () => {
 			outputChannel.appendLine("Opening OpenSpec menu...");
 			await toggleViews();
 		})

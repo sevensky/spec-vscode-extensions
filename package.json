@@ -1,38 +1,31 @@
 {
-  "name": "openspec-for-copilot",
+  "name": "openspec-for-agent",
   "displayName": "%displayName%",
   "description": "%extension.description%",
   "version": "1.1.0",
-  "author": "atman-33",
-  "publisher": "atman-dev",
+  "author": "sevensky",
+  "publisher": "bairui-dev",
   "icon": "icon.png",
   "repository": {
     "type": "git",
-    "url": "https://github.com/atman-33/openspec-for-copilot"
+    "url": "https://github.com/sevensky/spec-vscode-extensions"
   },
   "engines": {
     "vscode": "^1.84.0"
   },
-  "categories": [
-    "AI",
-    "Programming Languages",
-    "Other"
-  ],
+  "categories": ["AI","Programming Languages","Other"],
   "activationEvents": [],
   "main": "dist/extension.js",
-  "extensionKind": [
-    "workspace",
-    "ui"
-  ],
+  "extensionKind": ["workspace","ui"],
   "scripts": {
-    "install:all": "npm install && cd webview-ui && npm install",
+    "install:all": "pnpm install && cd webview-ui && pnpm install",
     "build-prompts": "node scripts/build-prompts.js",
-    "build:ext": "esbuild src/extension.ts --bundle --platform=node --target=node16 --external:vscode --outfile=dist/extension.js",
-    "build": "npm run build-prompts && npm run build:ext && npm run build:webview",
-    "vscode:prepublish": "npm run build",
-    "compile": "npm run build && npm run package",
-    "watch": "concurrently \"tsc -w -p ./\" \"npm:watch:webview\"",
-    "package": "vsce package",
+    "build:ext": "node scripts/build-ext.js",
+    "build": "pnpm run build-prompts && pnpm run build:ext && pnpm run build:webview",
+    "vscode:prepublish": "pnpm run build",
+    "compile": "pnpm run build && pnpm run package",
+    "watch": "concurrently \"tsc -w -p ./\" \"pnpm:watch:webview\"",
+    "package": "vsce package --no-dependencies --out dist/",
     "lint": "ultracite lint",
     "format": "ultracite format",
     "check": "ultracite check",
@@ -44,105 +37,101 @@
     "ext:status": "bash scripts/link-extension.sh status",
     "prepare": "husky",
     "--- WEBVIEW ---": "--- --- --- --- ---",
-    "build:webview": "npm --prefix webview-ui run build",
-    "watch:webview": "npm --prefix webview-ui run dev"
+    "build:webview": "pnpm --prefix webview-ui run build",
+    "watch:webview": "pnpm --prefix webview-ui run dev"
   },
   "contributes": {
     "configuration": {
       "title": "%config.title%",
       "properties": {
-        "openspec-for-copilot.views.specs.visible": {
+        "openspec-for-agent.views.specs.visible": {
           "type": "boolean",
           "default": true,
           "description": "%config.desc.views_specs_visible%"
         },
-        "openspec-for-copilot.views.prompts.visible": {
+        "openspec-for-agent.views.prompts.visible": {
           "type": "boolean",
           "default": true,
           "description": "%config.desc.views_prompts_visible%"
         },
-        "openspec-for-copilot.views.steering.visible": {
+        "openspec-for-agent.views.steering.visible": {
           "type": "boolean",
           "default": true,
           "description": "%config.desc.views_steering_visible%"
         },
-        "openspec-for-copilot.views.settings.visible": {
+        "openspec-for-agent.views.settings.visible": {
           "type": "boolean",
           "default": true,
           "description": "%config.desc.views_settings_visible%"
         },
-        "openspec-for-copilot.copilot.specsPath": {
+        "openspec-for-agent.copilot.specsPath": {
           "type": "string",
           "default": "openspec",
           "description": "%config.desc.copilot_specsPath%",
           "order": 1
         },
-        "openspec-for-copilot.copilot.promptsPath": {
+        "openspec-for-agent.copilot.promptsPath": {
           "type": "string",
           "default": ".github/prompts",
           "description": "%config.desc.copilot_promptsPath%",
           "order": 2
         },
-        "openspec-for-copilot.aiAgent": {
+        "openspec-for-agent.aiAgent": {
           "type": "string",
-          "default": "github-copilot",
+          "default": "claude",
           "enum": [
-            "github-copilot",
-            "codex",
             "claude",
             "trae",
-            "codebuddy"
+            "zcode",
+            "codebuddy",
+            "github-copilot",
+            "codex"
           ],
           "description": "%config.desc.aiAgent%"
         },
-        "openspec-for-copilot.chatLanguage": {
+        "openspec-for-agent.chatLanguage": {
           "type": "string",
           "default": "English",
           "enum": [
             "English",
-            "Japanese",
+            "Chinese (Simplified)",
+            "Russian",
             "Spanish",
             "French",
-            "German",
-            "Chinese (Simplified)",
-            "Chinese (Traditional)",
-            "Italian",
-            "Portuguese (Brazil)",
-            "Korean",
-            "Russian"
+            "German"
           ],
           "description": "%config.desc.chatLanguage%",
           "order": 3
         },
-        "openspec-for-copilot.customInstructions.global": {
+        "openspec-for-agent.customInstructions.global": {
           "type": "string",
           "default": "",
           "editPresentation": "multilineText",
           "description": "%config.desc.customInstructions_global%",
           "order": 4
         },
-        "openspec-for-copilot.customInstructions.createSpec": {
+        "openspec-for-agent.customInstructions.createSpec": {
           "type": "string",
           "default": "",
           "editPresentation": "multilineText",
           "description": "%config.desc.customInstructions_createSpec%",
           "order": 5
         },
-        "openspec-for-copilot.customInstructions.startAllTask": {
+        "openspec-for-agent.customInstructions.startAllTask": {
           "type": "string",
           "default": "",
           "editPresentation": "multilineText",
           "description": "%config.desc.customInstructions_startAllTask%",
           "order": 6
         },
-        "openspec-for-copilot.customInstructions.archiveChange": {
+        "openspec-for-agent.customInstructions.archiveChange": {
           "type": "string",
           "default": "",
           "editPresentation": "multilineText",
           "description": "%config.desc.customInstructions_archiveChange%",
           "order": 7
         },
-        "openspec-for-copilot.customInstructions.runPrompt": {
+        "openspec-for-agent.customInstructions.runPrompt": {
           "type": "string",
           "default": "",
           "editPresentation": "multilineText",
@@ -154,193 +143,193 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "openspec-for-copilot",
+          "id": "openspec-for-agent",
           "title": "OpenSpec for Agent (中文)",
           "icon": "./icons/workflow03.svg"
         }
       ]
     },
     "views": {
-      "openspec-for-copilot": [
+      "openspec-for-agent": [
         {
-          "id": "openspec-for-copilot.views.specExplorer",
+          "id": "openspec-for-agent.views.specExplorer",
           "name": "%view.name.specExplorer%",
           "icon": "symbol-structure",
-          "when": "!(workbenchState == empty || workspaceFolderCount == 0) && config.openspec-for-copilot.views.specs.visible"
+          "when": "!(workbenchState == empty || workspaceFolderCount == 0) && config.openspec-for-agent.views.specs.visible"
         },
         {
-          "id": "openspec-for-copilot.views.promptsExplorer",
+          "id": "openspec-for-agent.views.promptsExplorer",
           "name": "%view.name.promptsExplorer%",
           "icon": "terminal",
-          "when": "!(workbenchState == empty || workspaceFolderCount == 0) && config.openspec-for-copilot.views.prompts.visible"
+          "when": "!(workbenchState == empty || workspaceFolderCount == 0) && config.openspec-for-agent.views.prompts.visible"
         },
         {
-          "id": "openspec-for-copilot.views.steeringExplorer",
+          "id": "openspec-for-agent.views.steeringExplorer",
           "name": "%view.name.steeringExplorer%",
           "icon": "symbol-parameter",
-          "when": "!(workbenchState == empty || workspaceFolderCount == 0) && config.openspec-for-copilot.views.steering.visible"
+          "when": "!(workbenchState == empty || workspaceFolderCount == 0) && config.openspec-for-agent.views.steering.visible"
         },
         {
-          "id": "openspec-for-copilot.views.overview",
+          "id": "openspec-for-agent.views.overview",
           "name": "%view.name.overview%",
           "icon": "gear",
           "visibility": "collapsed",
-          "when": "!(workbenchState == empty || workspaceFolderCount == 0) && config.openspec-for-copilot.views.settings.visible"
+          "when": "!(workbenchState == empty || workspaceFolderCount == 0) && config.openspec-for-agent.views.settings.visible"
         }
       ]
     },
     "viewsWelcome": [
       {
-        "view": "openspec-for-copilot.views.specExplorer",
-        "contents": "Plan features with Specs\n\n[$(plus) Create New Spec](command:openspec-for-copilot.spec.create)"
+        "view": "openspec-for-agent.views.specExplorer",
+        "contents": "Plan features with Specs\n\n[$(plus) Create New Spec](command:openspec-for-agent.spec.create)"
       },
       {
-        "view": "openspec-for-copilot.views.promptsExplorer",
-        "contents": "Create and run prompts (.md) under .github/prompts\n\n[$(refresh) Refresh](command:openspec-for-copilot.prompts.refresh)"
+        "view": "openspec-for-agent.views.promptsExplorer",
+        "contents": "Create and run prompts (.md) under .github/prompts\n\n[$(refresh) Refresh](command:openspec-for-agent.prompts.refresh)"
       },
       {
-        "view": "openspec-for-copilot.views.steeringExplorer",
+        "view": "openspec-for-agent.views.steeringExplorer",
         "contents": "Manage steering rules for Copilot"
       },
       {
-        "view": "openspec-for-copilot.views.overview",
-        "contents": "Configure OpenSpec for Copilot\n\n[$(book) Install OpenSpec](command:openspec-for-copilot.help.install)\n[$(gear) Open Settings](command:openspec-for-copilot.settings.open)\n[$(file-text) Open MCP Config (mcp.json)](command:openspec-for-copilot.settings.openGlobalConfig)\n[$(question) Help](command:openspec-for-copilot.help.open)"
+        "view": "openspec-for-agent.views.overview",
+        "contents": "Configure OpenSpec for Agent\n\n[$(book) Install OpenSpec](command:openspec-for-agent.help.install)\n[$(gear) Open Settings](command:openspec-for-agent.settings.open)\n[$(file-text) Open MCP Config (mcp.json)](command:openspec-for-agent.settings.openGlobalConfig)\n[$(question) Help](command:openspec-for-agent.help.open)"
       }
     ],
     "commands": [
       {
-        "command": "openspec-for-copilot.spec.create",
+        "command": "openspec-for-agent.spec.create",
         "title": "%command.title.spec_create%",
         "category": "%command.category%",
         "icon": "$(plus)"
       },
       {
-        "command": "openspec-for-copilot.spec.refresh",
+        "command": "openspec-for-agent.spec.refresh",
         "title": "%command.title.spec_refresh%",
         "category": "%command.category%",
         "icon": "$(refresh)"
       },
       {
-        "command": "openspec-for-copilot.spec.delete",
+        "command": "openspec-for-agent.spec.delete",
         "title": "%command.title.spec_delete%",
         "category": "%command.category%",
         "icon": "$(trash)"
       },
       {
-        "command": "openspec-for-copilot.spec.archiveChange",
+        "command": "openspec-for-agent.spec.archiveChange",
         "title": "%command.title.spec_archiveChange%",
         "category": "%command.category%",
         "icon": "$(archive)"
       },
       {
-        "command": "openspec-for-copilot.spec.copyName",
+        "command": "openspec-for-agent.spec.copyName",
         "title": "%command.title.spec_copyName%",
         "category": "%command.category%",
         "icon": "$(clippy)"
       },
       {
-        "command": "openspec-for-copilot.spec.createGitHubIssue",
+        "command": "openspec-for-agent.spec.createGitHubIssue",
         "title": "%command.title.spec_createGitHubIssue%",
         "category": "%command.category%",
         "icon": "$(github)"
       },
       {
-        "command": "openspec-for-copilot.spec.createDetailedDesign",
+        "command": "openspec-for-agent.spec.createDetailedDesign",
         "title": "%command.title.spec_createDetailedDesign%",
         "category": "%command.category%",
         "icon": "$(file-text)"
       },
       {
-        "command": "openspec-for-copilot.spec.updateSpecsFromDetailedDesign",
+        "command": "openspec-for-agent.spec.updateSpecsFromDetailedDesign",
         "title": "%command.title.spec_updateSpecsFromDetailedDesign%",
         "category": "%command.category%",
         "icon": "$(sync)"
       },
       {
-        "command": "openspec-for-copilot.spec.implTask",
+        "command": "openspec-for-agent.spec.implTask",
         "title": "%command.title.spec_implTask%",
         "category": "%command.category%"
       },
       {
-        "command": "openspec-for-copilot.steering.refresh",
+        "command": "openspec-for-agent.steering.refresh",
         "title": "%command.title.steering_refresh%",
         "category": "%command.category%",
         "icon": "$(refresh)"
       },
       {
-        "command": "openspec-for-copilot.steering.createUserRule",
+        "command": "openspec-for-agent.steering.createUserRule",
         "title": "%command.title.steering_createUserRule%",
         "category": "%command.category%",
         "icon": "$(globe)"
       },
       {
-        "command": "openspec-for-copilot.steering.createProjectRule",
+        "command": "openspec-for-agent.steering.createProjectRule",
         "title": "%command.title.steering_createProjectRule%",
         "category": "%command.category%",
         "icon": "$(root-folder)"
       },
       {
-        "command": "openspec-for-copilot.prompts.create",
+        "command": "openspec-for-agent.prompts.create",
         "title": "%command.title.prompts_create%",
         "category": "%command.category%",
         "icon": "$(plus)"
       },
       {
-        "command": "openspec-for-copilot.prompts.createAgentFile",
+        "command": "openspec-for-agent.prompts.createAgentFile",
         "title": "%command.title.prompts_createAgentFile%",
         "category": "%command.category%",
         "icon": "$(robot)"
       },
       {
-        "command": "openspec-for-copilot.prompts.createInstructions",
+        "command": "openspec-for-agent.prompts.createInstructions",
         "title": "%command.title.prompts_createInstructions%",
         "category": "%command.category%",
         "icon": "$(book)"
       },
       {
-        "command": "openspec-for-copilot.prompts.createCopilotPrompt",
+        "command": "openspec-for-agent.prompts.createCopilotPrompt",
         "title": "%command.title.prompts_createCopilotPrompt%",
         "category": "%command.category%",
         "icon": "$(sparkle)"
       },
       {
-        "command": "openspec-for-copilot.prompts.refresh",
+        "command": "openspec-for-agent.prompts.refresh",
         "title": "%command.title.prompts_refresh%",
         "category": "%command.category%",
         "icon": "$(refresh)"
       },
       {
-        "command": "openspec-for-copilot.prompts.run",
+        "command": "openspec-for-agent.prompts.run",
         "title": "%command.title.prompts_run%",
         "category": "%command.category%",
         "icon": "$(play)"
       },
       {
-        "command": "openspec-for-copilot.prompts.rename",
+        "command": "openspec-for-agent.prompts.rename",
         "title": "%command.title.prompts_rename%",
         "category": "%command.category%",
         "icon": "$(edit)"
       },
       {
-        "command": "openspec-for-copilot.prompts.delete",
+        "command": "openspec-for-agent.prompts.delete",
         "title": "%command.title.prompts_delete%",
         "category": "%command.category%",
         "icon": "$(trash)"
       },
       {
-        "command": "openspec-for-copilot.settings.open",
+        "command": "openspec-for-agent.settings.open",
         "title": "%command.title.settings_open%",
         "category": "%command.category%",
         "icon": "$(gear)"
       },
       {
-        "command": "openspec-for-copilot.settings.openGlobalConfig",
+        "command": "openspec-for-agent.settings.openGlobalConfig",
         "title": "%command.title.settings_openGlobalConfig%",
         "category": "%command.category%",
         "icon": "$(file-text)"
       },
       {
-        "command": "openspec-for-copilot.help.open",
+        "command": "openspec-for-agent.help.open",
         "title": "%command.title.help_open%",
         "category": "%command.category%",
         "icon": "$(question)"
@@ -349,106 +338,106 @@
     "menus": {
       "view/title": [
         {
-          "command": "openspec-for-copilot.spec.create",
-          "when": "view == openspec-for-copilot.views.specExplorer",
+          "command": "openspec-for-agent.spec.create",
+          "when": "view == openspec-for-agent.views.specExplorer",
           "group": "navigation@1"
         },
         {
-          "command": "openspec-for-copilot.spec.refresh",
-          "when": "view == openspec-for-copilot.views.specExplorer",
+          "command": "openspec-for-agent.spec.refresh",
+          "when": "view == openspec-for-agent.views.specExplorer",
           "group": "navigation@2"
         },
         {
-          "command": "openspec-for-copilot.steering.refresh",
-          "when": "view == openspec-for-copilot.views.steeringExplorer",
+          "command": "openspec-for-agent.steering.refresh",
+          "when": "view == openspec-for-agent.views.steeringExplorer",
           "group": "navigation@3"
         },
         {
-          "command": "openspec-for-copilot.prompts.createAgentFile",
-          "when": "view == openspec-for-copilot.views.promptsExplorer",
+          "command": "openspec-for-agent.prompts.createAgentFile",
+          "when": "view == openspec-for-agent.views.promptsExplorer",
           "group": "navigation@1"
         },
         {
-          "command": "openspec-for-copilot.prompts.createInstructions",
-          "when": "view == openspec-for-copilot.views.promptsExplorer",
+          "command": "openspec-for-agent.prompts.createInstructions",
+          "when": "view == openspec-for-agent.views.promptsExplorer",
           "group": "navigation@2"
         },
         {
-          "command": "openspec-for-copilot.prompts.createCopilotPrompt",
-          "when": "view == openspec-for-copilot.views.promptsExplorer",
+          "command": "openspec-for-agent.prompts.createCopilotPrompt",
+          "when": "view == openspec-for-agent.views.promptsExplorer",
           "group": "navigation@3"
         },
         {
-          "command": "openspec-for-copilot.prompts.refresh",
-          "when": "view == openspec-for-copilot.views.promptsExplorer",
+          "command": "openspec-for-agent.prompts.refresh",
+          "when": "view == openspec-for-agent.views.promptsExplorer",
           "group": "navigation@4"
         },
         {
-          "command": "openspec-for-copilot.settings.openGlobalConfig",
-          "when": "view == openspec-for-copilot.views.overview",
+          "command": "openspec-for-agent.settings.openGlobalConfig",
+          "when": "view == openspec-for-agent.views.overview",
           "group": "navigation@2"
         }
       ],
       "view/item/context": [
         {
-          "command": "openspec-for-copilot.spec.copyName",
-          "when": "view == openspec-for-copilot.views.specExplorer && (viewItem == change || viewItem == spec)",
+          "command": "openspec-for-agent.spec.copyName",
+          "when": "view == openspec-for-agent.views.specExplorer && (viewItem == change || viewItem == spec)",
           "group": "6_cutcopypaste"
         },
         {
-          "command": "openspec-for-copilot.spec.delete",
-          "when": "view == openspec-for-copilot.views.specExplorer && viewItem == spec",
+          "command": "openspec-for-agent.spec.delete",
+          "when": "view == openspec-for-agent.views.specExplorer && viewItem == spec",
           "group": "7_modification"
         },
         {
-          "command": "openspec-for-copilot.spec.createDetailedDesign",
-          "when": "view == openspec-for-copilot.views.specExplorer && viewItem == change",
+          "command": "openspec-for-agent.spec.createDetailedDesign",
+          "when": "view == openspec-for-agent.views.specExplorer && viewItem == change",
           "group": "7_modification@1"
         },
         {
-          "command": "openspec-for-copilot.spec.updateSpecsFromDetailedDesign",
-          "when": "view == openspec-for-copilot.views.specExplorer && viewItem == change",
+          "command": "openspec-for-agent.spec.updateSpecsFromDetailedDesign",
+          "when": "view == openspec-for-agent.views.specExplorer && viewItem == change",
           "group": "7_modification@2"
         },
         {
-          "command": "openspec-for-copilot.spec.createGitHubIssue",
-          "when": "view == openspec-for-copilot.views.specExplorer && viewItem == change",
+          "command": "openspec-for-agent.spec.createGitHubIssue",
+          "when": "view == openspec-for-agent.views.specExplorer && viewItem == change",
           "group": "7_modification@3"
         },
         {
-          "command": "openspec-for-copilot.spec.archiveChange",
-          "when": "view == openspec-for-copilot.views.specExplorer && viewItem == change",
+          "command": "openspec-for-agent.spec.archiveChange",
+          "when": "view == openspec-for-agent.views.specExplorer && viewItem == change",
           "group": "7_modification@4"
         },
         {
-          "command": "openspec-for-copilot.prompts.run",
-          "when": "view == openspec-for-copilot.views.promptsExplorer && viewItem == prompt-runnable",
+          "command": "openspec-for-agent.prompts.run",
+          "when": "view == openspec-for-agent.views.promptsExplorer && viewItem == prompt-runnable",
           "group": "inline"
         },
         {
-          "command": "openspec-for-copilot.prompts.rename",
-          "when": "view == openspec-for-copilot.views.promptsExplorer && (viewItem == prompt || viewItem == prompt-runnable)",
+          "command": "openspec-for-agent.prompts.rename",
+          "when": "view == openspec-for-agent.views.promptsExplorer && (viewItem == prompt || viewItem == prompt-runnable)",
           "group": "7_modification@1"
         },
         {
-          "command": "openspec-for-copilot.prompts.delete",
-          "when": "view == openspec-for-copilot.views.promptsExplorer && (viewItem == prompt || viewItem == prompt-runnable)",
+          "command": "openspec-for-agent.prompts.delete",
+          "when": "view == openspec-for-agent.views.promptsExplorer && (viewItem == prompt || viewItem == prompt-runnable)",
           "group": "7_modification@2"
         }
       ],
       "commandPalette": [
         {
-          "command": "openspec-for-copilot.spec.create"
+          "command": "openspec-for-agent.spec.create"
         },
         {
-          "command": "openspec-for-copilot.steering.refresh"
+          "command": "openspec-for-agent.steering.refresh"
         },
         {
-          "command": "openspec-for-copilot.prompts.create",
+          "command": "openspec-for-agent.prompts.create",
           "when": "workspaceFolderCount > 0"
         },
         {
-          "command": "openspec-for-copilot.settings.openGlobalConfig"
+          "command": "openspec-for-agent.settings.openGlobalConfig"
         }
       ]
     }

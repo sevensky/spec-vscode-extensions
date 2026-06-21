@@ -1,14 +1,14 @@
 # Tasks: support-claude-chinese
 
 > 实现 Claude 终端 CLI 集成 + 简体中文适配。
-> 路径：`vscode-extensions/openspec-for-copilot-main/`
+> 路径：`vscode-extensions/openspec-for-agent-main/`
 > 范本：CodexService（同目录 src/services/）+ companion 的 claudeCodeProvider
 
 ## 1. 配置层：AiAgent 类型扩展
 
 - [x] **1.1** `src/utils/config-manager.ts:10` — `AiAgent` 类型加 `"claude"`：`"github-copilot" | "codex" | "claude"`
 - [x] **1.2** `src/utils/config-manager.ts:109-113` — `getAiAgent()` 改三分支判断（当前 `raw === "codex" ? "codex" : "github-copilot"` 会把 claude 错误归到 copilot），改为显式匹配 claude/codex，其余默认 github-copilot
-- [x] **1.3** `package.json:86-89` — `openspec-for-copilot.aiAgent` 的 enum 加 `"claude"`
+- [x] **1.3** `package.json:86-89` — `openspec-for-agent.aiAgent` 的 enum 加 `"claude"`
 
 ## 2. ClaudeService 实现（终端 CLI 方案）
 

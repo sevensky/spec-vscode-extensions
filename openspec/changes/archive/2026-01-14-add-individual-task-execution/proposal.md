@@ -50,7 +50,7 @@ The `openspec/specs/codelens/spec.md` specification is updated with:
 
 ### Implementation Status
 The corresponding implementation adds:
-- Individual task execution command `openspec-for-copilot.spec.implTaskSingle`
+- Individual task execution command `openspec-for-agent.spec.implTaskSingle`
 - CodeLens button generation for each incomplete task in `SpecTaskCodeLensProvider`
 - Task-specific prompt generation in `SpecManager.runOpenSpecApply`
 - Proper task completion tracking to update only the executed task line
@@ -64,7 +64,7 @@ Modify `SpecTaskCodeLensProvider` to:
 3. Pass task-specific metadata (line number, task text) to the execution command
 
 ### Command Registration
-Add new command `openspec-for-copilot.spec.implTaskSingle` that:
+Add new command `openspec-for-agent.spec.implTaskSingle` that:
 1. Accepts task line number and task text as arguments
 2. Calls `SpecManager.runOpenSpecApply` with individual task context
 3. Distinguishes from batch execution mode via optional parameters

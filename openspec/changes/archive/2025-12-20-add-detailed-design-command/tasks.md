@@ -1,7 +1,7 @@
 # Tasks
 
 ## 1. Command + Menu Wiring
-- [x] 1.1 Register a new command `openspec-for-copilot.spec.createDetailedDesign` in `package.json`.
+- [x] 1.1 Register a new command `openspec-for-agent.spec.createDetailedDesign` in `package.json`.
 - [x] 1.2 Add "Create Detailed Design" to the Specs view item context menu for change items, ordered above "Archive Change".
 
 ## 2. Prompt Bootstrapping

@@ -22,7 +22,7 @@ export const registerSpecCommands = (
 	const { outputChannel, specManager } = services;
 
 	const createSpecCommand = commands.registerCommand(
-		"openspec-for-copilot.spec.create",
+		"openspec-for-agent.spec.create",
 		async () => {
 			outputChannel.appendLine(
 				`[Spec] create command triggered at ${new Date().toISOString()}`
@@ -39,30 +39,30 @@ export const registerSpecCommands = (
 	);
 
 	context.subscriptions.push(
-		commands.registerCommand("openspec-for-copilot.noop", () => {
+		commands.registerCommand("openspec-for-agent.noop", () => {
 			// noop
 		}),
 		createSpecCommand,
 		commands.registerCommand(
-			"openspec-for-copilot.spec.navigate.requirements",
+			"openspec-for-agent.spec.navigate.requirements",
 			async (specName: string) => {
 				await specManager.navigateToDocument(specName, "requirements");
 			}
 		),
 		commands.registerCommand(
-			"openspec-for-copilot.spec.navigate.design",
+			"openspec-for-agent.spec.navigate.design",
 			async (specName: string) => {
 				await specManager.navigateToDocument(specName, "design");
 			}
 		),
 		commands.registerCommand(
-			"openspec-for-copilot.spec.navigate.tasks",
+			"openspec-for-agent.spec.navigate.tasks",
 			async (specName: string) => {
 				await specManager.navigateToDocument(specName, "tasks");
 			}
 		),
 		commands.registerCommand(
-			"openspec-for-copilot.spec.implTask",
+			"openspec-for-agent.spec.implTask",
 			async (documentUri: Uri) => {
 				outputChannel.appendLine(
 					`[Task Execute] Generating OpenSpec apply prompt for: ${documentUri.fsPath}`
@@ -71,7 +71,7 @@ export const registerSpecCommands = (
 			}
 		),
 		commands.registerCommand(
-			"openspec-for-copilot.spec.implTaskSingle",
+			"openspec-for-agent.spec.implTaskSingle",
 			async (documentUri: Uri, taskLineNumber: number, taskText: string) => {
 				outputChannel.appendLine(
 					`[Task Execute Single] Executing task ${taskLineNumber}: ${taskText}`
@@ -90,18 +90,18 @@ export const registerSpecCommands = (
 			}
 		),
 		commands.registerCommand(
-			"openspec-for-copilot.spec.open",
+			"openspec-for-agent.spec.open",
 			async (relativePath: string, type: string) => {
 				await specManager.openDocument(relativePath, type);
 			}
 		),
 		// biome-ignore lint/suspicious/useAwait: ignore
-		commands.registerCommand("openspec-for-copilot.spec.refresh", async () => {
+		commands.registerCommand("openspec-for-agent.spec.refresh", async () => {
 			outputChannel.appendLine("[Manual Refresh] Refreshing spec explorer...");
 			specExplorer.refresh();
 		}),
 		commands.registerCommand(
-			"openspec-for-copilot.spec.delete",
+			"openspec-for-agent.spec.delete",
 			async (item: SpecCommandItem) => {
 				const label = item?.label;
 				if (!label) {
@@ -112,7 +112,7 @@ export const registerSpecCommands = (
 			}
 		),
 		commands.registerCommand(
-			"openspec-for-copilot.spec.copyName",
+			"openspec-for-agent.spec.copyName",
 			async (item: SpecCommandItem) => {
 				const name: string | undefined = item?.specName ?? item?.label;
 				if (!name) {
@@ -124,15 +124,15 @@ export const registerSpecCommands = (
 			}
 		),
 		commands.registerCommand(
-			"openspec-for-copilot.spec.createDetailedDesign",
+			"openspec-for-agent.spec.createDetailedDesign",
 			createDetailedDesignCommandHandler(services, specExplorer)
 		),
 		commands.registerCommand(
-			"openspec-for-copilot.spec.updateSpecsFromDetailedDesign",
+			"openspec-for-agent.spec.updateSpecsFromDetailedDesign",
 			updateSpecsFromDetailedDesignCommandHandler(services, specExplorer)
 		),
 		commands.registerCommand(
-			"openspec-for-copilot.spec.archiveChange",
+			"openspec-for-agent.spec.archiveChange",
 			async (item: SpecCommandItem) => {
 				const changeId: string | undefined = item?.specName;
 				if (!changeId) {
@@ -174,7 +174,7 @@ export const registerSpecCommands = (
 			}
 		),
 		commands.registerCommand(
-			"openspec-for-copilot.spec.createGitHubIssue",
+			"openspec-for-agent.spec.createGitHubIssue",
 			createGitHubIssueCommandHandler(services)
 		)
 	);

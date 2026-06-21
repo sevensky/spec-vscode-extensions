@@ -137,7 +137,7 @@ Add section:
 ```markdown
 ## Migrating to OpenSpec v1
 
-OpenSpec for Copilot now requires OpenSpec CLI v1...
+OpenSpec for Agent now requires OpenSpec CLI v1...
 ```
 
 ## Success Criteria

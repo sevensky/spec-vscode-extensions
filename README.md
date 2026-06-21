@@ -1,11 +1,11 @@
-# OpenSpec for Copilot
+# OpenSpec for Agent
 
-[![Visual Studio Marketplace](https://img.shields.io/vscode-marketplace/v/atman-dev.openspec-for-copilot.svg?style=flat-square)](https://marketplace.visualstudio.com/items?itemName=atman-dev.openspec-for-copilot)
-[![Downloads](https://img.shields.io/vscode-marketplace/d/atman-dev.openspec-for-copilot.svg?style=flat-square)](https://marketplace.visualstudio.com/items?itemName=atman-dev.openspec-for-copilot)
-[![GitHub stars](https://img.shields.io/github/stars/atman-33/openspec-for-copilot.svg?style=flat-square)](https://github.com/atman-33/openspec-for-copilot/stargazers)
-[![GitHub issues](https://img.shields.io/github/issues/atman-33/openspec-for-copilot.svg?style=flat-square)](https://github.com/atman-33/openspec-for-copilot/issues)
+[![Visual Studio Marketplace](https://img.shields.io/vscode-marketplace/v/bairui-dev.openspec-for-agent.svg?style=flat-square)](https://marketplace.visualstudio.com/items?itemName=bairui-dev.openspec-for-agent)
+[![Downloads](https://img.shields.io/vscode-marketplace/d/bairui-dev.openspec-for-agent.svg?style=flat-square)](https://marketplace.visualstudio.com/items?itemName=bairui-dev.openspec-for-agent)
+[![GitHub stars](https://img.shields.io/github/stars/sevensky/spec-vscode-extensions.svg?style=flat-square)](https://github.com/sevensky/spec-vscode-extensions/stargazers)
+[![GitHub issues](https://img.shields.io/github/issues/sevensky/spec-vscode-extensions.svg?style=flat-square)](https://github.com/sevensky/spec-vscode-extensions/issues)
 
-OpenSpec for Copilot is a VS Code extension that brings Spec-Driven Development (SDD) to your workflow, leveraging [OpenSpec](https://github.com/Fission-AI/OpenSpec) prompts and chat agents like **GitHub Copilot Chat**.
+OpenSpec for Agent is a VS Code extension that brings Spec-Driven Development (SDD) to your workflow, leveraging [OpenSpec](https://github.com/Fission-AI/OpenSpec) prompts and chat agents like **GitHub Copilot Chat**.
 
 It allows you to visually manage Specs, Steering documents (AGENTS.md), and custom prompts, seamlessly integrating with GitHub Copilot Chat by default, with optional support for **Codex Chat**, **Claude Code**, **Trae**, and **CodeBuddy**.
 
@@ -15,7 +15,7 @@ It allows you to visually manage Specs, Steering documents (AGENTS.md), and cust
 
 ### 📝 Spec Management
 
-- **Create Specs**: Run `OpenSpec for Copilot: Create New Spec` (`openspec-for-copilot.spec.create`) to open the creation dialog. Define your summary, product context, and constraints.
+- **Create Specs**: Run `OpenSpec for Agent: Create New Spec` (`openspec-for-agent.spec.create`) to open the creation dialog. Define your summary, product context, and constraints.
 - **Generate with Chat**: The extension compiles your input into an optimized OpenSpec prompt and sends it to the configured chat agent (GitHub Copilot Chat by default) to generate the full specification (Requirements, Design, Tasks).
 - **Manage Specs**: Browse generated specs in the **Specs** view.
 - **Detailed Design**: Generate a detailed design document from a change, and update specs based on it.
@@ -41,7 +41,7 @@ It allows you to visually manage Specs, Steering documents (AGENTS.md), and cust
 #### Step 1: Install the CLI globally
 
 ```shell
-npm install -g @fission-ai/openspec@latest
+npm install -g @superkou/openspec@latest
 ```
 
 Verify installation:
@@ -66,7 +66,7 @@ openspec init
 
 ## Migrating to OpenSpec v1
 
-OpenSpec for Copilot v1.0.0+ requires OpenSpec CLI v1. If you're upgrading from an earlier version:
+OpenSpec for Agent v1.0.0+ requires OpenSpec CLI v1. If you're upgrading from an earlier version:
 
 ### Prerequisites
 - Node.js 18 or higher
@@ -114,11 +114,11 @@ The extension will temporarily use legacy v0.x prompt files if v1 files are not 
 - The extension will continue working with legacy files but will show warnings
 
 ### Marketplace
-Search for "OpenSpec for Copilot" in the VS Code Marketplace and install the extension.
+Search for "OpenSpec for Agent" in the VS Code Marketplace and install the extension.
 
 ### From Local VSIX
-1. Build the package with `npm run package` (produces `openspec-for-copilot-<version>.vsix`).
-2. Install via `code --install-extension openspec-for-copilot-<version>.vsix`.
+1. Build the package with `npm run package` (produces `openspec-for-agent-<version>.vsix`).
+2. Install via `code --install-extension openspec-for-agent-<version>.vsix`.
 
 ## Usage
 
@@ -141,7 +141,7 @@ Search for "OpenSpec for Copilot" in the VS Code Marketplace and install the ext
 2. Click **Start All Tasks** above a checklist item.
 3. Chat will open with the task context. Interact with it to implement the code.
 
-   ![Start All Tasks](./screenshots/020-start-all-tasksk.png)
+   ![Start All Tasks](./screenshots/020-start-all-tasks.png)
 
 ### 4. Create GitHub Issue
 1. Right-click on a Change ID in the **Specs** view.
@@ -157,7 +157,7 @@ Search for "OpenSpec for Copilot" in the VS Code Marketplace and install the ext
    ![Archive Change](./screenshots/030-archive-change.png)
 
 ## Configuration
-All settings live under the `openspec-for-copilot` namespace.
+All settings live under the `openspec-for-agent` namespace.
 
 | Setting | Type | Default | Purpose |
 | --- | --- | --- | --- |
@@ -260,7 +260,7 @@ pnpm unlink:ext
 How it works:
 
 ```
-<extensions-dir>/atman-dev.openspec-for-copilot-1.1.0-universal
+<extensions-dir>/bairui-dev.openspec-for-agent-1.1.0-universal
     ↓ symlink
 <project-dir>/  ← contains dist/extension.js produced by `pnpm build`
 ```

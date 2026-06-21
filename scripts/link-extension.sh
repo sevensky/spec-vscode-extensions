@@ -13,7 +13,7 @@ set -e
 
 # === 配置（按需修改）===
 EXT_DIR="${TRAPE_EXTENSIONS_DIR:-/root/.trae-cn-server/extensions}"
-EXT_NAME="atman-dev.openspec-for-copilot-1.1.0-universal"
+EXT_NAME="bairui-dev.openspec-for-agent-1.1.0-universal"
 PROJECT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 LINK_PATH="$EXT_DIR/$EXT_NAME"
 

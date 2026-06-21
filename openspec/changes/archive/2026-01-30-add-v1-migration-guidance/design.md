@@ -204,7 +204,7 @@ Add section after installation:
 ```markdown
 ## Migrating to OpenSpec v1
 
-OpenSpec for Copilot v0.7.0+ requires OpenSpec CLI v1. If you're upgrading from an earlier version:
+OpenSpec for Agent v0.7.0+ requires OpenSpec CLI v1. If you're upgrading from an earlier version:
 
 ### Prerequisites
 - Node.js 18 or higher

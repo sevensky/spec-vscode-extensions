@@ -7,21 +7,24 @@
       "request": "launch",
       "args": [
         "--extensionDevelopmentPath=${workspaceFolder}",
-        "--enable-proposed-api=atman-33.openspec-for-copilot",
+        "--enable-proposed-api=bairui-dev.spec-vscode-extensions",
         "/www/wwwroot/vscode-extensions/sample-workspace"
       ],
       "outFiles": ["${workspaceFolder}/dist/**/*.js"],
-      "preLaunchTask": "npm: compile"
+      "preLaunchTask": "pnpm: compile"
     },
     {
-      "name": "示例 workspace(干净演示)",
+      "name": "Run Extension (Watch Mode)",
       "type": "extensionHost",
       "request": "launch",
       "args": [
         "--disable-extensions", 
-        "--extensionDevelopmentPath=/www/wwwroot/bairui_drama/vscode-extensions/artifact-workbench",
+        "--extensionDevelopmentPath=${workspaceFolder}",
+        "--enable-proposed-api=bairui-dev.spec-vscode-extensions",
         "/www/wwwroot/vscode-extensions/sample-workspace"
-      ]
+      ],
+      "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+      "preLaunchTask": "pnpm: watch"
     } 
   ]
 }

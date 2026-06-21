@@ -24,7 +24,7 @@ import { ConfigManager } from "./utils/config-manager";
 export async function activate(context: ExtensionContext) {
 	// Create output channel for debugging
 	const outputChannel = window.createOutputChannel(
-		"OpenSpec for Copilot - Debug"
+		"OpenSpec for Agent - Debug"
 	);
 
 	// Initialize PromptLoader
@@ -78,21 +78,21 @@ export async function activate(context: ExtensionContext) {
 
 	context.subscriptions.push(
 		window.registerTreeDataProvider(
-			"openspec-for-copilot.views.overview",
+			"openspec-for-agent.views.overview",
 			overviewProvider
 		),
 		window.registerTreeDataProvider(
-			"openspec-for-copilot.views.specExplorer",
+			"openspec-for-agent.views.specExplorer",
 			specExplorer
 		),
 		window.registerTreeDataProvider(
-			"openspec-for-copilot.views.steeringExplorer",
+			"openspec-for-agent.views.steeringExplorer",
 			steeringExplorer
 		)
 	);
 	context.subscriptions.push(
 		window.registerTreeDataProvider(
-			"openspec-for-copilot.views.promptsExplorer",
+			"openspec-for-agent.views.promptsExplorer",
 			promptsExplorer
 		)
 	);
