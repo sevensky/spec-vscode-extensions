@@ -5,5 +5,6 @@
 - `docs/policies/testing-policy.md`: Testing strategy, coverage targets
 - `docs/policies/review-policy.md`: Code review criteria, checklists
 - `docs/policies/deployment-policy.md`: Deployment procedures, CI/CD pipeline
+- `docs/policies/github-workflow.md`: GitHub auth facts, PR/merge via REST API, commit conventions, pre-commit hook notes
 
 <!-- SOFTWARE DEVELOPMENT POLICIES:END -->
