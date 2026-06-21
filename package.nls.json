@@ -42,5 +42,6 @@
   "view.name.steeringExplorer": "Steering",
   "view.name.overview": "Settings",
   "displayName": "OpenSpec for Agent",
-  "extension.description": "Spec-driven development with OpenSpec"
+  "extension.description": "Spec-driven development with OpenSpec",
+  "command.title.spec_openSource": "Open Source File"
 }

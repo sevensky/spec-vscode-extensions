@@ -9,6 +9,10 @@ import { updateSpecsFromDetailedDesignCommandHandler } from "../../features/spec
 import { sendPromptToChat } from "../../utils/chat-prompt-runner";
 import { ConfigManager } from "../../utils/config-manager";
 import { readPromptFile } from "../../utils/openspec-prompt-utils";
+import { SpecViewerProvider } from "../../providers/spec-viewer-provider";
+/** 提取 change 名的前缀正则（relativePath 形如 "changes/<name>/..."） */
+const CHANGES_PREFIX = /^changes\//;
+
 interface SpecCommandItem {
 	label?: string;
 	specName?: string;
@@ -95,7 +99,21 @@ export const registerSpecCommands = (
 		),
 		commands.registerCommand(
 			"openspec-for-agent.spec.open",
+			async (relativePath: string, _type: string) => {
+				// 点击树节点 → 打开富面板（展示变更全貌）
+				// relativePath 形如 "changes/<changeName>/proposal.md"，提取 changeName
+				const changeName = relativePath
+					.replace(CHANGES_PREFIX, "")
+					.split("/")[0];
+				if (changeName) {
+					await SpecViewerProvider.show(changeName);
+				}
+			}
+		),
+		commands.registerCommand(
+			"openspec-for-agent.spec.openSource",
 			async (relativePath: string, type: string) => {
+				// 右键"打开源文件" → 保留原行为（markdown 编辑器打开）
 				await specManager.openDocument(relativePath, type);
 			}
 		),

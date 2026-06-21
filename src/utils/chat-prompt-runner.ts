@@ -1,7 +1,8 @@
-import { commands } from "vscode";
-import { ClaudeService } from "../services/claude-service";
-import { CodexService } from "../services/codex-service";
 import { ConfigManager } from "./config-manager";
+import {
+	getAgentProvider,
+	type AgentId,
+} from "../agent-providers/agent-provider";
 
 export interface ChatContext {
 	instructionType?:
@@ -39,7 +40,10 @@ export const buildChatPrompt = (
 	// Append language instruction
 	if (language !== "English") {
 		// 简体中文用明确的中文指令，比英文 "Please respond in Chinese (Simplified)" 更可靠
-		const instruction = language === "Chinese (Simplified)" ? "请用简体中文回答。" : `(Please respond in ${language}.)`;
+		const instruction =
+			language === "Chinese (Simplified)"
+				? "请用简体中文回答。"
+				: `(Please respond in ${language}.)`;
 		finalPrompt += `\n\n${instruction}`;
 	}
 
@@ -54,17 +58,8 @@ export const sendPromptToChat = async (
 	const configManager = ConfigManager.getInstance();
 	const { aiAgent } = configManager.getSettings();
 
-	if (aiAgent === "codex") {
-		await CodexService.addPromptToThread(finalPrompt);
-		return;
-	}
-
-	if (aiAgent === "claude") {
-		await ClaudeService.addPromptToThread(finalPrompt);
-		return;
-	}
-
-	await commands.executeCommand("workbench.action.chat.open", {
-		query: finalPrompt,
-	});
+	// 经 provider 抽象路由（claude→ClaudeService委托 / codex→CodexService委托 /
+	// codebuddy/trae→CliTerminalProvider / copilot→Chat API / zcode→降级提示）
+	const provider = getAgentProvider(aiAgent as AgentId);
+	await provider.executeInTerminal(finalPrompt, `OpenSpec - ${aiAgent}`);
 };

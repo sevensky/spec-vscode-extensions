@@ -42,5 +42,6 @@
   "view.name.steeringExplorer": "Steering",
   "view.name.overview": "设置",
   "displayName": "OpenSpec for Agent",
-  "extension.description": "在 VS Code 中用 OpenSpec 规范驱动开发。"
+  "extension.description": "在 VS Code 中用 OpenSpec 规范驱动开发。",
+  "command.title.spec_openSource": "打开源文件"
 }

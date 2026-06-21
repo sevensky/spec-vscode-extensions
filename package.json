@@ -340,6 +340,11 @@
         "title": "%command.title.help_open%",
         "category": "%command.category%",
         "icon": "$(question)"
+      },
+      {
+        "command": "openspec-for-agent.spec.openSource",
+        "title": "%command.title.spec_openSource%",
+        "category": "OpenSpec"
       }
     ],
     "menus": {
@@ -430,6 +435,16 @@
           "command": "openspec-for-agent.prompts.delete",
           "when": "view == openspec-for-agent.views.promptsExplorer && (viewItem == prompt || viewItem == prompt-runnable)",
           "group": "7_modification@2"
+        },
+        {
+          "command": "openspec-for-agent.spec.openSource",
+          "when": "view == openspec-for-agent.views.specExplorer && viewItem == change",
+          "group": "navigation@97"
+        },
+        {
+          "command": "openspec-for-agent.spec.openSource",
+          "when": "view == openspec-for-agent.views.specExplorer && viewItem == spec",
+          "group": "navigation@97"
         }
       ],
       "commandPalette": [
