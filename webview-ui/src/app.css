@@ -126,3 +126,697 @@ body {
 		@apply bg-background text-foreground;
 	}
 }
+
+/* ===== spec-viewer 富面板样式 ===== */
+
+/* 代码块高亮（hljs 默认主题 + VS Code 变量适配） */
+.spec-md pre.code-block {
+	background: var(--vscode-textCodeBlock-background, rgba(110, 118, 129, 0.13));
+	border-radius: 6px;
+	padding: 12px 14px;
+	overflow-x: auto;
+	margin: 8px 0;
+}
+.spec-md pre code {
+	font-family: var(--vscode-editor-font-family, monospace);
+	font-size: var(--vscode-editor-font-size, 13px);
+	background: none;
+	padding: 0;
+}
+/* hljs token 配色（亮暗自适应） */
+.spec-md .hljs-comment,
+.spec-md .hljs-quote { color: var(--vscode-disabledForeground); font-style: italic; }
+.spec-md .hljs-keyword,
+.spec-md .hljs-selector-tag,
+.spec-md .hljs-built_in { color: #569cd6; }
+.spec-md .hljs-string,
+.spec-md .hljs-attr { color: #ce9178; }
+.spec-md .hljs-number,
+.spec-md .hljs-literal { color: #b5cea8; }
+.spec-md .hljs-title,
+.spec-md .hljs-function .hljs-title,
+.spec-md .hljs-section { color: #dcdcaa; }
+.spec-md .hljs-type,
+.spec-md .hljs-class .hljs-title { color: #4ec9b0; }
+.spec-md .hljs-variable,
+.spec-md .hljs-template-variable { color: #9cdcfe; }
+.spec-md .hljs-tag,
+.spec-md .hljs-name { color: #569cd6; }
+.spec-md .hljs-attribute { color: #9cdcfe; }
+.spec-md .hljs-meta { color: #6a9955; }
+.dark .spec-md .hljs-keyword { color: #c586c0; }
+
+/* mermaid 容器 */
+.spec-md .mermaid-wrapper {
+	margin: 12px 0;
+	overflow: auto;
+	border: 1px solid var(--vscode-editorWidget-border, var(--border));
+	border-radius: 6px;
+	padding: 8px;
+	background: var(--vscode-editorWidget-background, transparent);
+}
+.spec-md .mermaid {
+	text-align: center;
+	transition: transform 0.2s ease;
+}
+.spec-md .mermaid svg {
+	max-width: 100%;
+	height: auto;
+}
+
+/* 场景表格 */
+.spec-md table.scenario-table {
+	width: 100%;
+	border-collapse: collapse;
+	margin: 8px 0;
+	border: 1px solid var(--vscode-editorWidget-border, var(--border));
+	border-radius: 6px;
+	overflow: hidden;
+}
+.spec-md table.scenario-table .scenario-row {
+	display: table-row;
+	border-bottom: 1px solid var(--vscode-editorWidget-border, var(--border));
+}
+.spec-md table.scenario-table .scenario-row:last-child {
+	border-bottom: none;
+}
+.spec-md table.scenario-table .scenario-keyword {
+	font-weight: 600;
+	font-size: 0.85em;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	margin-right: 6px;
+	color: var(--vscode-symbolIcon-functionForeground, #dcdcaa);
+}
+.spec-md table.scenario-table td.line-content {
+	padding: 6px 10px;
+	vertical-align: top;
+}
+
+/* ===== TOC 目录 ===== */
+#spec-toc {
+	font-size: 12px;
+}
+#spec-toc:empty {
+	display: none;
+}
+#spec-toc .toc-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 8px;
+	padding-bottom: 6px;
+	border-bottom: 1px solid var(--vscode-panel-border);
+}
+#spec-toc .toc-title {
+	font-weight: 600;
+	font-size: 11px;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: var(--vscode-descriptionForeground);
+}
+#spec-toc .toc-toggle {
+	cursor: pointer;
+	border: 1px solid var(--vscode-editorWidget-border, var(--border));
+	background: var(--vscode-editorWidget-background, transparent);
+	color: var(--vscode-foreground);
+	border-radius: 3px;
+	padding: 1px 6px;
+	font-size: 12px;
+	line-height: 1;
+}
+#spec-toc .toc-list {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+#spec-toc .toc-item {
+	padding: 0;
+}
+#spec-toc .toc-item.toc-sub {
+	padding-left: 14px;
+}
+#spec-toc .toc-link {
+	color: var(--vscode-descriptionForeground);
+	text-decoration: none;
+	cursor: pointer;
+	display: block;
+	padding: 2px 4px;
+	border-radius: 3px;
+	transition: color 0.15s, background 0.15s;
+}
+#spec-toc .toc-link:hover {
+	color: var(--vscode-foreground);
+	background: var(--vscode-list-hoverBackground);
+}
+#spec-toc .toc-link[aria-current="true"] {
+	color: var(--vscode-textLinkForeground);
+	font-weight: 500;
+	background: color-mix(in srgb, var(--vscode-focusBorder) 12%, transparent);
+}
+
+/* ===== spec-viewer 设计 token（桥接 VS Code 变量，跟随 speckit tokens.css）=====
+   完整移植 tokens.css:10-133，--sv- 前缀避免与 shadcn 无前缀 token 冲突。 */
+:root {
+	/* Type Scale - Minor Third (1.2) */
+	--sv-text-xs: 0.694rem;
+	--sv-text-sm: 0.833rem;
+	--sv-text-base: 1rem;
+	--sv-text-lg: 1.2rem;
+	--sv-text-xl: 1.44rem;
+	--sv-text-2xl: 1.728rem;
+	--sv-text-3xl: 2.074rem;
+
+	/* Line Heights */
+	--sv-leading-tight: 1.25;
+	--sv-leading-snug: 1.375;
+	--sv-leading-normal: 1.5;
+	--sv-leading-relaxed: 1.625;
+	--sv-leading-loose: 1.75;
+
+	/* Spacing */
+	--sv-space-1: 0.25rem;
+	--sv-space-2: 0.5rem;
+	--sv-space-3: 0.75rem;
+	--sv-space-4: 1rem;
+	--sv-space-5: 1.5rem;
+	--sv-space-6: 2rem;
+	--sv-space-8: 3rem;
+
+	/* Core backgrounds */
+	--sv-bg-primary: var(--vscode-editor-background, #1e1e1e);
+	--sv-bg-secondary: var(--vscode-sideBar-background, #252526);
+	--sv-bg-elevated: var(--vscode-editorWidget-background, #252526);
+	--sv-bg-hover: var(--vscode-list-hoverBackground, color-mix(in srgb, var(--vscode-foreground) 8%, transparent));
+
+	/* Text */
+	--sv-text-primary: var(--vscode-editor-foreground, #d4d4d4);
+	--sv-text-secondary: color-mix(in srgb, var(--vscode-editor-foreground, #d4d4d4) 70%, transparent);
+	--sv-text-muted: color-mix(in srgb, var(--vscode-editor-foreground, #d4d4d4) 50%, transparent);
+	--sv-text-body: color-mix(in srgb, var(--vscode-editor-foreground, #d4d4d4) 88%, transparent);
+
+	/* Accent */
+	--sv-accent: var(--vscode-focusBorder, #007fd4);
+	--sv-accent-hover: var(--vscode-button-hoverBackground, #0062a3);
+	--sv-accent-subtle: color-mix(in srgb, var(--vscode-focusBorder, #007fd4) 10%, transparent);
+	--sv-accent-glow: 0 0 20px color-mix(in srgb, var(--vscode-focusBorder, #007fd4) 30%, transparent);
+
+	/* Status */
+	--sv-success: var(--vscode-testing-iconPassed, #388a34);
+	--sv-success-subtle: color-mix(in srgb, var(--vscode-testing-iconPassed, #388a34) 12%, transparent);
+	--sv-warning: var(--vscode-editorWarning-foreground, #cca700);
+	--sv-warning-subtle: color-mix(in srgb, var(--vscode-editorWarning-foreground, #cca700) 10%, transparent);
+	--sv-error: var(--vscode-editorError-foreground, #f14c4c);
+	--sv-error-subtle: color-mix(in srgb, var(--vscode-editorError-foreground, #f14c4c) 10%, transparent);
+
+	/* Extended */
+	--sv-purple: var(--vscode-symbolIcon-classForeground, #9a6dd7);
+	--sv-review: #a855f7;
+	--sv-review-subtle: color-mix(in srgb, #a855f7 10%, transparent);
+
+	/* Borders */
+	--sv-border: color-mix(in srgb, var(--vscode-foreground) 15%, transparent);
+	--sv-border-hover: var(--vscode-contrastBorder, #6c6c6c);
+	--sv-border-accent: color-mix(in srgb, var(--vscode-focusBorder, #007fd4) 50%, transparent);
+
+	/* Headers */
+	--sv-header-title: var(--vscode-foreground, #e4e4e4);
+	--sv-header-section: var(--vscode-foreground, #e4e4e4);
+	--sv-header-subsection: var(--vscode-descriptionForeground, #858585);
+
+	/* Code backgrounds */
+	--sv-bg-code: color-mix(in srgb, var(--vscode-editor-background, #1e1e1e) 95%, black);
+	--sv-bg-code-header: color-mix(in srgb, var(--vscode-editor-background, #1e1e1e) 90%, black);
+
+	/* Fonts */
+	--sv-font-mono: var(--vscode-editor-font-family, 'Consolas', 'Monaco', monospace);
+	--sv-font-size: var(--vscode-editor-font-size, 15px);
+	--sv-code-variable: var(--vscode-symbolIcon-variableForeground, #9cdcfe);
+
+	/* Checkbox */
+	--sv-border-checkbox: var(--vscode-checkbox-border, #3c3c3c);
+	--sv-bg-checkbox: var(--vscode-checkbox-background, #3c3c3c);
+
+	/* Radius */
+	--sv-radius-sm: 4px;
+	--sv-radius-md: 8px;
+	--sv-radius-lg: 12px;
+
+	/* Shadow */
+	--sv-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+	--sv-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+	--sv-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+
+	/* Transition */
+	--sv-transition-fast: 150ms;
+	--sv-transition-normal: 200ms;
+	--sv-transition-slow: 300ms;
+
+	/* Layout */
+	--sv-tab-height: 40px;
+	--sv-header-height: 48px;
+	--sv-content-padding: 24px;
+}
+
+/* reduced-motion 全局禁用（对齐 tokens.css:207-215）*/
+@media (prefers-reduced-motion: reduce) {
+	*, *::before, *::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+	}
+}
+
+/* 主题 fallback（对齐 tokens.css:139-201）——覆盖少数需分化的 token */
+body.vscode-light {
+	--sv-text-body: #4a4a4a;
+	--sv-bg-code: #f5f5f5;
+	--sv-bg-code-header: #e8e8e8;
+	--sv-border: var(--vscode-panel-border, #e0e0e0);
+	--sv-border-hover: var(--vscode-contrastBorder, #c0c0c0);
+}
+body.vscode-dark {
+	--sv-border: var(--vscode-panel-border, #3c3c3c);
+	--sv-border-hover: var(--vscode-contrastBorder, #6c6c6c);
+}
+body.vscode-high-contrast {
+	--sv-text-body: var(--vscode-editor-foreground, #ffffff);
+	--sv-text-muted: color-mix(in srgb, var(--vscode-editor-foreground, #ffffff) 70%, transparent);
+	--sv-border: var(--vscode-contrastBorder, #ffffff);
+	--sv-border-hover: var(--vscode-contrastBorder, #ffffff);
+	--sv-accent: var(--vscode-focusBorder, #f38518);
+}
+
+/* ===== spec-md 排版（跟随 speckit _typography.css）===== */
+.spec-md h1 {
+	font-size: 1.5rem;
+	font-weight: 700;
+	line-height: var(--sv-leading-tight);
+	letter-spacing: -0.02em;
+	margin: 0 0 var(--sv-space-5) 0;
+	color: var(--sv-header-title);
+}
+.spec-md h2 {
+	font-size: 1.15rem;
+	font-weight: 600;
+	line-height: var(--sv-leading-snug);
+	letter-spacing: -0.01em;
+	margin: 24px 0 16px 0;
+	color: var(--sv-header-section);
+	border-bottom: 1px solid var(--sv-border);
+	padding-bottom: 6px;
+}
+.spec-md h3 {
+	font-size: 1rem;
+	font-weight: 600;
+	line-height: 1.4;
+	margin: 18px 0 10px 0;
+	color: var(--sv-header-subsection);
+}
+.spec-md h4, .spec-md h5, .spec-md h6 {
+	font-size: var(--sv-text-base);
+	font-weight: 600;
+	line-height: var(--sv-leading-normal);
+	margin: 12px 0 4px 0;
+	color: var(--sv-header-subsection);
+}
+.spec-md p {
+	margin: 0 0 var(--sv-space-3) 0;
+	line-height: var(--sv-leading-loose);
+	color: var(--sv-text-body);
+}
+.spec-md ul, .spec-md ol {
+	margin: 0 0 var(--sv-space-3) 0;
+	padding-left: 28px;
+}
+.spec-md li {
+	margin-bottom: 2px;
+	line-height: var(--sv-leading-normal);
+	color: var(--sv-text-body);
+}
+.spec-md blockquote {
+	margin: var(--sv-space-3) 0;
+	padding: var(--sv-space-2) var(--sv-space-3);
+	border-left: 3px solid var(--sv-accent);
+	background: var(--sv-accent-subtle);
+	border-radius: 0 var(--sv-radius-sm) var(--sv-radius-sm) 0;
+	color: var(--sv-text-primary);
+}
+.spec-md blockquote p { margin: 0; }
+.spec-md code:not(pre code) {
+	font-family: var(--sv-font-mono);
+	font-size: 0.875em;
+	padding: 2px 6px;
+	border-radius: var(--sv-radius-sm);
+	background: color-mix(in srgb, var(--vscode-textCodeBlock-background, transparent) 60%, transparent);
+	color: var(--sv-code-variable);
+}
+.spec-md a {
+	color: var(--sv-accent);
+	text-decoration: none;
+}
+.spec-md a:hover { color: var(--sv-accent-hover); text-decoration: underline; }
+.spec-md hr {
+	border: none;
+	border-top: 1px solid var(--sv-border);
+	margin: var(--sv-space-4) 0;
+}
+
+/* ===== task 列表（跟随 speckit _tasks.css）===== */
+.spec-md ul.task-list {
+	list-style: none;
+	padding-left: 0;
+	margin: var(--sv-space-2) 0 var(--sv-space-4) 0;
+}
+.spec-md li.task-item {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	gap: var(--sv-space-2);
+	padding: 2px 0;
+	padding-right: 24px;
+	margin: 0;
+	list-style: none;
+	font-size: inherit;
+	line-height: 1.5;
+	position: relative;
+	transition: background 0.12s;
+}
+.spec-md li.task-item .line-content {
+	flex: 1 1 0;
+	min-width: 0;
+	line-height: 1.4;
+}
+/* hover 高亮整行（含普通 li.line）*/
+.spec-md li.task-item:hover,
+.spec-md .line:hover {
+	background: var(--sv-bg-hover);
+	border-radius: var(--sv-radius-sm);
+}
+/* 自定义圆形 checkbox */
+.spec-md li.task-item input[type="checkbox"] {
+	appearance: none;
+	-webkit-appearance: none;
+	font: inherit;
+	width: 16px;
+	height: 16px;
+	min-width: 16px;
+	margin: calc((1.4em - 16px) / 2) 0 0 0;
+	border: 2px solid var(--sv-border-checkbox);
+	border-radius: 50%;
+	background: var(--sv-bg-checkbox);
+	cursor: pointer;
+	flex-shrink: 0;
+	position: relative;
+	transition: all 0.12s;
+}
+.spec-md li.task-item input[type="checkbox"]:hover {
+	border-color: var(--sv-accent);
+	background: var(--sv-accent-subtle);
+}
+.spec-md li.task-item input[type="checkbox"]:checked {
+	background: var(--sv-success);
+	border-color: var(--sv-success);
+}
+.spec-md li.task-item input[type="checkbox"]:checked::after {
+	content: "✓";
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	color: white;
+	font-size: 10px;
+	font-weight: bold;
+	line-height: 1;
+}
+
+/* ===== 行级交互（行包裹 / 评论按钮 / inline editor / 评论卡片）=====
+   跟随 speckit _line-actions.css:74-122 的 opacity hover 方案。 */
+
+.spec-md .line {
+	position: relative;
+	padding-right: 22px; /* 给右侧 + 按钮留位 */
+}
+
+/* + 评论按钮：默认透明，hover 才显（非 display:none，保留布局） */
+.spec-md .line-add-btn {
+	position: absolute;
+	right: 0;
+	top: 2px;
+	width: 18px;
+	height: 18px;
+	border-radius: 3px;
+	border: 1px solid var(--vscode-button-background, #0e639c);
+	background: var(--vscode-button-background, #0e639c);
+	color: var(--vscode-button-foreground, #fff);
+	opacity: 0;
+	transition: opacity 0.12s;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 14px;
+	line-height: 1;
+	padding: 0;
+	z-index: 5;
+}
+.spec-md .line:hover .line-add-btn {
+	opacity: 1;
+}
+.spec-md .line-add-btn:hover {
+	transform: scale(1.1);
+}
+/* 编辑器打开时隐藏 + */
+.spec-md .line.editing .line-add-btn {
+	display: none;
+}
+
+.spec-md .line-content {
+	display: inline;
+}
+
+/* 评论插槽：空时不占高 */
+.spec-md .line-comment-slot {
+	margin-top: 4px;
+}
+.spec-md .line-comment-slot:empty {
+	display: none;
+}
+
+/* task 列表 */
+.spec-md ul.task-list {
+	list-style: none;
+	padding-left: 0;
+}
+.spec-md li.task-item {
+	position: relative;
+}
+.spec-md li.task-item input[type="checkbox"] {
+	margin-right: 6px;
+	cursor: pointer;
+}
+
+/* inline 评论/编辑器 */
+.spec-md .inline-editor {
+	margin: 6px 0;
+	padding: 8px;
+	border: 1px solid var(--vscode-input-border, var(--vscode-focusBorder));
+	border-radius: 4px;
+	background: var(--vscode-input-background, transparent);
+}
+.spec-md .inline-editor-textarea {
+	width: 100%;
+	box-sizing: border-box;
+	background: var(--vscode-input-background, transparent);
+	color: var(--vscode-foreground);
+	border: 1px solid var(--vscode-input-border, transparent);
+	border-radius: 3px;
+	padding: 6px 8px;
+	font-family: var(--vscode-font-family);
+	font-size: 13px;
+	resize: vertical;
+}
+.spec-md .inline-editor-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 6px;
+	margin-top: 6px;
+}
+.spec-md .inline-editor-actions button {
+	padding: 3px 10px;
+	border-radius: 3px;
+	cursor: pointer;
+	font-size: 12px;
+}
+.spec-md .inline-editor-cancel {
+	background: transparent;
+	color: var(--vscode-descriptionForeground);
+	border: 1px solid var(--vscode-editorWidget-border, var(--border));
+}
+.spec-md .inline-editor-submit {
+	background: var(--vscode-button-background, #0e639c);
+	color: var(--vscode-button-foreground, #fff);
+	border: none;
+}
+
+/* 已挂载的评论卡片 */
+.spec-md .inline-comment {
+	display: flex;
+	align-items: flex-start;
+	gap: 6px;
+	margin: 4px 0;
+	padding: 6px 8px;
+	border-left: 3px solid var(--vscode-textLinkForeground);
+	background: color-mix(in srgb, var(--vscode-textBlockQuote-background, transparent) 70%, transparent);
+	border-radius: 0 3px 3px 0;
+	font-size: 12px;
+}
+.spec-md .inline-comment .comment-icon {
+	opacity: 0.7;
+}
+.spec-md .inline-comment .comment-text {
+	flex: 1;
+	word-break: break-word;
+}
+.spec-md .inline-comment .comment-status.applied {
+	color: var(--vscode-testing-iconPassed, #2ea043);
+	font-size: 10px;
+	margin-left: 4px;
+}
+.spec-md .inline-comment .comment-remove {
+	background: none;
+	border: none;
+	color: var(--vscode-descriptionForeground);
+	cursor: pointer;
+	font-size: 14px;
+	line-height: 1;
+	padding: 0 2px;
+}
+.spec-md .inline-comment .comment-remove:hover {
+	color: var(--vscode-errorForeground);
+}
+
+/* Refine 按钮（pending 评论 > 0 时由 refinements.ts 注入） */
+.refine-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 4px 12px;
+	margin: 4px 0;
+	border-radius: 4px;
+	background: var(--vscode-button-background, #0e639c);
+	color: var(--vscode-button-foreground, #fff);
+	border: none;
+	cursor: pointer;
+	font-size: 13px;
+}
+.refine-btn:hover {
+	background: var(--vscode-button-hoverBackground, #1177bb);
+}
+
+/* ===== reset + 容器原语（跟随 speckit _base.css）===== */
+
+/* box-sizing reset（全局无害，shadcn 也假设）*/
+.viewer-container, .viewer-container *, .content-area, .content-area * {
+	box-sizing: border-box;
+}
+
+/* viewer-container：flex column 满高（对齐 _base.css:30-40）*/
+.viewer-container {
+	display: flex;
+	flex-direction: column;
+	height: 100vh;
+	overflow: hidden;
+}
+
+/* content-area：flex row（文档 + TOC/Activity），可滚动（对齐 _base.css:48-58）*/
+.content-area {
+	flex: 1;
+	overflow-y: auto;
+	padding: var(--sv-content-padding);
+	scroll-behavior: smooth;
+	display: flex;
+	flex-direction: row;
+	gap: var(--sv-space-6);
+	align-items: flex-start;
+}
+
+/* empty-state（对齐 _base.css:61-71）*/
+.empty-state {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	min-height: 200px;
+	color: var(--sv-text-secondary);
+	font-style: italic;
+	text-align: center;
+	padding: var(--sv-content-padding);
+}
+
+/* 滚动条（对齐 _base.css:77-92）*/
+.content-area::-webkit-scrollbar { width: 10px; }
+.content-area::-webkit-scrollbar-track { background: transparent; }
+.content-area::-webkit-scrollbar-thumb {
+	background: var(--sv-border);
+	border-radius: 5px;
+}
+.content-area::-webkit-scrollbar-thumb:hover { background: var(--sv-border-hover); }
+
+/* focus-visible 全局 outline（对齐 _base.css:98-101）*/
+:focus-visible {
+	outline: 2px solid var(--sv-accent);
+	outline-offset: 2px;
+}
+
+/* 高对比度调整（对齐 _base.css:107-125）*/
+@media (prefers-contrast: more) {
+	#markdown-content a { text-decoration: underline; }
+	.spec-md h2 { border-bottom-width: 2px; }
+}
+
+/* 响应式窄屏（对齐 _base.css:131-158）*/
+@media (max-width: 500px) {
+	.content-area { padding: var(--sv-space-3); }
+	.spec-md h1 { font-size: 1.3rem; }
+	.spec-md h2 { font-size: 1.05rem; }
+}
+
+/* ===== 动画 keyframe 库（跟随 speckit _animations.css，变量名改 --sv- 前缀）===== */
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideDown {
+	from { opacity: 0; transform: translateY(-8px); }
+	to { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideIn {
+	from { opacity: 0; transform: translateX(10px); }
+	to { opacity: 1; transform: translateX(0); }
+}
+@keyframes modalSlideIn {
+	from { opacity: 0; transform: translate(-50%, -48%); }
+	to { opacity: 1; transform: translate(-50%, -50%); }
+}
+@keyframes pulse-badge {
+	0%, 100% { box-shadow: 0 0 0 3px var(--sv-accent-subtle), 0 0 8px var(--sv-accent); }
+	50% { box-shadow: 0 0 0 5px var(--sv-accent-subtle), 0 0 16px var(--sv-accent); }
+}
+@keyframes glow-complete {
+	0%, 100% { box-shadow: 0 0 8px color-mix(in srgb, var(--sv-success) 40%, transparent); border-color: var(--sv-success); }
+	50% { box-shadow: 0 0 16px color-mix(in srgb, var(--sv-success) 60%, transparent); }
+}
+@keyframes spec-badge-working {
+	0%, 100% { border-color: color-mix(in srgb, var(--sv-accent) 40%, transparent); }
+	50% { border-color: color-mix(in srgb, var(--sv-accent) 75%, transparent); }
+}
+@keyframes working-pulse {
+	0%, 100% { box-shadow: 0 0 0 2px var(--sv-bg-secondary), 0 0 0 4px var(--sv-purple), 0 0 8px var(--sv-purple); }
+	50% { box-shadow: 0 0 0 3px var(--sv-bg-secondary), 0 0 0 5px var(--sv-purple), 0 0 16px var(--sv-purple); }
+}
+@keyframes review-glow {
+	0%, 100% { box-shadow: 0 0 0 0 transparent; }
+	50% { box-shadow: 0 0 8px var(--sv-review-subtle); }
+}
