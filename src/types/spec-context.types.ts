@@ -18,11 +18,63 @@ export type SpecStep =
 	| "apply"
 	| "archive";
 
+/** SpecStep 的顺序，用于派生「下一阶段」。 */
+export const STEP_ORDER: SpecStep[] = [
+	"propose",
+	"design",
+	"specs",
+	"tasks",
+	"apply",
+	"archive",
+];
+
+/**
+ * 进行态映射：step → 进行中状态（step + ing）。
+ */
+export const STEP_TO_INPROGRESS: Record<SpecStep, SpecStatus> = {
+	propose: "proposing",
+	design: "designing",
+	specs: "specifying",
+	tasks: "tasking",
+	apply: "applying",
+	archive: "archiving",
+};
+
+/**
+ * 完成态映射：step → 已完成状态（step + ed）。
+ */
+export const STEP_TO_COMPLETED: Record<SpecStep, SpecStatus> = {
+	propose: "proposed",
+	design: "designed",
+	specs: "specified",
+	tasks: "tasked",
+	apply: "applied",
+	archive: "archived",
+};
+
+/**
+ * 终态：用户决策的收尾状态，不从 step 派生。
+ */
+export type TerminalStatus = "completed" | "archived";
+
 /**
  * 变更的整体状态。
- * 对齐 speckit-companion 的状态机语义。
+ * 从 SpecStep 派生（进行态/完成态）+ draft 初始态 + completed/archived 终态。
+ * status 由 history 派生（见 SpecContextManager.deriveStatus），不应直接写入。
  */
-export type SpecStatus = "active" | "completed" | "archived";
+export type SpecStatus =
+	| "draft"
+	| "proposing"
+	| "proposed"
+	| "designing"
+	| "designed"
+	| "specifying"
+	| "specified"
+	| "tasking"
+	| "tasked"
+	| "applying"
+	| "applied"
+	| TerminalStatus;
 
 /**
  * 单条动作历史记录。
@@ -44,8 +96,10 @@ export interface SpecHistoryEntry {
 export interface SpecContext {
 	/** 当前所处阶段 */
 	step: SpecStep;
-	/** 变更整体状态 */
+	/** 变更整体状态（由 history + terminalStatus 派生，只读） */
 	status: SpecStatus;
+	/** 终态标记。存在时 status 派生为该值，优先于 history 派生 */
+	terminalStatus?: TerminalStatus;
 	/** 动作历史，按时间顺序追加 */
 	history: SpecHistoryEntry[];
 	/** 当前使用的 agent */
@@ -58,7 +112,8 @@ export interface SpecContext {
  */
 export const DEFAULT_SPEC_CONTEXT: SpecContext = {
 	step: "propose",
-	status: "active",
+	status: "draft",
+	terminalStatus: undefined,
 	history: [],
 	agent: "github-copilot",
 };
