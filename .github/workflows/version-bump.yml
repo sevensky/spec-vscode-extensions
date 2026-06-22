@@ -38,8 +38,7 @@ jobs:
           target_platform: custom
           bump_targets: |
             [
-              {"path": "package.json", "variable": "version"},
-              {"path": "package-lock.json",  "variable": "version"}
+              {"path": "package.json", "variable": "version"}
             ]
           git_tag: false
         env:
