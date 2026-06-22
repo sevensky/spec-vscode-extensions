@@ -79,8 +79,41 @@ describe("SpecContextManager", () => {
 			);
 			const ctx = await SpecContextManager.read(changeName);
 			expect(ctx.step).toBe("tasks");
-			expect(ctx.status).toBe(DEFAULT_SPEC_CONTEXT.status);
+			expect(ctx.status).toBe("draft"); // 无 history → draft（派生）
 			expect(ctx.history).toEqual([]);
+		});
+
+		it("should normalize legacy active status via history derivation", async () => {
+			// 旧数据 status:'active' 应被忽略，由 history 派生
+			const legacy = {
+				step: "design",
+				status: "active",
+				history: [
+					{ step: "design", status: "started", at: "2026-01-01T00:00:00Z", agent: "claude" },
+				],
+				agent: "claude",
+			};
+			vi.mocked(workspace.fs.readFile).mockResolvedValue(
+				Buffer.from(JSON.stringify(legacy), "utf-8")
+			);
+			const ctx = await SpecContextManager.read(changeName);
+			expect(ctx.status).toBe("designing"); // 派生，非 active
+			expect(ctx.terminalStatus).toBeUndefined();
+		});
+
+		it("should migrate legacy completed/archived to terminalStatus", async () => {
+			const legacy = {
+				step: "tasks",
+				status: "completed",
+				history: [],
+				agent: "claude",
+			};
+			vi.mocked(workspace.fs.readFile).mockResolvedValue(
+				Buffer.from(JSON.stringify(legacy), "utf-8")
+			);
+			const ctx = await SpecContextManager.read(changeName);
+			expect(ctx.terminalStatus).toBe("completed");
+			expect(ctx.status).toBe("completed"); // 派生自 terminalStatus
 		});
 
 		it("should return default when no workspace folder", async () => {
@@ -105,7 +138,7 @@ describe("SpecContextManager", () => {
 	});
 
 	describe("markStarted", () => {
-		it("should update step/status and append started history", async () => {
+		it("should update step and derive in-progress status from history", async () => {
 			vi.mocked(workspace.fs.readFile).mockRejectedValue(
 				new Error("not found")
 			);
@@ -115,11 +148,34 @@ describe("SpecContextManager", () => {
 				"claude"
 			);
 			expect(ctx.step).toBe("design");
-			expect(ctx.status).toBe("active");
+			expect(ctx.status).toBe("designing"); // 派生进行态，非 active
 			expect(ctx.agent).toBe("claude");
 			expect(ctx.history).toHaveLength(1);
 			expect(ctx.history[0].status).toBe("started");
 			expect(ctx.history[0].agent).toBe("claude");
+		});
+
+		it("should clear terminalStatus when reactivating from completed", async () => {
+			// 已 completed 的变更，重新 markStarted 应清除终态
+			const existing = {
+				step: "design",
+				status: "completed",
+				terminalStatus: "completed",
+				history: [
+					{ step: "design", status: "completed", at: "2026-01-01T00:00:00Z", agent: "claude" },
+				],
+				agent: "claude",
+			};
+			vi.mocked(workspace.fs.readFile).mockResolvedValue(
+				Buffer.from(JSON.stringify(existing), "utf-8")
+			);
+			const ctx = await SpecContextManager.markStarted(
+				changeName,
+				"design",
+				"claude"
+			);
+			expect(ctx.terminalStatus).toBeUndefined();
+			expect(ctx.status).toBe("designing"); // 重新进行中
 		});
 	});
 
@@ -146,14 +202,85 @@ describe("SpecContextManager", () => {
 	});
 
 	describe("setStatus", () => {
-		it("should update status only", async () => {
-			const existing = { ...DEFAULT_SPEC_CONTEXT, status: "active" as const };
+		it("should set terminal status completed", async () => {
+			vi.mocked(workspace.fs.readFile).mockResolvedValue(
+				Buffer.from(JSON.stringify({ ...DEFAULT_SPEC_CONTEXT }), "utf-8")
+			);
+			const ctx = await SpecContextManager.setStatus(changeName, "completed");
+			expect(ctx.terminalStatus).toBe("completed");
+			expect(ctx.status).toBe("completed"); // 派生自 terminalStatus
+			expect(ctx.step).toBe(DEFAULT_SPEC_CONTEXT.step); // unchanged
+		});
+
+		it("should set terminal status archived", async () => {
+			vi.mocked(workspace.fs.readFile).mockResolvedValue(
+				Buffer.from(JSON.stringify({ ...DEFAULT_SPEC_CONTEXT }), "utf-8")
+			);
+			const ctx = await SpecContextManager.setStatus(changeName, "archived");
+			expect(ctx.terminalStatus).toBe("archived");
+			expect(ctx.status).toBe("archived");
+		});
+
+		it("should accept 'active' as reactivate (clear terminalStatus)", async () => {
+			const existing = {
+				...DEFAULT_SPEC_CONTEXT,
+				terminalStatus: "completed" as const,
+				history: [
+					{ step: "design", status: "started", at: "2026-01-01T00:00:00Z", agent: "claude" },
+				],
+			};
 			vi.mocked(workspace.fs.readFile).mockResolvedValue(
 				Buffer.from(JSON.stringify(existing), "utf-8")
 			);
-			const ctx = await SpecContextManager.setStatus(changeName, "completed");
-			expect(ctx.status).toBe("completed");
-			expect(ctx.step).toBe(DEFAULT_SPEC_CONTEXT.step); // unchanged
+			const ctx = await SpecContextManager.setStatus(changeName, "active");
+			expect(ctx.terminalStatus).toBeUndefined();
+			expect(ctx.status).toBe("designing"); // 由 history 重新派生
+		});
+
+		it("should reject in-progress status like 'designing'", async () => {
+			vi.mocked(workspace.fs.readFile).mockResolvedValue(
+				Buffer.from(JSON.stringify({ ...DEFAULT_SPEC_CONTEXT }), "utf-8")
+			);
+			await expect(
+				SpecContextManager.setStatus(changeName, "designing")
+			).rejects.toThrow(/仅接受终态/);
+		});
+	});
+
+	describe("deriveStatus (pure)", () => {
+		it("should return draft for empty history", () => {
+			expect(SpecContextManager.deriveStatus([])).toBe("draft");
+		});
+
+		it("should return in-progress status when last entry is started", () => {
+			const history = [
+				{ step: "design", status: "started", at: "2026-01-01T00:00:00Z", agent: "claude" },
+			];
+			expect(SpecContextManager.deriveStatus(history)).toBe("designing");
+		});
+
+		it("should return completed status when last entry is completed", () => {
+			const history = [
+				{ step: "tasks", status: "completed", at: "2026-01-01T00:00:00Z", agent: "claude" },
+			];
+			expect(SpecContextManager.deriveStatus(history)).toBe("tasked");
+		});
+
+		it("should prioritize terminalStatus over history", () => {
+			const history = [
+				{ step: "design", status: "started", at: "2026-01-01T00:00:00Z", agent: "claude" },
+			];
+			expect(SpecContextManager.deriveStatus(history, "archived")).toBe("archived");
+		});
+
+		it("should derive from last entry only", () => {
+			const history = [
+				{ step: "propose", status: "completed", at: "2026-01-01T00:00:00Z", agent: "claude" },
+				{ step: "design", status: "started", at: "2026-01-02T00:00:00Z", agent: "cbc" },
+				{ step: "design", status: "completed", at: "2026-01-03T00:00:00Z", agent: "cbc" },
+				{ step: "specs", status: "started", at: "2026-01-04T00:00:00Z", agent: "cbc" },
+			];
+			expect(SpecContextManager.deriveStatus(history)).toBe("specifying");
 		});
 	});
 

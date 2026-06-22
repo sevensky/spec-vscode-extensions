@@ -27,7 +27,7 @@ import { getWebviewContent } from "../utils/get-webview-content";
 type DocType = "proposal" | "design" | "tasks" | "specs";
 
 /** footer 动作 id 白名单 */
-type FooterActionId = "complete" | "archive" | "reactivate";
+type FooterActionId = "advance" | "complete" | "archive" | "reactivate";
 
 interface FooterActionEntry {
 	id: FooterActionId;
@@ -230,25 +230,75 @@ export class SpecViewerProvider {
 				at: h.at,
 				agent: h.agent,
 			})),
-			footer: SpecViewerProvider.computeFooter(context.status),
+			footer: SpecViewerProvider.computeFooter(context.status, context.step),
 		};
 	}
 
 	/**
 	 * 按 status 计算 footer 动作 catalog（extension 侧单一来源）。
-	 * 粗粒度三态：active→[归档,标记完成]；completed/archived→[重新激活]。
+	 * 精细状态机：
+	 *   - 进行态（proposing/designing/...）→ [推进到下一步, 归档]
+	 *   - 完成态（proposed/designed/...，非终态）→ [推进到下一步, 标记完成, 归档]
+	 *   - applying → [归档]（apply 进行中不显示推进，apply 完成本身就是收尾）
+	 *   - applied → [标记完成, 归档]
+	 *   - 终态（completed/archived）→ [重新激活]
+	 * 推进按钮 label 动态显示下一 step 名。
 	 */
 	private static computeFooter(
-		status: SpecContext["status"]
+		status: SpecContext["status"],
+		currentStep: SpecContext["step"]
 	): FooterActionEntry[] {
-		if (status === "active") {
+		const inProgress = ["proposing", "designing", "specifying", "tasking", "applying"];
+		const completed = ["proposed", "designed", "specified", "tasked"];
+
+		if (status === "completed" || status === "archived") {
+			return [{ id: "reactivate", label: "重新激活", variant: "primary" }];
+		}
+
+		if (status === "applied") {
 			return [
 				{ id: "archive", label: "归档", variant: "secondary" },
 				{ id: "complete", label: "标记完成", variant: "primary" },
 			];
 		}
-		// completed | archived
-		return [{ id: "reactivate", label: "重新激活", variant: "primary" }];
+
+		if (status === "applying") {
+			return [{ id: "archive", label: "归档", variant: "secondary" }];
+		}
+
+		// 进行态或完成态：显示推进按钮
+		const actions: FooterActionEntry[] = [];
+		if (inProgress.includes(status) || completed.includes(status)) {
+			const nextLabel = SpecViewerProvider.getNextStepLabel(currentStep);
+			if (nextLabel) {
+				actions.push({ id: "advance", label: nextLabel, variant: "primary" });
+			}
+		}
+		// 完成态额外允许标记完成（全部 step 走完的收尾）
+		if (completed.includes(status)) {
+			actions.push({ id: "complete", label: "标记完成", variant: "secondary" });
+		}
+		actions.push({ id: "archive", label: "归档", variant: "secondary" });
+		return actions;
+	}
+
+	/**
+	 * 取下一 step 的中文 label（用于推进按钮）。
+	 * apply/archive 已是尾部，无下一 step（返回空串）。
+	 */
+	private static getNextStepLabel(step: SpecContext["step"]): string {
+		const order: SpecContext["step"][] = ["propose", "design", "specs", "tasks", "apply", "archive"];
+		const labels: Record<string, string> = {
+			propose: "开始 design",
+			design: "生成 specs",
+			specs: "生成 tasks",
+			tasks: "开始 apply",
+			apply: "",
+			archive: "",
+		};
+		const idx = order.indexOf(step);
+		if (idx < 0 || idx >= order.length - 1) return "";
+		return labels[step] ?? "";
 	}
 
 	/**
@@ -259,6 +309,20 @@ export class SpecViewerProvider {
 		specsPath: string,
 		id: FooterActionId
 	): Promise<void> {
+		if (id === "advance") {
+			// 推进到下一 step：完成当前 step + 开始下一 step
+			const context = await SpecContextManager.read(changeName, specsPath);
+			const order: SpecContext["step"][] = ["propose", "design", "specs", "tasks", "apply", "archive"];
+			const idx = order.indexOf(context.step);
+			const nextStep = idx >= 0 && idx < order.length - 1 ? order[idx + 1] : null;
+			if (nextStep) {
+				await SpecContextManager.appendCompleted(changeName, context.step, context.agent, specsPath);
+				await SpecContextManager.markStarted(changeName, nextStep, context.agent, specsPath);
+				await SpecViewerProvider.updateContent(changeName, specsPath);
+			}
+			return;
+		}
+
 		if (id === "complete") {
 			await SpecContextManager.setStatus(changeName, "completed", specsPath);
 			await SpecViewerProvider.updateContent(changeName, specsPath);

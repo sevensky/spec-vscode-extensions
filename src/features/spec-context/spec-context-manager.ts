@@ -2,10 +2,13 @@ import { workspace, Uri } from "vscode";
 import { join } from "node:path";
 import {
 	DEFAULT_SPEC_CONTEXT,
+	STEP_TO_COMPLETED,
+	STEP_TO_INPROGRESS,
 	type SpecContext,
 	type SpecHistoryEntry,
 	type SpecStatus,
 	type SpecStep,
+	type TerminalStatus,
 } from "../../types/spec-context.types";
 
 /**
@@ -16,6 +19,9 @@ import {
  *
  * 文件位置：openspec/changes/<变更名>/.spec-context.json
  * 与 openspec CLI 的 .openspec.yaml（元数据）并存，职责分离。
+ *
+ * status 是 history + terminalStatus 的派生字段（见 deriveStatus），
+ * 调用方通过 markStarted/markCompleted/setStatus 驱动，不直接写 status。
  */
 export class SpecContextManager {
 	/**
@@ -41,7 +47,34 @@ export class SpecContextManager {
 	}
 
 	/**
-	 * 读取某变更的状态。文件不存在时返回默认 active 状态（不创建文件）。
+	 * 从 history + terminalStatus 派生 status（单一来源）。
+	 *
+	 * 规则：
+	 *   1. terminalStatus 存在 → 返回该终态（优先）
+	 *   2. history 空 → draft
+	 *   3. 末条 status=started → STEP_TO_INPROGRESS[末条.step]
+	 *   4. 末条 status=completed → STEP_TO_COMPLETED[末条.step]
+	 */
+	static deriveStatus(
+		history: SpecHistoryEntry[],
+		terminalStatus?: TerminalStatus
+	): SpecStatus {
+		if (terminalStatus) {
+			return terminalStatus;
+		}
+		if (history.length === 0) {
+			return "draft";
+		}
+		const last = history[history.length - 1];
+		if (last.status === "started") {
+			return STEP_TO_INPROGRESS[last.step];
+		}
+		return STEP_TO_COMPLETED[last.step];
+	}
+
+	/**
+	 * 读取某变更的状态。文件不存在时返回默认 draft 状态（不创建文件）。
+	 * 读取时归一化旧数据（粗粒态 active/completed/archived）。
 	 */
 	static async read(
 		changeName: string,
@@ -55,12 +88,29 @@ export class SpecContextManager {
 			const data = await workspace.fs.readFile(uri);
 			const parsed = JSON.parse(
 				Buffer.from(data).toString("utf-8")
-			) as Partial<SpecContext>;
-			// 容错：字段缺失时回落到默认值
+			) as Partial<SpecContext> & { status?: string };
+
+			const history: SpecHistoryEntry[] = Array.isArray(parsed.history)
+				? parsed.history
+				: [];
+
+			// 归一化旧数据：粗粒态 active/completed/archived → 新状态机
+			let terminalStatus: TerminalStatus | undefined =
+				parsed.terminalStatus;
+			const legacyStatus = parsed.status;
+			if (
+				!terminalStatus &&
+				(legacyStatus === "completed" || legacyStatus === "archived")
+			) {
+				terminalStatus = legacyStatus;
+			}
+			// 旧 active：忽略，由 history 派生（terminalStatus 留空）
+
 			return {
 				step: parsed.step ?? DEFAULT_SPEC_CONTEXT.step,
-				status: parsed.status ?? DEFAULT_SPEC_CONTEXT.status,
-				history: Array.isArray(parsed.history) ? parsed.history : [],
+				status: SpecContextManager.deriveStatus(history, terminalStatus),
+				terminalStatus,
+				history,
 				agent: parsed.agent ?? DEFAULT_SPEC_CONTEXT.agent,
 			};
 		} catch {
@@ -71,6 +121,7 @@ export class SpecContextManager {
 
 	/**
 	 * 写入完整状态（覆盖写）。若父目录不存在会创建。
+	 * status 字段在写入前由 deriveStatus 自动填充（调用方传的值被覆盖）。
 	 */
 	static async write(
 		changeName: string,
@@ -81,6 +132,11 @@ export class SpecContextManager {
 		if (!uri) {
 			throw new Error("无法确定 workspace 根目录，无法写入 .spec-context.json");
 		}
+		// status 是派生字段，写入前重算，保证与 history/terminalStatus 一致
+		context.status = SpecContextManager.deriveStatus(
+			context.history,
+			context.terminalStatus
+		);
 		// 确保父目录存在（change 目录可能刚创建）
 		await workspace.fs.createDirectory(Uri.joinPath(uri, ".."));
 		const content = JSON.stringify(context, null, 2);
@@ -88,7 +144,8 @@ export class SpecContextManager {
 	}
 
 	/**
-	 * 乐观更新：将 step/status 设为指定值，并追加一条 started 历史记录。
+	 * 乐观更新：将 step 设为指定值，并追加一条 started 历史记录。
+	 * status 由 write 时从 history 派生（进行态）。
 	 * 用于"动作开始时立即更新状态，不等待 agent 完成"。
 	 */
 	static async markStarted(
@@ -105,8 +162,9 @@ export class SpecContextManager {
 			agent,
 		};
 		context.step = step;
-		context.status = "active";
 		context.agent = agent;
+		// 进入进行态时清除终态标记（从 completed/archived 重新激活的场景）
+		context.terminalStatus = undefined;
 		context.history.push(entry);
 		await SpecContextManager.write(changeName, context, specsPath);
 		return context;
@@ -114,7 +172,7 @@ export class SpecContextManager {
 
 	/**
 	 * 追加一条 completed 历史记录（通常由 agent 经 preamble 更新后触发，
-	 * 或由文件兜底校验调用）。不改 step/status，仅追加历史。
+	 * 或由文件兜底校验调用）。不改 step，仅追加历史；status 由 write 派生。
 	 */
 	static async appendCompleted(
 		changeName: string,
@@ -135,15 +193,26 @@ export class SpecContextManager {
 	}
 
 	/**
-	 * 更新变更整体状态（active/completed/archived）。
+	 * 更新变更终态（completed/archived）。
+	 * 进行态/完成态由 markStarted/appendCompleted 驱动，不接受。
+	 * 传 'active' 视为重新激活：清除 terminalStatus，status 交由 history 派生。
 	 */
 	static async setStatus(
 		changeName: string,
-		status: SpecStatus,
+		status: SpecStatus | "active",
 		specsPath = "openspec"
 	): Promise<SpecContext> {
 		const context = await SpecContextManager.read(changeName, specsPath);
-		context.status = status;
+		if (status === "completed" || status === "archived") {
+			context.terminalStatus = status;
+		} else if (status === "active") {
+			// 重新激活：清除终态，status 由 history 重新派生
+			context.terminalStatus = undefined;
+		} else {
+			throw new Error(
+				`setStatus 仅接受终态 'completed'/'archived' 或重新激活 'active'，不接受进行态/完成态 '${status}'（请用 markStarted/markCompleted 驱动）`
+			);
+		}
 		await SpecContextManager.write(changeName, context, specsPath);
 		return context;
 	}
