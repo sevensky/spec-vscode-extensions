@@ -29,6 +29,9 @@ repomix-output*
 .trae/
 .specify/
 
+# openspec 运行时状态文件（富面板状态桥梁，每个 change 目录可能产生）
+.spec-context.json
+
 .github/agents
 .github/instructions/*
 .github/prompts/*

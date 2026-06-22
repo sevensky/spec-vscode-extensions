@@ -1,82 +1,82 @@
-# Design: Add Change Status Indicators
+# Design：为变更添加状态指示器
 
 ## Decisions
 
-### D1: Status States (Final)
-Four explicit states are defined:
+### D1：状态定义（最终）
+定义四种显式状态：
 
-| State | Condition |
+| 状态 | 条件 |
 |-------|-----------|
-| `missing` | `tasks.md` does not exist for the change |
-| `empty` | `tasks.md` exists but contains zero checkbox task lines |
-| `partial` | `total > 0` and `0 < checked < total` |
-| `complete` | `total > 0` and `checked == total` |
+| `missing` | 该变更不存在 `tasks.md` |
+| `empty` | `tasks.md` 存在但不包含任何复选框任务行 |
+| `partial` | `total > 0` 且 `0 < checked < total` |
+| `complete` | `total > 0` 且 `checked == total` |
 
-`empty` is treated as distinct from `missing`. Both show a warning-like indicator but `empty` means the file was authored; it just has no tracked tasks yet.
+`empty` 与 `missing` 视为不同状态。两者都显示警告式指示器，但 `empty` 表示文件已被创建，只是尚无被追踪的任务。
 
-### D2: Task Line Parsing Rules
-Two patterns are recognized, applied per-line (multiline):
+### D2：任务行解析规则
+识别两种模式，逐行应用（multiline）：
 
-- Incomplete task: `^\s*- \[ \]\s+.+$` (space inside brackets)
-- Complete task: `^\s*- \[x\]\s+.+$` (lowercase x only)
+- 未完成任务：`^\s*- \[ \]\s+.+$`（括号内为空格）
+- 完成任务：`^\s*- \[x\]\s+.+$`（仅小写 x）
 
-Uppercase `X` is NOT counted as complete. This aligns with the existing pattern in `SpecTaskCodeLensProvider`.
+大写 `X` 不计为完成。这与 `SpecTaskCodeLensProvider` 中既有模式一致。
 
-Lines that are not checkbox task lines are ignored when computing `total` and `checked`.
+非复选框任务行在计算 `total` 和 `checked` 时被忽略。
 
-### D3: Percent Display
-- Percent computed as `Math.floor(checked / total * 100)`.
-- Floor rather than round: optimistic rounding feels misleading.
-- Displayed as an integer with `%` suffix, e.g. `33%`.
-- Shown for `partial` and `complete` states.
+### D3：百分比显示
+- 百分比计算为 `Math.floor(checked / total * 100)`。
+- 使用 floor 而非 round：乐观舍入会带来误导。
+- 以整数加 `%` 后缀显示，如 `33%`。
+- 在 `partial` 和 `complete` 状态下显示。
 
-### D4: Icon Strategy (Phase 1)
-Use VS Code ThemeIcons for discrete states and custom SVG progress assets for partial progress.
+### D4：图标策略（Phase 1）
+离散状态使用 VS Code ThemeIcon，部分进度使用自定义 SVG 进度资源。
 
-| State | Indicator | Notes |
+| 状态 | 指示器 | 备注 |
 |-------|-----------|-------|
-| `missing` | ThemeIcon `warning` | Uses `list.warningForeground` |
-| `empty` | ThemeIcon `circle-outline` | Uses `descriptionForeground` |
-| `partial` | Custom SVG asset from `icons/progress/progress-*.svg` | Represents partial completion with a ring bucket |
-| `complete` | ThemeIcon `pass-filled` | Uses `charts.green` |
+| `missing` | ThemeIcon `warning` | 使用 `list.warningForeground` |
+| `empty` | ThemeIcon `circle-outline` | 使用 `descriptionForeground` |
+| `partial` | `icons/progress/progress-*.svg` 中的自定义 SVG 资源 | 以环形分桶表示部分完成 |
+| `complete` | ThemeIcon `pass-filled` | 使用 `charts.green` |
 
-Phase 1 includes custom SVG progress assets for the `partial` state only.
+Phase 1 仅对 `partial` 状态包含自定义 SVG 进度资源。
 
-### D5: Description Field Usage
-The `description` field of a change `TreeItem` will be used for the percent badge rather than embedding it in the label. This keeps the change name clean for keyboard navigation and copy behavior.
+### D5：description 字段用法
+变更 `TreeItem` 的 `description` 字段用于百分比徽标，而非嵌入 label。这使变更名保持干净，便于键盘导航和复制行为。
 
-| State | `description` value |
+| 状态 | `description` 值 |
 |-------|---------------------|
-| `missing` | _(empty)_ |
-| `empty` | _(empty)_ |
+| `missing` | _（空）_ |
+| `empty` | _（空）_ |
 | `partial` | `"33%"` |
 | `complete` | `"100%"` |
 
-### D6: Tooltip Content
-Each change row tooltip includes the status summary:
+### D6：tooltip 内容
+每个变更行 tooltip 包含状态摘要：
 
-| State | Tooltip |
+| 状态 | Tooltip |
 |-------|---------|
 | `missing` | `"No tasks.md found"` |
 | `empty` | `"tasks.md contains no recognized tasks"` |
 | `partial` | `"3 of 9 tasks complete (33%)"` |
 | `complete` | `"All tasks complete"` |
 
-The existing change name is the TreeItem label so the tooltip supplements, not duplicates it.
+既有的变更名是 TreeItem 的 label，因此 tooltip 是补充而非重复。
 
-### D7: Data Flow
-Status computation is co-located with tree item construction inside `SpecExplorerProvider`, not inside `SpecManager`, to:
-- Keep `SpecManager` focused on spec domain logic
-- Avoid introducing async completion state into every manager call
-- Simplify caching scope
+### D7：数据流
+状态计算与树项构造一同放在 `SpecExplorerProvider` 内部，而非 `SpecManager` 内，以：
+- 保持 `SpecManager` 专注于 spec 领域逻辑
+- 避免在每个 manager 调用中引入异步完成状态
+- 简化缓存范围
 
-A private `computeChangeStatus(changeName: string)` method is added to `SpecExplorerProvider` that:
-1. Checks for `tasks.md` existence
-2. Reads and parses the file
-3. Returns a `ChangeStatus` type
+在 `SpecExplorerProvider` 中新增私有方法 `computeChangeStatus(changeName: string)`，其：
+1. 检查 `tasks.md` 是否存在
+2. 读取并解析文件
+3. 返回 `ChangeStatus` 类型
 
-### D8: Type Contract
-A new local type (in provider file or nearby types file):
+### D8：类型契约
+新增本地类型（位于 provider 文件或邻近的 types 文件）：
 
 ```ts
 type ChangeStatusState = "missing" | "empty" | "partial" | "complete";
@@ -85,34 +85,34 @@ interface ChangeStatus {
   state: ChangeStatusState;
   total: number;
   checked: number;
-  percent: number; // 0-100, floored
+  percent: number; // 0-100，floor
 }
 ```
 
-### D9: Refresh Strategy
-The existing watcher setup already fires tree refresh when files change under the configured specs path (default `openspec/**/*`), which includes `tasks.md`. No new watcher is needed. The provider's `refresh()` method triggers re-computation on next `getChildren()` call.
+### D9：刷新策略
+既有监听器配置已在配置的 specs 路径（默认 `openspec/**/*`）下文件变更时触发树刷新，其中包含 `tasks.md`。无需新增监听器。provider 的 `refresh()` 方法会在下次 `getChildren()` 调用时触发重新计算。
 
-### D10: Performance
-- Status is computed per-change during `getChildren()` for the `group-changes` item expansion.
-- No persistent cache is introduced in Phase 1. Tree refreshes are already infrequent.
-- If list sizes warrant it, a simple `Map<changeName, ChangeStatus>` cache with invalidation-on-refresh can be added in a follow-up.
+### D10：性能
+- 状态在 `group-changes` 项展开时于 `getChildren()` 中按变更计算。
+- Phase 1 不引入持久缓存。树刷新本就不频繁。
+- 若列表规模需要，可在后续迭代中新增简单的 `Map<changeName, ChangeStatus>` 缓存，刷新时失效。
 
 ## Rendering Sketch
 
 ```
 CHANGES
-  ├── ⚠  add-auth-system          (no tasks.md)
-  ├── ◯  add-logging-service      (empty tasks.md)
-  ├── ◎  add-dark-mode        33% (3/9 complete)
-  └── ✓  add-icon-pack       100% (all complete)
+  ├── ⚠  add-auth-system          (无 tasks.md)
+  ├── ◯  add-logging-service      (空 tasks.md)
+  ├── ◎  add-dark-mode        33% (3/9 完成)
+  └── ✓  add-icon-pack       100% (全部完成)
 ```
 
-## Open Questions — Resolved
+## Open Questions — 已解决
 
-| Question | Resolution |
+| 问题 | 决议 |
 |----------|------------|
-| Total == 0 displays as? | `empty` state with circle-outline, no percent text |
-| Uppercase [X] counts? | No — lowercase only to match existing code lens behavior |
-| Rounding: nearest or floor? | Floor |
-| Percent text position? | TreeItem `description` field, not embedded in label |
-| Custom SVG rings? | Deferred to Phase 2, not in initial implementation |
+| total == 0 显示为？ | `empty` 状态，circle-outline，无百分比文本 |
+| 大写 [X] 计入？ | 否 — 仅小写，以匹配既有 code lens 行为 |
+| 舍入：四舍五入还是 floor？ | floor |
+| 百分比文本位置？ | TreeItem `description` 字段，不嵌入 label |
+| 自定义 SVG 环？ | 推迟到 Phase 2，不在初始实现中 |
