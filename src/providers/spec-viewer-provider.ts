@@ -5,11 +5,15 @@ import {
 	Uri,
 	ViewColumn,
 	commands,
+	WorkspaceEdit,
+	Range,
+	Position,
 } from "vscode";
 import { join } from "node:path";
 import { SpecContextManager } from "../features/spec-context/spec-context-manager";
-import type { SpecContext } from "../types/spec-context.types";
+import type { ReviewComment, SpecContext } from "../types/spec-context.types";
 import { getWebviewContent } from "../utils/get-webview-content";
+import { sendPromptToChat } from "../utils/chat-prompt-runner";
 
 /**
  * SpecViewerProvider — 富 spec 面板（React webview 版）。
@@ -151,6 +155,57 @@ export class SpecViewerProvider {
 					await SpecViewerProvider.updateContent(changeName, entry.specsPath);
 					break;
 				}
+				case "toggleCheckbox": {
+					await SpecViewerProvider.handleToggleCheckbox(
+						changeName,
+						entry.state.currentDoc,
+						msg.lineNum,
+						msg.checked,
+						entry.specsPath
+					);
+					await SpecViewerProvider.updateContent(changeName, entry.specsPath);
+					break;
+				}
+				case "editLine": {
+					await SpecViewerProvider.handleEditLine(
+						changeName,
+						entry.state.currentDoc,
+						msg.lineNum,
+						msg.newText,
+						entry.specsPath
+					);
+					await SpecViewerProvider.updateContent(changeName, entry.specsPath);
+					break;
+				}
+				case "addComment": {
+					await SpecViewerProvider.handleAddComment(changeName, entry.specsPath, msg);
+					await SpecViewerProvider.updateContent(changeName, entry.specsPath);
+					break;
+				}
+				case "removeComment": {
+					await SpecContextManager.removeComment(changeName, msg.id, entry.specsPath);
+					await SpecViewerProvider.updateContent(changeName, entry.specsPath);
+					break;
+				}
+				case "runDocRefinement": {
+					await SpecViewerProvider.handleRunDocRefinement(
+						changeName,
+						entry.state.currentDoc,
+						entry.specsPath
+					);
+					break;
+				}
+				case "openFile": {
+					const filePath = (msg as { path: string }).path;
+					if (filePath) {
+						const docUri = Uri.joinPath(
+							workspace.workspaceFolders?.[0]?.uri ?? Uri.file(process.cwd()),
+							filePath
+						);
+						await commands.executeCommand("vscode.open", docUri);
+					}
+					break;
+				}
 				default:
 					// 未知命令忽略
 					break;
@@ -231,6 +286,23 @@ export class SpecViewerProvider {
 				agent: h.agent,
 			})),
 			footer: SpecViewerProvider.computeFooter(context.status, context.step),
+			reviewComments: (context.reviewComments ?? []).map((c) => ({
+				id: c.id,
+				doc: c.doc,
+				anchor: {
+					heading: c.anchor.heading,
+					blockText: c.anchor.blockText,
+					line: c.anchor.line,
+				},
+				comment: c.comment,
+				status: c.status,
+				createdAt: c.createdAt,
+			})),
+			approach: context.approach,
+			decisions: context.decisions,
+			concerns: context.concerns,
+			filesModified: context.filesModified,
+			taskSummaries: context.taskSummaries,
 		};
 	}
 
@@ -354,6 +426,154 @@ export class SpecViewerProvider {
 			await SpecViewerProvider.updateContent(changeName, specsPath);
 			return;
 		}
+	}
+
+	/**
+	 * 取某文档对应的源文件 Uri（proposal.md/design.md/tasks.md/specs 合并）。
+	 */
+	private static getDocUri(
+		changeName: string,
+		docType: DocType,
+		specsPath: string
+	): Uri | undefined {
+		const ws = workspace.workspaceFolders?.[0];
+		if (!ws) return undefined;
+		const changeDir = join(ws.uri.fsPath, specsPath, "changes", changeName);
+		if (docType === "specs") return undefined; // specs 是多文件，不支持单文件编辑
+		const fileName = DOC_FILES[docType];
+		return Uri.file(join(changeDir, fileName));
+	}
+
+	/**
+	 * checkbox toggle：WorkspaceEdit 替换源文件该行 [ ]↔[x] + save。
+	 */
+	private static async handleToggleCheckbox(
+		changeName: string,
+		docType: DocType,
+		lineNum: number,
+		checked: boolean,
+		specsPath: string
+	): Promise<void> {
+		const uri = SpecViewerProvider.getDocUri(changeName, docType, specsPath);
+		if (!uri) return;
+		try {
+			const doc = await workspace.openTextDocument(uri);
+			const line = doc.lineAt(lineNum - 1);
+			const oldMark = checked ? "[ ]" : "[x]";
+			const newMark = checked ? "[x]" : "[ ]";
+			const text = line.text;
+			const idx = text.indexOf(oldMark);
+			if (idx < 0) return;
+			const edit = new WorkspaceEdit();
+			edit.replace(
+				uri,
+				new Range(
+					new Position(lineNum - 1, idx),
+					new Position(lineNum - 1, idx + 3)
+				),
+				newMark
+			);
+			await workspace.applyEdit(edit);
+			await doc.save();
+		} catch {
+			// 文件不存在或行越界 → 忽略
+		}
+	}
+
+	/**
+	 * 文本行编辑：WorkspaceEdit 替换整行 + save。
+	 */
+	private static async handleEditLine(
+		changeName: string,
+		docType: DocType,
+		lineNum: number,
+		newText: string,
+		specsPath: string
+	): Promise<void> {
+		const uri = SpecViewerProvider.getDocUri(changeName, docType, specsPath);
+		if (!uri) return;
+		try {
+			const doc = await workspace.openTextDocument(uri);
+			const line = doc.lineAt(lineNum - 1);
+			const edit = new WorkspaceEdit();
+			edit.replace(
+				uri,
+				line.rangeIncludingLineBreak,
+				`${newText}
+`
+			);
+			await workspace.applyEdit(edit);
+			await doc.save();
+		} catch {
+			// 行越界 → 忽略
+		}
+	}
+
+	/**
+	 * 添加评论：构建 ReviewComment + 串行写入 .spec-context.json。
+	 */
+	private static async handleAddComment(
+		changeName: string,
+		specsPath: string,
+		msg: {
+			id: string;
+			doc: string;
+			lineNum: number;
+			lineContent: string;
+			comment: string;
+		}
+	): Promise<void> {
+		const comment: ReviewComment = {
+			id: msg.id,
+			doc: msg.doc,
+			anchor: {
+				heading: null,
+				blockText: msg.lineContent.slice(0, 120),
+				line: msg.lineNum,
+			},
+			comment: msg.comment,
+			status: "pending",
+			createdAt: new Date().toISOString(),
+		};
+		await SpecContextManager.addComment(changeName, comment, specsPath);
+	}
+
+	/**
+	 * refinement：收集当前 doc 的 pending 评论 → 构建直接编辑 prompt → 派发到 agent → 标记 applied。
+	 */
+	private static async handleRunDocRefinement(
+		changeName: string,
+		docType: DocType,
+		specsPath: string
+	): Promise<void> {
+		const context = await SpecContextManager.read(changeName, specsPath);
+		const pending = (context.reviewComments ?? []).filter(
+			(c) => c.doc === docType && c.status === "pending"
+		);
+		if (pending.length === 0) return;
+
+		const commentList = pending
+			.map(
+				(c, i) =>
+					`${i + 1}. 行 ${c.anchor.line}：${c.comment}（原文：${c.anchor.blockText}）`
+			)
+			.join("\n");
+		const prompt = `请直接编辑 ${docType} 文档应用以下评论修改，不要重新生成整个模板：
+
+变更：${changeName}
+文档：${docType}
+待处理评论：
+${commentList}
+
+要求：逐条对应原文位置做最小修改，保持其余内容不变。`;
+
+		try {
+			await sendPromptToChat(prompt);
+		} catch {
+			// 派发失败不阻塞标记，用户可重试
+		}
+		await SpecContextManager.markCommentsApplied(changeName, docType, specsPath);
+		await SpecViewerProvider.updateContent(changeName, specsPath);
 	}
 
 	/**

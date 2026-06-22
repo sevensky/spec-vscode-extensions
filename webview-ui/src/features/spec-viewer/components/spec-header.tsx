@@ -8,15 +8,12 @@ interface SpecHeaderProps {
 	agent: string;
 }
 
-const STATUS_LABEL: Record<SpecStatus, string> = {
-	active: "进行中",
+const STATUS_LABEL: Partial<Record<SpecStatus, string>> = {
 	completed: "已完成",
 	archived: "已归档",
 };
 
-const STATUS_CLASS: Record<SpecStatus, string> = {
-	active:
-		"bg-[color:var(--vscode-badge-background)] text-[color:var(--vscode-badge-foreground)]",
+const STATUS_CLASS: Partial<Record<SpecStatus, string>> = {
 	completed: "bg-[color:color-mix(in_srgb,#22c55e_22%,transparent)] text-[#22c55e]",
 	archived:
 		"bg-[color:color-mix(in_srgb,var(--vscode-disabledForeground)_22%,transparent)] text-[color:var(--vscode-disabledForeground)]",

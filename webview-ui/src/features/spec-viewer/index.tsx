@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { vscode } from "@/bridge/vscode";
 import type {
 	DocType,
@@ -10,7 +10,7 @@ import { SpecHeader } from "./components/spec-header";
 import { NavigationBar } from "./components/navigation-bar";
 import { MarkdownContent } from "./components/markdown-content";
 import { FooterActions } from "./components/footer-actions";
-import { ActivityTimeline } from "./components/activity-timeline";
+import { ActivityPanel } from "./components/activity-panel";
 
 /**
  * spec-viewer React 面板主组件。
@@ -23,6 +23,8 @@ import { ActivityTimeline } from "./components/activity-timeline";
  */
 export function SpecViewer() {
 	const [payload, setPayload] = useState<ViewerPayload | null>(null);
+	const [activityVisible, setActivityVisible] = useState(false);
+	const tocRef = useRef<HTMLElement>(null);
 
 	useEffect(() => {
 		const listener = (event: MessageEvent) => {
@@ -56,7 +58,7 @@ export function SpecViewer() {
 	};
 
 	return (
-		<div className="mx-auto flex h-full max-w-5xl flex-col gap-4 px-4 py-3">
+		<div className="viewer-container mx-auto max-w-5xl px-4 py-3 gap-4">
 			<SpecHeader
 				changeName={payload.changeName}
 				status={payload.status}
@@ -68,13 +70,47 @@ export function SpecViewer() {
 				currentDoc={payload.currentDoc}
 				onSwitch={handleSwitch}
 			/>
-			<div className="flex min-h-0 flex-1 gap-4 overflow-hidden">
-				<main className="min-w-0 flex-1 overflow-auto py-2">
-					<MarkdownContent doc={currentDocEntry} />
-				</main>
-				<ActivityTimeline history={payload.history} />
+			<div className="content-area min-h-0 flex-1 overflow-hidden !flex-row gap-4 items-flex-start">
+				{activityVisible ? (
+					<main className="min-w-0 flex-1 overflow-auto py-2">
+						<ActivityPanel
+							history={payload.history}
+							approach={payload.approach}
+							decisions={payload.decisions}
+							concerns={payload.concerns}
+							filesModified={payload.filesModified}
+							taskSummaries={payload.taskSummaries}
+							reviewComments={payload.reviewComments}
+						/>
+					</main>
+				) : (
+					<>
+						<main className="min-w-0 flex-1 overflow-auto py-2">
+							<MarkdownContent doc={currentDocEntry} reviewComments={payload.reviewComments} tocEl={tocRef.current} />
+						</main>
+						<aside
+							ref={tocRef}
+							id="spec-toc"
+							className="spec-toc w-48 shrink-0 overflow-auto"
+						/>
+					</>
+				)}
 			</div>
-			<FooterActions actions={payload.footer} onAction={handleAction} />
+			<div className="flex items-center gap-2">
+				<button
+					type="button"
+					onClick={() => setActivityVisible((v) => !v)}
+					className={`cursor-pointer rounded border px-3 py-1 text-xs transition-colors ${
+						activityVisible
+							? "border-[color:var(--vscode-focusBorder)] bg-[color:color-mix(in_srgb,var(--vscode-focusBorder)_15%,transparent)] text-[color:var(--vscode-focusBorder)]"
+							: "border-[color:var(--vscode-panel-border)] text-[color:var(--vscode-descriptionForeground)] hover:text-[color:var(--vscode-foreground)]"
+					}`}
+				>
+					{activityVisible ? "返回文档" : "Activity"}
+				</button>
+				<div className="flex-1" />
+				<FooterActions actions={payload.footer} onAction={handleAction} />
+			</div>
 		</div>
 	);
 }
