@@ -17,7 +17,7 @@ import { t } from "../i18n";
  * 与 CodexService（临时文件 + chatgpt.addToThread 命令）不同，
  * Claude 走终端 CLI 路径：
  *   1. 写 prompt 到 ~/.claude/.tmp/ 临时文件
- *   2. 创建终端，sendText('claude "$(cat <tmpfile>)"')
+ *   2. 创建终端，sendText('claude -- "$(cat <tmpfile>)"')
  *   3. 30s 后清理临时文件（best-effort）
  *
  * 依赖外部 `claude` CLI 已安装。未安装时提示用户并建议回退。
@@ -53,7 +53,9 @@ export class ClaudeService {
 		terminal.show();
 
 		// 用 $(cat <file>) 注入 prompt 内容，避免命令行长度/转义问题
-		terminal.sendText(`claude "$(cat '${filePath.replace(/'/g, "'\\''")}')"; rm -f '${filePath}'`, true);
+		// `--` 为 POSIX 选项终止符：prompt 内容可能以 `---`（YAML front matter）开头，
+		// 不加 `--` 会被 claude CLI 的参数解析器误判为未知选项（error: unknown option）
+		terminal.sendText(`claude -- "$(cat '${filePath.replace(/'/g, "'\\''")}')"; rm -f '${filePath}'`, true);
 
 		// 5. 延迟清理（best-effort，兜底，对应 spec: 临时文件与清理策略）
 		this.scheduleCleanup(filePath);
