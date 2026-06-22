@@ -2,7 +2,7 @@
   "name": "openspec-for-agent",
   "displayName": "%displayName%",
   "description": "%extension.description%",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "author": "sevensky",
   "publisher": "bairui-dev",
   "icon": "icon.png",
@@ -71,16 +71,16 @@
           "default": true,
           "description": "%config.desc.views_settings_visible%"
         },
-        "openspec-for-agent.copilot.specsPath": {
+        "openspec-for-agent.agent.specsPath": {
           "type": "string",
           "default": "openspec",
-          "description": "%config.desc.copilot_specsPath%",
+          "description": "%config.desc.agent_specsPath%",
           "order": 1
         },
-        "openspec-for-agent.copilot.promptsPath": {
+        "openspec-for-agent.agent.promptsPath": {
           "type": "string",
-          "default": ".github/prompts",
-          "description": "%config.desc.copilot_promptsPath%",
+          "default": ".agent/prompts",
+          "description": "%config.desc.agent_promptsPath%",
           "order": 2
         },
         "openspec-for-agent.aiAgent": {
@@ -340,6 +340,11 @@
         "title": "%command.title.help_open%",
         "category": "%command.category%",
         "icon": "$(question)"
+      },
+      {
+        "command": "openspec-for-agent.spec.openSource",
+        "title": "%command.title.spec_openSource%",
+        "category": "OpenSpec"
       }
     ],
     "menus": {
@@ -430,6 +435,16 @@
           "command": "openspec-for-agent.prompts.delete",
           "when": "view == openspec-for-agent.views.promptsExplorer && (viewItem == prompt || viewItem == prompt-runnable)",
           "group": "7_modification@2"
+        },
+        {
+          "command": "openspec-for-agent.spec.openSource",
+          "when": "view == openspec-for-agent.views.specExplorer && viewItem == change",
+          "group": "navigation@97"
+        },
+        {
+          "command": "openspec-for-agent.spec.openSource",
+          "when": "view == openspec-for-agent.views.specExplorer && viewItem == spec",
+          "group": "navigation@97"
         }
       ],
       "commandPalette": [

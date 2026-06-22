@@ -19,8 +19,8 @@ describe("PromptsExplorerProvider", () => {
 	const context = {
 		extensionUri: Uri.file("/fake/extension"),
 	} as ExtensionContext;
-	const projectRoot = "/fake/workspace/.github/prompts";
-	const globalRoot = "/home/test/.github/prompts";
+	const projectRoot = "/fake/workspace/.agent/prompts";
+	const globalRoot = "/home/test/.agent/prompts";
 	const agentsRoot = "/fake/workspace/.github/agents";
 
 	beforeEach(() => {
@@ -59,7 +59,7 @@ describe("PromptsExplorerProvider", () => {
 
 		expect(projectPromptsGroup.label).toBe("Project Prompts");
 		expect(projectPromptsGroup.contextValue).toBe("prompt-group-project");
-		expect(projectPromptsGroup.description).toBe(".github/prompts");
+		expect(projectPromptsGroup.description).toBe(".agent/prompts");
 
 		expect(projectInstructionsGroup.label).toBe("Project Instructions");
 		expect(projectInstructionsGroup.contextValue).toBe(

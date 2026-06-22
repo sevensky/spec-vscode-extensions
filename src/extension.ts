@@ -20,6 +20,7 @@ import { SpecTaskCodeLensProvider } from "./providers/spec-task-code-lens-provid
 import { SteeringExplorerProvider } from "./providers/steering-explorer-provider";
 import { PromptLoader } from "./services/prompt-loader";
 import { ConfigManager } from "./utils/config-manager";
+import { SpecViewerProvider } from "./providers/spec-viewer-provider";
 
 export async function activate(context: ExtensionContext) {
 	// Create output channel for debugging
@@ -67,6 +68,9 @@ export async function activate(context: ExtensionContext) {
 		steeringManager,
 		copilotProvider,
 	};
+
+	// 注入扩展 Uri，供富 spec 面板解析 webview 脚本/样式资源
+	SpecViewerProvider.initialize(context.extensionUri);
 
 	// Register tree data providers
 	const overviewProvider = new OverviewProvider(context);

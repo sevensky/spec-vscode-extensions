@@ -16,7 +16,7 @@ import {
 	window,
 	workspace,
 } from "vscode";
-import { addDocumentToCopilotChat } from "../utils/copilot-chat-utils";
+import { addDocumentToAgentChat } from "../utils/agent-chat-utils";
 import { ConfigManager } from "../utils/config-manager";
 import { getVSCodeUserDataPath, isWindowsOrWsl } from "../utils/platform-utils";
 
@@ -192,7 +192,7 @@ export class PromptsExplorerProvider implements TreeDataProvider<PromptItem> {
 		}
 
 		try {
-			await addDocumentToCopilotChat(item.resourceUri);
+			await addDocumentToAgentChat(item.resourceUri);
 		} catch (error) {
 			const message =
 				error instanceof Error
@@ -456,11 +456,13 @@ export class PromptsExplorerProvider implements TreeDataProvider<PromptItem> {
 		}
 
 		const home = homedir();
+		// 使用配置的 prompts 路径（如 .agent/prompts），而非硬编码 .github/prompts
+		const configuredPromptsPath = this.configManager.getPath("prompts");
 		if (!home) {
-			return ".github/prompts";
+			return configuredPromptsPath;
 		}
 
-		return `${home}/.github/prompts`;
+		return `${home}/${configuredPromptsPath}`;
 	};
 
 	private readonly getPromptsRoot = (): Uri | undefined => {

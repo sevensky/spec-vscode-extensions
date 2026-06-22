@@ -74,3 +74,16 @@ export const getLegacyFilename = (
 	}
 	return config.legacyFilename(COMMAND_IDS[commandId].legacy);
 };
+
+/**
+ * Agent -> "add document to chat" command mapping.
+ * - github-copilot / codex: use Copilot Chat's `chatgpt.addToThread`
+ * - others: null (no equivalent command; caller falls back to clipboard)
+ */
+export const AGENT_CHAT_COMMANDS: Record<AiAgent, string | null> = {
+	"github-copilot": "chatgpt.addToThread",
+	codex: "chatgpt.addToThread",
+	claude: null,
+	trae: null,
+	codebuddy: null,
+};

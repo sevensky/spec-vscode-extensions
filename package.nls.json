@@ -28,8 +28,8 @@
   "config.desc.views_prompts_visible": "Controls visibility of the Prompts view in the activity bar.",
   "config.desc.views_steering_visible": "Controls visibility of the Steering view in the activity bar.",
   "config.desc.views_settings_visible": "Controls visibility of the Settings view in the activity bar.",
-  "config.desc.copilot_specsPath": "Path where Copilot specification files are stored.",
-  "config.desc.copilot_promptsPath": "Path where Copilot prompt files are stored.",
+  "config.desc.agent_specsPath": "Path where specification files are stored.",
+  "config.desc.agent_promptsPath": "Path where prompt files are stored.",
   "config.desc.aiAgent": "Select which chat agent to use for sending prompts. 'claude' requires the Claude Code CLI installed.",
   "config.desc.chatLanguage": "The language GitHub Copilot should use for responses.",
   "config.desc.customInstructions_global": "Global custom instructions appended to all prompts.",
@@ -42,5 +42,6 @@
   "view.name.steeringExplorer": "Steering",
   "view.name.overview": "Settings",
   "displayName": "OpenSpec for Agent",
-  "extension.description": "Spec-driven development with OpenSpec"
+  "extension.description": "Spec-driven development with OpenSpec",
+  "command.title.spec_openSource": "Open Source File"
 }
