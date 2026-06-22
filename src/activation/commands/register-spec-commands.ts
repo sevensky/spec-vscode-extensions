@@ -10,8 +10,8 @@ import { sendPromptToChat } from "../../utils/chat-prompt-runner";
 import { ConfigManager } from "../../utils/config-manager";
 import { readPromptFile } from "../../utils/openspec-prompt-utils";
 import { SpecViewerProvider } from "../../providers/spec-viewer-provider";
-/** 提取 change 名的前缀正则（relativePath 形如 "changes/<name>/..."） */
-const CHANGES_PREFIX = /^changes\//;
+/** 提取 change 名的前缀正则（兼容 "openspec/changes/<name>/..." 与 "changes/<name>/..."） */
+const CHANGES_PREFIX = /^(?:openspec\/)?changes\//;
 
 interface SpecCommandItem {
 	label?: string;
@@ -100,8 +100,14 @@ export const registerSpecCommands = (
 		commands.registerCommand(
 			"openspec-for-agent.spec.open",
 			async (relativePath: string, _type: string) => {
-				// 点击树节点 → 打开富面板（展示变更全貌）
-				// relativePath 形如 "changes/<changeName>/proposal.md"，提取 changeName
+				// 点击树节点 → 按路径类型分流：
+				//   - change 路径（openspec/changes/<name>/...）→ 打开富面板展示该变更全貌
+				//   - 非 change 路径（如 openspec/specs/<name>/spec.md 顶层 spec）→ 无对应 change，
+				//     回退到 markdown 编辑器打开（与 openSource 一致），避免拼出无效 change 面板
+				if (!CHANGES_PREFIX.test(relativePath)) {
+					await specManager.openDocument(relativePath, _type);
+					return;
+				}
 				const changeName = relativePath
 					.replace(CHANGES_PREFIX, "")
 					.split("/")[0];
