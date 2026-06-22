@@ -2,6 +2,23 @@
 
 ---
 
+## v1.1.2 2026-06-22
+
+### Added
+
+- 状态机升级为精细派生状态 (#4)
+- 富面板迁移至 React + footer 动作接通 + 双击 bug 修复 (#3)
+- add multi-agent support, i18n, and Chinese localization
+
+### Changed
+
+- add github-workflow policy for agents (#2)
+- rebrand extension to openspec-for-agent and migrate to pnpm (#1)
+
+### Fixed
+
+- remove package-lock.json from version bump targets
+
 ## v1.1.0 2026-05-22
 
 ### Added
