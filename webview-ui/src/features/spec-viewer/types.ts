@@ -60,6 +60,44 @@ export interface HistoryEntry {
 	agent: string;
 }
 
+/** 评论锚定（源文件漂移后重锚用） */
+export interface ReviewCommentAnchor {
+	heading: string | null;
+	blockText: string;
+	line: number;
+}
+
+/** 内联评论（持久化到 .spec-context.json） */
+export interface ReviewComment {
+	id: string;
+	doc: string;
+	anchor: ReviewCommentAnchor;
+	comment: string;
+	status: "pending" | "applied";
+	createdAt: string;
+}
+
+/** 任务摘要 */
+export interface TaskSummary {
+	id: string;
+	status: "pending" | "in_progress" | "done";
+	did?: string;
+	files?: string[];
+}
+
+/** concern 关联项 */
+export interface SpecConcern {
+	text: string;
+	task?: string;
+}
+
+/** 派生的时间线阶段（从 history 派生） */
+export interface PhaseEntry {
+	step: string;
+	startedAt: string | null;
+	completedAt: string | null;
+}
+
 /** extension → webview 的完整状态载荷 */
 export interface ViewerPayload {
 	changeName: string;
@@ -70,6 +108,12 @@ export interface ViewerPayload {
 	docs: DocEntry[];
 	history: HistoryEntry[];
 	footer: FooterActionEntry[];
+	reviewComments: ReviewComment[];
+	approach?: string;
+	decisions?: string[];
+	concerns?: SpecConcern[];
+	filesModified?: string[];
+	taskSummaries?: TaskSummary[];
 }
 
 /** webview → extension 的消息联合类型 */
@@ -77,7 +121,20 @@ export type OutboundMessage =
 	| { command: "ready" }
 	| { command: "switchDoc"; docType: DocType }
 	| { command: "footerAction"; id: FooterActionId }
-	| { command: "refreshContent" };
+	| { command: "refreshContent" }
+	| { command: "toggleCheckbox"; lineNum: number; checked: boolean }
+	| { command: "editLine"; lineNum: number; newText: string }
+	| {
+			command: "addComment";
+			id: string;
+			doc: string;
+			lineNum: number;
+			lineContent: string;
+			comment: string;
+	  }
+	| { command: "removeComment"; id: string }
+	| { command: "runDocRefinement"; doc: string }
+	| { command: "openFile"; path: string };
 
 /** extension → webview 的消息联合类型 */
 export type InboundMessage = {

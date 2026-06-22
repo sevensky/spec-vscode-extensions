@@ -4,6 +4,7 @@ import {
 	DEFAULT_SPEC_CONTEXT,
 	STEP_TO_COMPLETED,
 	STEP_TO_INPROGRESS,
+	type ReviewComment,
 	type SpecContext,
 	type SpecHistoryEntry,
 	type SpecStatus,
@@ -112,6 +113,9 @@ export class SpecContextManager {
 				terminalStatus,
 				history,
 				agent: parsed.agent ?? DEFAULT_SPEC_CONTEXT.agent,
+				reviewComments: Array.isArray(parsed.reviewComments)
+					? parsed.reviewComments
+					: [],
 			};
 		} catch {
 			// 文件不存在或 JSON 解析失败 → 返回默认状态
@@ -215,5 +219,99 @@ export class SpecContextManager {
 		}
 		await SpecContextManager.write(changeName, context, specsPath);
 		return context;
+	}
+
+	/**
+	 * 评论操作的串行队列：changeName → Promise chain。
+	 * 防止 add/remove/markApplied 并发导致 read-modify-write 覆盖。
+	 */
+	private static commentQueues = new Map<string, Promise<unknown>>();
+
+	/** 把评论操作排队执行（串行，防并发覆盖）。 */
+	private static enqueueCommentMutation(
+		changeName: string,
+		specsPath: string,
+		mutate: (ctx: SpecContext) => SpecContext
+	): Promise<SpecContext> {
+		const key = `${changeName}@${specsPath}`;
+		const prev = SpecContextManager.commentQueues.get(key) ?? Promise.resolve();
+		const next = prev.then(() =>
+			SpecContextManager.applyCommentMutation(changeName, specsPath, mutate)
+		);
+		SpecContextManager.commentQueues.set(key, next.then(() => undefined));
+		// 失败也清理队列，不阻塞后续
+		next.catch(() => undefined);
+		return next;
+	}
+
+	private static async applyCommentMutation(
+		changeName: string,
+		specsPath: string,
+		mutate: (ctx: SpecContext) => SpecContext
+	): Promise<SpecContext> {
+		const context = await SpecContextManager.read(changeName, specsPath);
+		const next = mutate(context);
+		await SpecContextManager.write(changeName, next, specsPath);
+		return next;
+	}
+
+	/**
+	 * 添加一条评论。
+	 */
+	static addComment(
+		changeName: string,
+		comment: ReviewComment,
+		specsPath = "openspec"
+	): Promise<SpecContext> {
+		return SpecContextManager.enqueueCommentMutation(
+			changeName,
+			specsPath,
+			(ctx) => {
+				ctx.reviewComments = [...(ctx.reviewComments ?? []), comment];
+				return ctx;
+			}
+		);
+	}
+
+	/**
+	 * 按 id 移除一条评论。
+	 */
+	static removeComment(
+		changeName: string,
+		commentId: string,
+		specsPath = "openspec"
+	): Promise<SpecContext> {
+		return SpecContextManager.enqueueCommentMutation(
+			changeName,
+			specsPath,
+			(ctx) => {
+				ctx.reviewComments = (ctx.reviewComments ?? []).filter(
+					(c) => c.id !== commentId
+				);
+				return ctx;
+			}
+		);
+	}
+
+	/**
+	 * 将指定文档的 pending 评论标记为 applied（refinement 提交后调用）。
+	 */
+	static markCommentsApplied(
+		changeName: string,
+		doc: string,
+		specsPath = "openspec"
+	): Promise<SpecContext> {
+		return SpecContextManager.enqueueCommentMutation(
+			changeName,
+			specsPath,
+			(ctx) => {
+				ctx.reviewComments = (ctx.reviewComments ?? []).map((c) =>
+					c.doc === doc && c.status === "pending"
+						? { ...c, status: "applied" }
+						: c
+				);
+				return ctx;
+			}
+		);
 	}
 }

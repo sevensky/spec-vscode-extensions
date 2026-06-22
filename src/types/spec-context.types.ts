@@ -90,6 +90,44 @@ export interface SpecHistoryEntry {
 	agent: string;
 }
 
+/** 评论锚定（源文件漂移后重锚用） */
+export interface ReviewCommentAnchor {
+	/** 评论所在标题（heading），用于漂移后定位，null 表示无标题 */
+	heading: string | null;
+	/** 评论锚定块的首行文本（用于内容匹配重锚） */
+	blockText: string;
+	/** 创建时的 1-based 源行号 */
+	line: number;
+}
+
+/** 评论生命周期 */
+export type ReviewCommentStatus = "pending" | "applied";
+
+/** 持久化的内联评论（存于 .spec-context.json 的 reviewComments） */
+export interface ReviewComment {
+	id: string;
+	/** 归属文档（proposal/design/tasks/specs） */
+	doc: string;
+	anchor: ReviewCommentAnchor;
+	comment: string;
+	status: ReviewCommentStatus;
+	createdAt: string;
+}
+
+/** 任务摘要（agent 协作过程填写） */
+export interface TaskSummary {
+	id: string;
+	status: "pending" | "in_progress" | "done";
+	did?: string;
+	files?: string[];
+}
+
+/** concern 关联项（agent 协作过程填写） */
+export interface SpecConcern {
+	text: string;
+	task?: string;
+}
+
 /**
  * .spec-context.json 的完整结构。
  */
@@ -104,6 +142,18 @@ export interface SpecContext {
 	history: SpecHistoryEntry[];
 	/** 当前使用的 agent */
 	agent: string;
+	/** 内联评论（跨会话持久化） */
+	reviewComments?: ReviewComment[];
+	/** 方案概述（agent 填写） */
+	approach?: string;
+	/** 关键决策列表 */
+	decisions?: string[];
+	/** 关注点列表 */
+	concerns?: SpecConcern[];
+	/** 修改的文件列表 */
+	filesModified?: string[];
+	/** 任务摘要列表 */
+	taskSummaries?: TaskSummary[];
 }
 
 /**
@@ -116,4 +166,5 @@ export const DEFAULT_SPEC_CONTEXT: SpecContext = {
 	terminalStatus: undefined,
 	history: [],
 	agent: "github-copilot",
+	reviewComments: [],
 };

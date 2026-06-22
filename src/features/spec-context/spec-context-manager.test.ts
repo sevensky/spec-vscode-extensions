@@ -1,7 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { workspace } from "vscode";
 import { SpecContextManager } from "./spec-context-manager";
-import { DEFAULT_SPEC_CONTEXT } from "../../types/spec-context.types";
+import {
+	DEFAULT_SPEC_CONTEXT,
+	type ReviewComment,
+} from "../../types/spec-context.types";
 
 vi.mock("vscode");
 
@@ -311,6 +314,97 @@ describe("SpecContextManager", () => {
 			expect(ctx.history).toHaveLength(2); // 原 1 条 + 新 1 条
 			expect(ctx.history[1].step).toBe("design");
 			expect(ctx.agent).toBe("cbc"); // 更新为最新 agent
+		});
+	});
+
+	describe("reviewComments 评论读写", () => {
+		const makeComment = (id: string, doc = "tasks"): ReviewComment => ({
+			id,
+			doc,
+			anchor: { heading: null, blockText: "原文", line: 1 },
+			comment: `评论-${id}`,
+			status: "pending",
+			createdAt: "2026-06-23T00:00:00Z",
+		});
+
+		it("read 兼容无 reviewComments 的旧文件（默认空数组）", async () => {
+			vi.mocked(workspace.fs.readFile).mockResolvedValue(
+				Buffer.from(
+					JSON.stringify({ step: "propose", status: "draft", history: [] }),
+					"utf-8"
+				)
+			);
+			const ctx = await SpecContextManager.read(changeName);
+			expect(ctx.reviewComments).toEqual([]);
+		});
+
+		it("addComment 追加评论并持久化", async () => {
+			vi.mocked(workspace.fs.readFile).mockResolvedValue(
+				Buffer.from(JSON.stringify(DEFAULT_SPEC_CONTEXT), "utf-8")
+			);
+			const ctx = await SpecContextManager.addComment(
+				changeName,
+				makeComment("c1")
+			);
+			expect(ctx.reviewComments).toHaveLength(1);
+			expect(ctx.reviewComments?.[0].id).toBe("c1");
+			// write 被调用
+			expect(workspace.fs.writeFile).toHaveBeenCalled();
+		});
+
+		it("removeComment 按 id 移除", async () => {
+			const existing = {
+				...DEFAULT_SPEC_CONTEXT,
+				reviewComments: [makeComment("c1"), makeComment("c2")],
+			};
+			vi.mocked(workspace.fs.readFile).mockResolvedValue(
+				Buffer.from(JSON.stringify(existing), "utf-8")
+			);
+			const ctx = await SpecContextManager.removeComment(changeName, "c1");
+			expect(ctx.reviewComments).toHaveLength(1);
+			expect(ctx.reviewComments?.[0].id).toBe("c2");
+		});
+
+		it("markCommentsApplied 将指定 doc 的 pending 标记 applied", async () => {
+			const existing = {
+				...DEFAULT_SPEC_CONTEXT,
+				reviewComments: [
+					makeComment("c1", "tasks"),
+					makeComment("c2", "proposal"),
+					{ ...makeComment("c3", "tasks"), status: "applied" as const },
+				],
+			};
+			vi.mocked(workspace.fs.readFile).mockResolvedValue(
+				Buffer.from(JSON.stringify(existing), "utf-8")
+			);
+			const ctx = await SpecContextManager.markCommentsApplied(
+				changeName,
+				"tasks"
+			);
+			const tasks = ctx.reviewComments?.filter((c) => c.doc === "tasks");
+			expect(tasks?.every((c) => c.status === "applied")).toBe(true);
+			// proposal 的评论不受影响
+			const proposal = ctx.reviewComments?.find((c) => c.doc === "proposal");
+			expect(proposal?.status).toBe("pending");
+		});
+
+		it("评论操作串行（队列防并发覆盖）", async () => {
+			// 用闭包模拟磁盘状态：read 返回上次 write 的结果，验证累积
+			let disk: SpecContext = { ...DEFAULT_SPEC_CONTEXT };
+			vi.mocked(workspace.fs.readFile).mockImplementation(async () =>
+				Buffer.from(JSON.stringify(disk), "utf-8")
+			);
+			vi.mocked(workspace.fs.writeFile).mockImplementation(async (uri, buf) => {
+				disk = JSON.parse(buf.toString("utf-8"));
+			});
+			// 并发发起 3 个 addComment
+			await Promise.all([
+				SpecContextManager.addComment(changeName, makeComment("a")),
+				SpecContextManager.addComment(changeName, makeComment("b")),
+				SpecContextManager.addComment(changeName, makeComment("c")),
+			]);
+			// 串行队列应保证 3 条都累积写入（非覆盖）
+			expect(disk.reviewComments).toHaveLength(3);
 		});
 	});
 });
