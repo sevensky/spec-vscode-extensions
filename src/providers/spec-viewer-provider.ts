@@ -1,18 +1,39 @@
-import { window, workspace, type WebviewPanel, Uri, ViewColumn } from "vscode";
+import {
+	window,
+	workspace,
+	type WebviewPanel,
+	Uri,
+	ViewColumn,
+	commands,
+} from "vscode";
 import { join } from "node:path";
 import { SpecContextManager } from "../features/spec-context/spec-context-manager";
 import type { SpecContext } from "../types/spec-context.types";
+import { getWebviewContent } from "../utils/get-webview-content";
 
 /**
- * SpecViewerProvider — 富 spec 面板。
+ * SpecViewerProvider — 富 spec 面板（React webview 版）。
  *
- * 点击变更树节点时打开 WebviewPanel，展示该变更的文档内容 + 当前 step/status/history。
+ * 点击变更树节点时打开 WebviewPanel，加载 webview-ui 的 spec-viewer React 页，
+ * 通过 postMessage 推送 ViewerPayload、接收 switchDoc / footerAction 等动作。
  * 按 change 目录分组，支持多面板并存。
- * 文件变化（.spec-context.json）时自动刷新。
+ * 文件变化（.spec-context.json / 文档）时自动刷新。
+ *
+ * 交互契约对齐 speckit-companion 的 footerAction 单一来源模型，
+ * 状态保持粗粒度（active/completed/archived 三态），动作只写状态、不派发 agent 命令。
  */
 
 /** 面板展示的文档类型 */
 type DocType = "proposal" | "design" | "tasks" | "specs";
+
+/** footer 动作 id 白名单 */
+type FooterActionId = "complete" | "archive" | "reactivate";
+
+interface FooterActionEntry {
+	id: FooterActionId;
+	label: string;
+	variant: "primary" | "secondary";
+}
 
 interface PanelState {
 	changeName: string;
@@ -21,8 +42,11 @@ interface PanelState {
 	context: SpecContext;
 }
 
-/** 活跃面板注册表：changeName → { panel, state } */
-const panels = new Map<string, { panel: WebviewPanel; state: PanelState }>();
+/** 活跃面板注册表：changeName → { panel, state, specsPath } */
+const panels = new Map<
+	string,
+	{ panel: WebviewPanel; state: PanelState; specsPath: string }
+>();
 
 /** 工件文件名映射 */
 const DOC_FILES: Record<DocType, string> = {
@@ -32,7 +56,17 @@ const DOC_FILES: Record<DocType, string> = {
 	specs: "specs",
 };
 
+/** 扩展根 Uri，激活时由 initialize 注入（getWebviewContent 解析脚本/样式用） */
+let extensionUri: Uri | undefined;
+
 export class SpecViewerProvider {
+	/**
+	 * 激活时注入扩展 Uri（用于解析 webview 脚本/样式资源）。
+	 */
+	static initialize(uri: Uri): void {
+		extensionUri = uri;
+	}
+
 	/**
 	 * 打开（或聚焦）某变更的面板。
 	 */
@@ -67,28 +101,63 @@ export class SpecViewerProvider {
 			{
 				enableScripts: true,
 				retainContextWhenHidden: false,
+				localResourceRoots: extensionUri ? [extensionUri] : [],
 			}
 		);
 
-		panel.webview.html = SpecViewerProvider.renderHtml(state);
+		// 加载 webview-ui 的 spec-viewer React 页（与其它面板共用 getWebviewContent）
+		if (extensionUri) {
+			panel.webview.html = getWebviewContent(
+				panel.webview,
+				extensionUri,
+				"spec-viewer"
+			);
+		}
 
 		// 关闭时清理注册表
 		panel.onDidDispose(() => {
 			panels.delete(changeName);
 		});
 
-		// webview 消息：切换文档 / 触发动作
-		panel.webview.onDidReceiveMessage((msg) => {
-			if (msg.command === "switchDoc" && msg.docType) {
-				const st = panels.get(changeName);
-				if (st) {
-					st.state.currentDoc = msg.docType as DocType;
-					panel.webview.html = SpecViewerProvider.renderHtml(st.state);
+		// webview ↔ extension 消息：changeName 由本闭包绑定，不信任消息体
+		panel.webview.onDidReceiveMessage(async (msg) => {
+			const entry = panels.get(changeName);
+			if (!entry) {
+				return;
+			}
+
+			switch (msg.command) {
+				case "ready": {
+					// 面板就绪 → 推送初始状态
+					await SpecViewerProvider.sendState(changeName);
+					break;
 				}
+				case "switchDoc": {
+					if (msg.docType) {
+						entry.state.currentDoc = msg.docType as DocType;
+						await SpecViewerProvider.sendState(changeName);
+					}
+					break;
+				}
+				case "footerAction": {
+					await SpecViewerProvider.handleFooterAction(
+						changeName,
+						entry.specsPath,
+						msg.id as FooterActionId
+					);
+					break;
+				}
+				case "refreshContent": {
+					await SpecViewerProvider.updateContent(changeName, entry.specsPath);
+					break;
+				}
+				default:
+					// 未知命令忽略
+					break;
 			}
 		});
 
-		panels.set(changeName, { panel, state });
+		panels.set(changeName, { panel, state, specsPath });
 	}
 
 	/**
@@ -108,7 +177,8 @@ export class SpecViewerProvider {
 			specsPath
 		);
 		entry.state = newState;
-		entry.panel.webview.html = SpecViewerProvider.renderHtml(newState);
+		entry.specsPath = specsPath;
+		await SpecViewerProvider.sendState(changeName);
 	}
 
 	/**
@@ -120,6 +190,105 @@ export class SpecViewerProvider {
 	): Promise<void> {
 		if (panels.has(changeName)) {
 			await SpecViewerProvider.updateContent(changeName, specsPath);
+		}
+	}
+
+	/**
+	 * 把当前 PanelState 组装为 ViewerPayload 并 postMessage 给 webview。
+	 */
+	private static async sendState(changeName: string): Promise<void> {
+		const entry = panels.get(changeName);
+		if (!entry) {
+			return;
+		}
+		const payload = SpecViewerProvider.buildPayload(entry.state);
+		await entry.panel.webview.postMessage({
+			command: "state",
+			payload,
+		});
+	}
+
+	/**
+	 * PanelState → ViewerPayload（含 footer catalog 计算，对齐 speckit 单一来源契约）。
+	 */
+	private static buildPayload(state: PanelState) {
+		const { changeName, currentDoc, availableDocs, context } = state;
+		return {
+			changeName,
+			status: context.status,
+			step: context.step,
+			agent: context.agent,
+			currentDoc,
+			docs: availableDocs.map((d) => ({
+				type: d.type,
+				exists: d.exists,
+				content: d.content,
+			})),
+			history: context.history.map((h) => ({
+				step: h.step,
+				status: h.status,
+				at: h.at,
+				agent: h.agent,
+			})),
+			footer: SpecViewerProvider.computeFooter(context.status),
+		};
+	}
+
+	/**
+	 * 按 status 计算 footer 动作 catalog（extension 侧单一来源）。
+	 * 粗粒度三态：active→[归档,标记完成]；completed/archived→[重新激活]。
+	 */
+	private static computeFooter(
+		status: SpecContext["status"]
+	): FooterActionEntry[] {
+		if (status === "active") {
+			return [
+				{ id: "archive", label: "归档", variant: "secondary" },
+				{ id: "complete", label: "标记完成", variant: "primary" },
+			];
+		}
+		// completed | archived
+		return [{ id: "reactivate", label: "重新激活", variant: "primary" }];
+	}
+
+	/**
+	 * footer 动作派发：complete/reactivate 写状态，archive 走既有归档命令 + 二次确认。
+	 */
+	private static async handleFooterAction(
+		changeName: string,
+		specsPath: string,
+		id: FooterActionId
+	): Promise<void> {
+		if (id === "complete") {
+			await SpecContextManager.setStatus(changeName, "completed", specsPath);
+			await SpecViewerProvider.updateContent(changeName, specsPath);
+			return;
+		}
+
+		if (id === "reactivate") {
+			await SpecContextManager.setStatus(changeName, "active", specsPath);
+			await SpecViewerProvider.updateContent(changeName, specsPath);
+			return;
+		}
+
+		if (id === "archive") {
+			// 归档不可逆（触发真实 chat 动作 + 移动目录），模态二次确认
+			const confirm = await window.showWarningMessage(
+				`确认归档变更「${changeName}」？归档将触发 archive 流程并把变更移出 changes/。`,
+				{ modal: true },
+				"确认归档"
+			);
+			if (confirm !== "确认归档") {
+				return;
+			}
+			// 复用既有归档命令（读 archive prompt + sendPromptToChat）
+			await commands.executeCommand(
+				"openspec-for-agent.spec.archiveChange",
+				{ specName: changeName }
+			);
+			await SpecContextManager.setStatus(changeName, "archived", specsPath);
+			await SpecViewerProvider.updateContent(changeName, specsPath);
+			return;
 		}
 	}
 
@@ -200,120 +369,5 @@ export class SpecViewerProvider {
 		} catch {
 			return null;
 		}
-	}
-
-	/**
-	 * 渲染面板 HTML（纯 HTML/JS，不引入框架）。
-	 */
-	private static renderHtml(state: PanelState): string {
-		const { changeName, currentDoc, availableDocs, context } = state;
-		const currentDocData = availableDocs.find((d) => d.type === currentDoc);
-
-		// 文档 tab
-		const tabs = availableDocs
-			.map((d) => {
-				const active = d.type === currentDoc ? ' class="active"' : "";
-				const label = d.type.charAt(0).toUpperCase() + d.type.slice(1);
-				const badge = d.exists ? "" : ' <span class="missing">缺失</span>';
-				return `<button${active} onclick="switchDoc('${d.type}')">${label}${badge}</button>`;
-			})
-			.join("");
-
-		// 状态驱动的按钮
-		const actionButtons = SpecViewerProvider.renderActionButtons(context);
-
-		// 历史时间线
-		const history = context.history
-			.map((h) => `<li>${h.step} · ${h.status} · ${h.agent} · ${h.at}</li>`)
-			.join("");
-
-		// 文档内容（简单转义后放进 pre）
-		const docContent = currentDocData?.exists
-			? SpecViewerProvider.escapeHtml(currentDocData.content)
-			: '<p class="empty">该文档暂未创建</p>';
-
-		return `<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Spec: ${SpecViewerProvider.escapeHtml(changeName)}</title>
-<style>
-	body { font-family: var(--vscode-font-family); color: var(--vscode-foreground); background: var(--vscode-editor-background); margin: 0; padding: 16px; }
-	.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-	.header h1 { font-size: 1.2em; margin: 0; }
-	.status-badge { padding: 2px 8px; border-radius: 3px; font-size: 0.85em; background: var(--vscode-badge-background); color: var(--vscode-badge-foreground); }
-	.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--vscode-panel-border); margin-bottom: 12px; }
-	.tabs button { background: none; border: none; color: var(--vscode-foreground); padding: 6px 12px; cursor: pointer; border-bottom: 2px solid transparent; opacity: 0.7; }
-	.tabs button.active { border-bottom-color: var(--vscode-focusBorder); opacity: 1; }
-	.tabs button .missing { color: var(--vscode-errorForeground); font-size: 0.75em; }
-	.actions { display: flex; gap: 8px; margin-bottom: 12px; }
-	.actions button { background: var(--vscode-button-background); color: var(--vscode-button-foreground); border: none; padding: 4px 12px; cursor: pointer; border-radius: 2px; }
-	.actions button:hover { background: var(--vscode-button-hoverBackground); }
-	.content { white-space: pre-wrap; font-family: var(--vscode-editor-font-family); font-size: var(--vscode-editor-font-size); line-height: 1.5; }
-	.content .empty { color: var(--vscode-descriptionForeground); font-style: italic; }
-	.sidebar { float: right; width: 240px; margin-left: 16px; }
-	.sidebar h3 { font-size: 0.9em; margin: 0 0 6px; }
-	.sidebar ul { list-style: none; padding: 0; font-size: 0.8em; color: var(--vscode-descriptionForeground); }
-	.sidebar li { padding: 2px 0; }
-	.main { margin-right: 256px; }
-</style>
-</head>
-<body>
-<div class="header">
-	<h1>${SpecViewerProvider.escapeHtml(changeName)}</h1>
-	<span class="status-badge">${context.status} · ${context.step} · ${context.agent}</span>
-</div>
-<div class="actions">${actionButtons}</div>
-<div class="sidebar">
-	<h3>历史</h3>
-	<ul>${history || "<li>暂无</li>"}</ul>
-</div>
-<div class="main">
-	<div class="tabs">${tabs}</div>
-	<div class="content">${docContent}</div>
-</div>
-<script>
-	const vscode = acquireVsCodeApi();
-	function switchDoc(docType) {
-		vscode.postMessage({ command: 'switchDoc', docType });
-	}
-</script>
-</body>
-</html>`;
-	}
-
-	/**
-	 * 按 status 渲染动作按钮。
-	 */
-	private static renderActionButtons(context: SpecContext): string {
-		const buttons: string[] = [];
-		if (context.status === "active") {
-			buttons.push(
-				"<button onclick=\"alert('标记完成（待接入 provider）')\">标记完成</button>"
-			);
-			buttons.push(
-				"<button onclick=\"alert('归档（待接入 provider）')\">归档</button>"
-			);
-		} else if (
-			context.status === "completed" ||
-			context.status === "archived"
-		) {
-			buttons.push(
-				"<button onclick=\"alert('重新激活（待接入 provider）')\">重新激活</button>"
-			);
-		}
-		return buttons.join("");
-	}
-
-	/**
-	 * HTML 转义。
-	 */
-	private static escapeHtml(text: string): string {
-		return text
-			.replace(/&/g, "&amp;")
-			.replace(/</g, "&lt;")
-			.replace(/>/g, "&gt;")
-			.replace(/"/g, "&quot;");
 	}
 }
