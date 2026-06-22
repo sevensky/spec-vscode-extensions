@@ -2,7 +2,7 @@
   "name": "openspec-for-agent",
   "displayName": "%displayName%",
   "description": "%extension.description%",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "author": "sevensky",
   "publisher": "bairui-dev",
   "icon": "icon.png",
