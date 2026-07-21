@@ -1,0 +1,290 @@
+/**
+ * SpecKit Companion - Code Block Styles
+ * Code blocks, syntax highlighting, and mermaid diagrams
+ */
+
+/* ============================================
+   Code Blocks
+   ============================================ */
+
+/* Code block container - professional style */
+.spec-md pre.code-block {
+    position: relative;
+    margin: var(--sv-space-5) 0;
+    padding: 0;
+    background: var(--sv-bg-code);
+    border: 1px solid var(--sv-border);
+    border-radius: var(--sv-radius-lg);
+    overflow: hidden;
+}
+
+/* Language label */
+.spec-md pre.code-block::before {
+    content: attr(data-language);
+    display: block;
+    padding: var(--sv-space-2) var(--sv-space-4);
+    font-size: var(--sv-text-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--sv-text-muted);
+    background: var(--sv-bg-code-header);
+    border-bottom: 1px solid var(--sv-border);
+}
+
+.spec-md pre.code-block:not([data-language])::before {
+    display: none;
+}
+
+.spec-md pre.code-block code {
+    display: block;
+    padding: var(--sv-space-4);
+    font-family: var(--sv-font-mono);
+    font-size: 12px; /* Fixed size per FR-010 */
+    line-height: var(--sv-leading-relaxed);
+    overflow-x: auto;
+    tab-size: 4;
+    color: var(--sv-text-body);
+    background: transparent;
+    border: none;
+}
+
+/* Tree structure blocks */
+.spec-md pre.tree-structure {
+    background: var(--sv-bg-secondary);
+    border: 1px solid var(--sv-border);
+    border-radius: var(--sv-radius-md);
+    padding: var(--sv-space-4);
+    margin: var(--sv-space-4) 0;
+    overflow-x: auto;
+}
+
+.spec-md pre.tree-structure code {
+    font-family: var(--sv-font-mono);
+    font-size: 12px; /* Fixed size for consistency with code blocks */
+    line-height: var(--sv-leading-normal);
+    color: var(--sv-text-body);
+    white-space: pre;
+    display: block;
+    background: transparent;
+    border: none;
+    padding: 0;
+}
+
+.spec-md pre.tree-structure .tree-dir {
+    color: var(--sv-accent);
+}
+
+.spec-md pre.tree-structure .tree-comment {
+    color: var(--sv-text-muted);
+    font-style: italic;
+}
+
+/* Legacy pre blocks (fallback) */
+.spec-md pre:not(.code-block):not(.tree-structure):not(.mermaid) {
+    margin: var(--sv-space-4) 0;
+    padding: var(--sv-space-4);
+    background: var(--sv-bg-secondary);
+    border: 1px solid var(--sv-border);
+    border-radius: var(--sv-radius-md);
+    overflow-x: auto;
+}
+
+.spec-md pre:not(.code-block):not(.tree-structure):not(.mermaid) code {
+    font-family: var(--sv-font-mono);
+    font-size: var(--sv-text-sm);
+    line-height: var(--sv-leading-normal);
+    display: block;
+    color: var(--sv-text-secondary);
+    background: none;
+    border: none;
+    padding: 0;
+}
+
+/* ============================================
+   Inline Code — File References (pill buttons)
+   ============================================ */
+
+/* Clickable file reference pill buttons */
+.spec-md .file-ref {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 1px 6px 1px 4px;
+    border-radius: var(--sv-radius-sm);
+    background: var(--sv-accent-subtle);
+    border: 1px solid var(--sv-border-accent);
+    cursor: pointer;
+    text-decoration: none;
+    color: var(--vscode-textLink-foreground);
+    font-size: 0.9em;
+    line-height: inherit;
+    vertical-align: baseline;
+}
+
+/* File icon via codicon font */
+.spec-md .file-ref::before {
+    font-family: 'codicon';
+    content: '\eb60';
+    font-size: 12px;
+    line-height: 1;
+    speak: never;
+}
+
+.spec-md .file-ref:hover {
+    background: color-mix(in srgb, var(--vscode-textLink-foreground) 15%, transparent);
+    border-color: color-mix(in srgb, var(--vscode-textLink-foreground) 60%, transparent);
+}
+
+.spec-md .file-ref:focus-visible {
+    outline: 2px solid var(--sv-accent);
+    outline-offset: 1px;
+}
+
+/* Reset nested code inside pill — inherit from button */
+.spec-md .file-ref code {
+    font-family: var(--sv-font-mono);
+    color: inherit;
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 0.9em;
+}
+
+/* ============================================
+   Syntax Highlighting (hljs compatibility)
+   ============================================ */
+
+/* Only override background to be transparent - let CDN styles handle colors */
+.hljs {
+    background: transparent !important;
+}
+
+/* Ensure code blocks have proper padding when hljs is applied */
+pre.code-block code.hljs {
+    padding: var(--sv-space-4);
+}
+
+/* ============================================
+   Mermaid Diagram Styling
+   ============================================ */
+
+.mermaid-container {
+    margin: var(--sv-space-5) 0;
+    padding: var(--sv-space-4);
+    background: var(--sv-bg-secondary);
+    border: 1px solid var(--sv-border);
+    border-radius: var(--sv-radius-lg);
+    width: 100%;
+    overflow-x: auto;
+}
+
+.mermaid {
+    display: flex;
+    justify-content: flex-start;
+    background: var(--sv-bg-secondary);
+    font-family: var(--sv-font-mono);
+    margin: var(--sv-space-5) 0;
+    padding: var(--sv-space-4);
+    border: 1px solid var(--sv-border);
+    border-radius: var(--sv-radius-lg);
+    width: 100%;
+    overflow-x: auto;
+}
+
+.mermaid svg {
+    height: auto;
+    /* Force narrow diagrams (short state/flowchart) up to at least 1100px so
+       per-box text has enough pixels to stay legible; wider diagrams render
+       at natural width (useMaxWidth=false on flowchart/sequence) and the
+       container's overflow-x: auto handles horizontal scroll. */
+    min-width: min(100%, 1100px);
+    transform-origin: top left;
+}
+
+/* Zoom controls toolbar */
+.mermaid-controls {
+    display: flex;
+    gap: 4px;
+    margin-bottom: var(--sv-space-2);
+    justify-content: flex-end;
+}
+
+.mermaid-controls button {
+    padding: 2px 8px;
+    font-size: 12px;
+    font-family: inherit;
+    background: var(--sv-bg-elevated);
+    border: 1px solid var(--sv-border);
+    border-radius: var(--sv-radius-sm);
+    color: var(--sv-text-secondary);
+    cursor: pointer;
+    line-height: 1.4;
+}
+
+.mermaid-controls button:hover {
+    background: var(--sv-bg-hover);
+    color: var(--sv-text-primary);
+}
+
+/* Mermaid theme overrides for better VS Code integration */
+.mermaid .node rect,
+.mermaid .node circle,
+.mermaid .node ellipse,
+.mermaid .node polygon {
+    fill: var(--sv-bg-elevated) !important;
+    stroke: var(--sv-accent) !important;
+    stroke-width: 2px !important;
+}
+
+.mermaid .node .label,
+.mermaid .nodeLabel,
+.mermaid .label {
+    color: var(--sv-text-primary) !important;
+    fill: var(--sv-text-primary) !important;
+}
+
+.mermaid .edgePath .path {
+    stroke: var(--sv-accent) !important;
+    stroke-width: 2px !important;
+}
+
+.mermaid .edgeLabel {
+    background-color: var(--sv-bg-secondary) !important;
+    color: var(--sv-text-primary) !important;
+    fill: var(--sv-text-primary) !important;
+    padding: 4px 8px;
+    border-radius: var(--sv-radius-sm);
+}
+
+/* State diagram specific */
+.mermaid .statediagram-state rect {
+    fill: var(--sv-bg-elevated) !important;
+    stroke: var(--sv-accent) !important;
+}
+
+.mermaid .statediagram-state .state-title {
+    fill: var(--sv-text-primary) !important;
+    font-weight: 600;
+}
+
+/* Edge labels (transition labels) */
+.mermaid .transition,
+.mermaid .edgeLabel span,
+.mermaid .edgeLabel p,
+.mermaid text.edgeLabel {
+    fill: var(--sv-header-section) !important;
+    color: var(--sv-header-section) !important;
+    font-weight: 500;
+}
+
+/* Start/end nodes */
+.mermaid .start-state,
+.mermaid circle[class*="start"] {
+    fill: var(--sv-success) !important;
+}
+
+.mermaid .end-state,
+.mermaid circle[class*="end"] {
+    fill: var(--sv-text-muted) !important;
+}

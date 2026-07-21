@@ -227,6 +227,37 @@ export function renderMarkdown(markdown: string): string {
 			// 仅一行不构成表格，降级为段落
 		}
 
+		// 标准 markdown 表格：| col | col | + |---|---| 分隔行
+		if (/^\s*\|/.test(line) && i + 1 < lines.length && /^\s*\|[\s:|-]+\|\s*$/.test(lines[i + 1])) {
+			closeList();
+			const tableStartLine = lineNum;
+			// 解析表头
+			const headerCells = line.split("|").slice(1, -1).map((c) => c.trim());
+			i += 1; // 跳过分隔行
+			// 收集数据行
+			const bodyRows: string[][] = [];
+			while (i + 1 < lines.length && /^\s*\|/.test(lines[i + 1])) {
+				i++;
+				const cells = lines[i].split("|").slice(1, -1).map((c) => c.trim());
+				bodyRows.push(cells);
+			}
+			// 渲染
+			html += '<table>\n<thead>\n<tr>';
+			for (const cell of headerCells) {
+				html += `<th>${parseInline(cell)}</th>`;
+			}
+			html += "</tr>\n</thead>\n<tbody>\n";
+			for (const cells of bodyRows) {
+				html += `<tr class="line" data-line="${tableStartLine}">${COMMENT_BTN}`;
+				for (const cell of cells) {
+					html += `<td class="line-content">${parseInline(cell)}</td>`;
+				}
+				html += '<div class="line-comment-slot"></div></tr>\n';
+			}
+			html += "</tbody>\n</table>\n";
+			continue;
+		}
+
 		// 段落（默认）
 		closeList();
 		html += wrapWithLineActions(`<p>${parseInline(line)}</p>`, lineNum);

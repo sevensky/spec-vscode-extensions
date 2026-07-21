@@ -1,0 +1,318 @@
+/**
+ * SpecKit Companion - Navigation Styles
+ * Compact navigation bar and step-tabs
+ */
+
+/* ============================================
+   Compact Navigation Bar
+   ============================================ */
+
+.compact-nav {
+    flex-shrink: 0;
+    background: var(--sv-bg-secondary);
+    border-bottom: 1px solid var(--sv-border);
+}
+
+.nav-primary {
+    display: flex;
+    align-items: center;
+    padding: 0 var(--sv-space-4);
+    height: 48px;
+    gap: var(--sv-space-4);
+}
+
+/* ============================================
+   Unified Step-Tabs (Merged Stepper + Tabs)
+   ============================================ */
+
+.step-tabs {
+    display: flex;
+    align-items: center;
+    gap: var(--sv-space-2);
+}
+
+.step-tab {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px;
+    border: none;
+    /* Transparent underline reserved so the current state doesn't shift height. */
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    color: var(--sv-text-secondary);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: inherit;
+    white-space: nowrap;
+    transition: all var(--sv-transition-fast);
+    border-radius: var(--sv-radius-sm) var(--sv-radius-sm) 0 0;
+}
+
+.step-tab:hover:not(:disabled):not(.current) {
+    color: var(--sv-text-primary);
+    background: var(--sv-bg-hover);
+}
+
+/* Status indicator (checkmark or empty circle) */
+.step-status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border-radius: var(--sv-radius-sm);
+    border: 2px solid var(--sv-border);
+    font-size: 9px;
+    font-weight: 700;
+    color: transparent;
+    background: transparent;
+    transition: all var(--sv-transition-fast);
+    flex-shrink: 0;
+    overflow: visible;
+    position: relative;
+}
+
+/* File exists (canonical: done) — green check */
+.step-tab.done .step-status {
+    background: var(--sv-success);
+    border-color: var(--sv-success);
+    color: white;
+}
+
+.step-tab.done .step-label {
+    color: var(--sv-text-primary);
+}
+
+/* Highlight the currently viewed step tab (canonical: current).
+   Inset ring + accent-tinted fill so the highlight wraps the whole tab as one
+   contiguous chip — including when the step is also in-flight (the pulse stays
+   inside the ring instead of visually overflowing an outer outline). */
+/* Current step (terminal): a `❯` prompt marker + accent underline — the same
+   active language the sub-tabs use, so the whole nav reads as one system. */
+.step-tab.current {
+    background: transparent;
+    border-bottom-color: var(--accent-strong);
+}
+
+.step-tab.current::before {
+    content: "\276F"; /* ❯ */
+    color: var(--accent-strong);
+    font-weight: 700;
+    margin-right: 5px;
+}
+
+.step-tab.current .step-label {
+    color: var(--sv-text-primary);
+    font-weight: 700;
+}
+
+/* Terminal labels: monospace + uppercase. */
+.step-label {
+    font-family: var(--sv-font-mono);
+    font-size: 12.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+/* In-flight (canonical): purple badge + working-pulse glow.
+   Distinct from done-green so the active step is unmistakable.
+   Used by the implement-step % pill; the specify/plan/tasks in-flight
+   indicator is the spinning sync glyph styled below. */
+.step-tab.in-flight .step-status {
+    background: var(--sv-purple);
+    border-color: var(--sv-purple);
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    animation: sv-working-pulse 2s ease-in-out infinite;
+}
+
+/* The pill grows wider only when there's a percent string to show
+   (the implement-step inProgress case). The sync-glyph badge is also
+   non-empty (it wraps a <span>), so explicitly exclude it — it keeps
+   the default 16×16 geometry, not the percentage pill. */
+.step-tab.in-flight .step-status:not(:empty):not(:has(.step-status__sync)) {
+    width: auto;
+    min-width: 32px;
+    padding: 0 6px;
+    border-radius: var(--sv-radius-sm);
+}
+
+/* Sync-glyph in-flight (every running step, incl. implement): looping-arrows
+   codicon that spins while the step is actively running. Reads as "working" far
+   better than a static filled dot. The glyph is theme-colored; the badge
+   chrome (filled circle + working-pulse) is dropped so only the arrows
+   show. The whole indicator vanishes the moment the step is no longer
+   in-flight — `.step-status__sync` is rendered only for `canonicalState
+   === 'in-flight'`, so a done step has no glyph. During implement it renders
+   inside `.step-tab__percent`, next to the live percentage. Reduced-motion is
+   handled globally (tokens.css) — the spin neutralizes to a static glyph. */
+.step-tab.in-flight .step-status:has(.step-status__sync) {
+    background: transparent;
+    border-color: transparent;
+    animation: none;
+}
+
+.step-tab.in-flight .step-status__sync {
+    color: var(--sv-purple);
+    font-size: 14px;
+    line-height: 1;
+    animation: sv-spin 1.5s linear infinite;
+}
+
+/* Extra left padding when the pill is widened, so the working-pulse
+   glow doesn't crash into the preceding connector line. The default
+   16×16 in-flight badge (and the sync-glyph badge) needs no extra
+   padding, so scope this to the percentage pill only. */
+.step-tab.in-flight:has(.step-status:not(:empty):not(:has(.step-status__sync))) {
+    padding-left: 20px;
+}
+
+.step-tab.in-flight .step-label {
+    color: var(--sv-text-primary);
+    font-weight: 700;
+}
+
+/* Live implement-percentage label (#256).
+   Right-aligned within the tab (margin-left:auto pushes it to the trailing edge)
+   and color-ramps from the in-progress color toward the success/goal color as the
+   spec nears 100%. `--impl-progress` is a 0→1 ratio set inline per render from the
+   live, file-watched taskCompletionPercent (tasks.md checkboxes) — no capture write
+   is needed for it to advance. The ramp crosses --purple → --warning at the midpoint
+   → --success, so "almost done" reads green at a glance. Tabular numerals keep the
+   width steady as the value ticks up. */
+.step-tab__percent {
+    margin-left: auto;
+    padding-left: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: color-mix(
+        in srgb,
+        color-mix(in srgb, var(--sv-purple) calc((1 - min(var(--impl-progress, 0) * 2, 1)) * 100%), var(--sv-warning))
+            calc((1 - max((var(--impl-progress, 0) - 0.5) * 2, 0)) * 100%),
+        var(--sv-success)
+    );
+    transition: color var(--sv-transition-fast);
+}
+
+/* Locked (canonical): non-clickable, dimmed */
+.step-tab.locked,
+.step-tab[aria-disabled="true"] {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* Live elapsed-time indicator rendered on in-flight steps */
+.step-tab__elapsed {
+    margin-left: 6px;
+    font-size: 0.75rem;
+    color: var(--vscode-descriptionForeground);
+    font-variant-numeric: tabular-nums;
+    font-weight: 500;
+}
+
+/* Orthogonal staleness flag */
+.step-tab.stale .step-status {
+    border-color: var(--sv-warning);
+}
+
+/* Connector lines between steps */
+.step-connector {
+    width: 24px;
+    height: 2px;
+    background: var(--sv-border);
+    transition: background var(--sv-transition-fast);
+    flex-shrink: 0;
+}
+
+.step-connector.filled {
+    background: var(--sv-success);
+}
+
+
+/* ============================================
+   Step Children Rail (second row beneath .nav-primary)
+   Sub-files of the active step render here as visual children, mirroring
+   the tree-view hierarchy. Parent step itself is the first chip so users
+   have a single way back to the step overview from any sub-doc.
+   ============================================ */
+
+/* Subgroup row under step-tabs: chips read as children of the active step,
+   not as a second navbar. No background band, no border-bottom — the
+   .compact-nav's own bottom border still divides nav from content. */
+.step-children {
+    display: flex;
+    align-items: center;
+    padding: 0 var(--sv-space-4) 8px;
+    flex-shrink: 0;
+}
+
+.step-children-tabs {
+    display: flex;
+    gap: 2px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.step-child {
+    padding: 4px 12px;
+    border: none;
+    /* Transparent underline reserved so the active state doesn't shift height. */
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    color: var(--sv-text-secondary);
+    cursor: pointer;
+    font-family: var(--sv-font-mono);
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border-radius: var(--sv-radius-sm) var(--sv-radius-sm) 0 0;
+    transition: color var(--sv-transition-fast), background var(--sv-transition-fast), border-color var(--sv-transition-fast);
+    white-space: nowrap;
+}
+
+.step-child:hover {
+    color: var(--sv-text-primary);
+    background: var(--sv-bg-hover);
+}
+
+/* Parent-doc chip distinguished from siblings: same shape, slightly stronger
+   weight. Spacing alone separates it from its sibling children — no trailing
+   middot (#255: the '·' read as a stray dot after "Specification"). */
+.step-child--parent {
+    font-weight: 600;
+    color: var(--sv-text-primary);
+    margin-right: 6px;
+}
+
+/* Active sub-tab: vivid accent text + underline (no box). */
+.step-child.active {
+    background: transparent;
+    color: var(--accent-strong);
+    font-weight: 600;
+    border-bottom-color: var(--accent-strong);
+}
+
+/* Scratchpad ("Notes") sub-tab: dashed underline + muted italic so the user
+   reads it as a working surface, not an authoritative artifact (FR-005). */
+.step-child--scratchpad {
+    font-style: italic;
+    color: var(--sv-text-muted);
+    text-decoration: underline dashed color-mix(in srgb, var(--sv-text-muted) 60%, transparent);
+    text-underline-offset: 3px;
+}
+
+.step-child--scratchpad.active {
+    font-style: italic;
+}
+

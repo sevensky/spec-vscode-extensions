@@ -1,0 +1,86 @@
+/**
+ * SpecKit Companion - Refinement Styles
+ * Inline comment cards and refine submit button
+ */
+
+/* ============================================
+   Inline Comment Cards (GitHub-style)
+   ============================================ */
+
+.inline-comment {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin: 8px 0 0 0;
+    padding: 8px 12px;
+    background: var(--sv-bg-secondary);
+    border-left: 3px solid var(--sv-accent);
+    border-radius: var(--sv-radius-sm);
+    font-size: 13px;
+    animation: sv-fadeIn var(--sv-transition-fast) ease-out;
+}
+
+.comment-icon {
+    flex-shrink: 0;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.comment-text {
+    flex: 1;
+    color: var(--sv-text-secondary);
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+.comment-delete {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: var(--sv-text-muted);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: var(--sv-radius-sm);
+    transition: all var(--sv-transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.comment-delete:hover {
+    background: var(--sv-error-subtle);
+    color: var(--sv-error);
+}
+
+/* ============================================
+   Refine Submit Button (Footer)
+   ============================================ */
+
+.refine-submit-btn {
+    display: none;
+    padding: 8px 20px;
+    background: var(--sv-accent);
+    border: none;
+    border-radius: var(--sv-radius-sm);
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--sv-transition-fast);
+    align-items: center;
+    gap: 6px;
+}
+
+.refine-submit-btn:hover {
+    background: var(--sv-accent-hover);
+    transform: translateY(-1px);
+    box-shadow: var(--sv-accent-glow);
+}
+
+.refine-submit-btn:active {
+    transform: translateY(0);
+}

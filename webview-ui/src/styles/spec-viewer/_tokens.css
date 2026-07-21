@@ -1,0 +1,133 @@
+/* ===== spec-viewer 设计 token（桥接 VS Code 变量，跟随 speckit tokens.css）=====
+   完整移植 tokens.css:10-133，--sv- 前缀避免与 shadcn 无前缀 token 冲突。 */
+:root {
+	/* Type Scale - Minor Third (1.2) */
+	--sv-text-xs: 0.694rem;
+	--sv-text-sm: 0.833rem;
+	--sv-text-base: 1rem;
+	--sv-text-lg: 1.2rem;
+	--sv-text-xl: 1.44rem;
+	--sv-text-2xl: 1.728rem;
+	--sv-text-3xl: 2.074rem;
+
+	/* Line Heights */
+	--sv-leading-tight: 1.25;
+	--sv-leading-snug: 1.375;
+	--sv-leading-normal: 1.5;
+	--sv-leading-relaxed: 1.625;
+	--sv-leading-loose: 1.75;
+
+	/* Spacing */
+	--sv-space-1: 0.25rem;
+	--sv-space-2: 0.5rem;
+	--sv-space-3: 0.75rem;
+	--sv-space-4: 1rem;
+	--sv-space-5: 1.5rem;
+	--sv-space-6: 2rem;
+	--sv-space-8: 3rem;
+
+	/* Core backgrounds */
+	--sv-bg-primary: var(--vscode-editor-background, #1e1e1e);
+	--sv-bg-secondary: var(--vscode-sideBar-background, #252526);
+	--sv-bg-elevated: var(--vscode-editorWidget-background, #252526);
+	--sv-bg-hover: var(--vscode-list-hoverBackground, color-mix(in srgb, var(--vscode-foreground) 8%, transparent));
+
+	/* Text */
+	--sv-text-primary: var(--vscode-editor-foreground, #d4d4d4);
+	--sv-text-secondary: color-mix(in srgb, var(--vscode-editor-foreground, #d4d4d4) 70%, transparent);
+	--sv-text-muted: color-mix(in srgb, var(--vscode-editor-foreground, #d4d4d4) 50%, transparent);
+	--sv-text-body: color-mix(in srgb, var(--vscode-editor-foreground, #d4d4d4) 88%, transparent);
+
+	/* Accent — fallback 用硬编码，浏览器预览时 --vscode-* 不存在 */
+	--sv-accent: var(--vscode-focusBorder, #007fd4);
+	--sv-accent-hover: var(--vscode-button-hoverBackground, #0062a3);
+	--sv-accent-subtle: color-mix(in srgb, var(--sv-accent) 10%, transparent);
+	--sv-accent-glow: 0 0 20px color-mix(in srgb, var(--sv-accent) 30%, transparent);
+
+	/* Status */
+	--sv-success: var(--vscode-testing-iconPassed, #388a34);
+	--sv-success-subtle: color-mix(in srgb, var(--vscode-testing-iconPassed, #388a34) 12%, transparent);
+	--sv-warning: var(--vscode-editorWarning-foreground, #cca700);
+	--sv-warning-subtle: color-mix(in srgb, var(--vscode-editorWarning-foreground, #cca700) 10%, transparent);
+	--sv-error: var(--vscode-editorError-foreground, #f14c4c);
+	--sv-error-subtle: color-mix(in srgb, var(--vscode-editorError-foreground, #f14c4c) 10%, transparent);
+
+	/* Extended */
+	--sv-purple: var(--vscode-symbolIcon-classForeground, #9a6dd7);
+	--sv-review: #a855f7;
+	--sv-review-subtle: color-mix(in srgb, #a855f7 10%, transparent);
+
+	/* Borders */
+	--sv-border: color-mix(in srgb, var(--vscode-foreground) 15%, transparent);
+	--sv-border-hover: var(--vscode-contrastBorder, #6c6c6c);
+	--sv-border-accent: color-mix(in srgb, var(--vscode-focusBorder, #007fd4) 50%, transparent);
+
+	/* Headers */
+	--sv-header-title: var(--vscode-foreground, #e4e4e4);
+	--sv-header-section: var(--vscode-foreground, #e4e4e4);
+	/* Readable (was descriptionForeground, below WCAG AA) — hierarchy comes from
+	   size/weight, not a muted color. */
+	--sv-header-subsection: var(--sv-text-body, #d0d0d0);
+
+	/* Code backgrounds */
+	--sv-bg-code: color-mix(in srgb, var(--vscode-editor-background, #1e1e1e) 95%, black);
+	--sv-bg-code-header: color-mix(in srgb, var(--vscode-editor-background, #1e1e1e) 90%, black);
+
+	/* Fonts */
+	--sv-font-mono: var(--vscode-editor-font-family, 'Consolas', 'Monaco', monospace);
+	--sv-font-size: var(--vscode-editor-font-size, 15px);
+	--sv-code-variable: var(--vscode-symbolIcon-variableForeground, #9cdcfe);
+
+	/* Checkbox */
+	--sv-border-checkbox: var(--vscode-checkbox-border, #3c3c3c);
+	--sv-bg-checkbox: var(--vscode-checkbox-background, #3c3c3c);
+
+	/* Radius */
+	--sv-radius-sm: 4px;
+	--sv-radius-md: 8px;
+	--sv-radius-lg: 12px;
+
+	/* Shadow */
+	--sv-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+	--sv-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+	--sv-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+
+	/* Transition */
+	--sv-transition-fast: 150ms;
+	--sv-transition-normal: 200ms;
+	--sv-transition-slow: 300ms;
+
+	/* Layout */
+	--sv-tab-height: 40px;
+	--sv-header-height: 48px;
+	--sv-content-padding: 24px;
+}
+
+/* reduced-motion 全局禁用（对齐 tokens.css:207-215）*/
+@media (prefers-reduced-motion: reduce) {
+	*, *::before, *::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+	}
+}
+
+/* 主题 fallback（对齐 tokens.css:139-201）——覆盖少数需分化的 token */
+body.vscode-light {
+	--sv-text-body: #4a4a4a;
+	--sv-bg-code: #f5f5f5;
+	--sv-bg-code-header: #e8e8e8;
+	--sv-border: var(--vscode-panel-border, #e0e0e0);
+	--sv-border-hover: var(--vscode-contrastBorder, #c0c0c0);
+}
+body.vscode-dark {
+	--sv-border: var(--vscode-panel-border, #3c3c3c);
+	--sv-border-hover: var(--vscode-contrastBorder, #6c6c6c);
+}
+body.vscode-high-contrast {
+	--sv-text-body: var(--vscode-editor-foreground, #ffffff);
+	--sv-text-muted: color-mix(in srgb, var(--vscode-editor-foreground, #ffffff) 70%, transparent);
+	--sv-border: var(--vscode-contrastBorder, #ffffff);
+	--sv-border-hover: var(--vscode-contrastBorder, #ffffff);
+	--sv-accent: var(--vscode-focusBorder, #f38518);
+}

@@ -1,0 +1,115 @@
+/**
+ * SpecKit Companion - Animation Styles
+ * Keyframes and animations
+ */
+
+/* ============================================
+   Keyframe Animations
+   ============================================ */
+
+@keyframes sv-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes sv-fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes sv-slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes sv-slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes sv-modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -48%);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+/* Pulsing blue glow for active tasks progress badge */
+@keyframes sv-pulse-badge {
+    0%, 100% {
+        box-shadow: 0 0 0 3px var(--sv-accent-subtle), 0 0 8px var(--sv-accent);
+    }
+    50% {
+        box-shadow: 0 0 0 5px var(--sv-accent-subtle), 0 0 16px var(--sv-accent);
+    }
+}
+
+/* Glowing green effect for PROJECT COMPLETE badge */
+@keyframes sv-glow-complete {
+    0%, 100% {
+        box-shadow: 0 0 8px color-mix(in srgb, var(--sv-success) 40%, transparent);
+        border-color: var(--sv-success);
+    }
+    50% {
+        box-shadow: 0 0 16px color-mix(in srgb, var(--sv-success) 60%, transparent);
+        border-color: color-mix(in srgb, var(--sv-success) 80%, white);
+    }
+}
+
+/* Gentle border breath for in-progress spec badges (specifying / planning /
+   tasking / implementing). Subtle enough to coexist with multiple badges in
+   a list view — border only, no glow. */
+@keyframes sv-spec-badge-working {
+    0%, 100% {
+        border-color: color-mix(in srgb, var(--sv-accent) 40%, transparent);
+    }
+    50% {
+        border-color: color-mix(in srgb, var(--sv-accent) 75%, transparent);
+    }
+}
+
+/* Pulsing glow for active working step (purple = active progress, distinct
+   from the green completed checkmark). */
+@keyframes sv-working-pulse {
+    0%, 100% {
+        box-shadow: 0 0 0 2px var(--sv-bg-secondary), 0 0 0 4px var(--sv-purple), 0 0 8px var(--sv-purple);
+    }
+    50% {
+        box-shadow: 0 0 0 3px var(--sv-bg-secondary), 0 0 0 5px var(--sv-purple), 0 0 16px var(--sv-purple);
+    }
+}
+
+.step-tab__substep {
+    display: block;
+    margin-top: 2px;
+    font-size: 0.75em;
+    opacity: 0.7;
+    font-style: italic;
+}
+
+/* Purple glow for review mode */
+@keyframes review-glow {
+    0%, 100% {
+        box-shadow: 0 0 0 0 transparent;
+    }
+    50% {
+        box-shadow: 0 0 8px var(--review-glow);
+    }
+}

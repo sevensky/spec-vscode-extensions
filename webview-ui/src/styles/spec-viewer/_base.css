@@ -1,0 +1,151 @@
+/**
+ * SpecKit Companion - Base Styles
+ * Reset, body, and layout styles
+ *
+ * 注意：全局 * reset 和 body 覆盖限定到 .spec-md 范围，
+ * 避免破坏 Tailwind/shadcn preflight。
+ */
+
+/* ============================================
+   Base Styles（限定范围）
+   ============================================ */
+
+.spec-md *,
+.spec-md *::before,
+.spec-md *::after {
+    box-sizing: border-box;
+}
+
+/* ============================================
+   Layout Container
+   ============================================ */
+
+.viewer-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Instant render - no animation delay */
+.viewer-container {
+    opacity: 1;
+}
+
+/* ============================================
+   Content Area
+   ============================================ */
+
+.content-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--sv-content-padding);
+    scroll-behavior: smooth;
+    display: flex;
+    flex-direction: row;
+    gap: var(--sv-space-6);
+    align-items: flex-start;
+}
+
+/* ============================================
+   Empty State
+   ============================================ */
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+    color: var(--sv-text-secondary);
+    font-style: italic;
+    text-align: center;
+    padding: var(--sv-content-padding);
+}
+
+/* ============================================
+   Scrollbar Styling
+   ============================================ */
+
+.content-area::-webkit-scrollbar {
+    width: 10px;
+}
+
+.content-area::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.content-area::-webkit-scrollbar-thumb {
+    background: var(--sv-border);
+    border-radius: var(--sv-radius-sm);
+}
+
+.content-area::-webkit-scrollbar-thumb:hover {
+    background: var(--sv-border-hover);
+}
+
+/* ============================================
+   Focus States (Accessibility)
+   ============================================ */
+
+.spec-md :focus-visible {
+    outline: 2px solid var(--sv-accent);
+    outline-offset: 2px;
+}
+
+/* ============================================
+   High Contrast Theme Adjustments
+   ============================================ */
+
+@media (prefers-contrast: more) {
+    .tab-button.active {
+        outline: 2px solid var(--sv-accent);
+        outline-offset: -2px;
+    }
+
+    .edit-button:focus {
+        outline: 2px solid var(--sv-accent);
+        outline-offset: 2px;
+    }
+
+    .spec-md a {
+        text-decoration: underline;
+    }
+
+    .step-indicator {
+        border-width: 3px;
+    }
+}
+
+/* ============================================
+   Responsive Adjustments
+   ============================================ */
+
+@media (max-width: 500px) {
+    .actions {
+        padding: 8px 12px;
+    }
+
+    .actions button {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+
+    .actions-right .secondary {
+        display: none;
+    }
+
+    .phase-stepper {
+        padding: 12px 16px;
+    }
+
+    .step-connector {
+        width: 30px;
+    }
+
+    .step-indicator {
+        width: 30px;
+        height: 30px;
+        font-size: 12px;
+    }
+}

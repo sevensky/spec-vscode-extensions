@@ -1,0 +1,357 @@
+/**
+ * SpecKit Companion - Content Styles
+ * Markdown rendering base styles
+ */
+
+/* ============================================
+   Markdown Content Styles
+   ============================================ */
+
+.spec-md {
+    /* font-family: inherit — 用 body 的 sans-serif，不强制等宽 */
+    font-size: max(16px, calc(var(--sv-font-size) + 1px));
+    line-height: var(--sv-leading-loose);
+    color: var(--sv-text-body);
+    max-width: 72ch;
+    margin: 0 auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    letter-spacing: -0.01em;
+}
+
+/* ============================================
+   Spec Metadata Bar (compact header info)
+   ============================================ */
+
+.spec-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sv-space-3);
+    padding: 0;
+    margin-bottom: var(--sv-space-2);
+}
+
+.meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sv-space-1);
+    font-size: var(--sv-text-sm);
+}
+
+.meta-label {
+    color: var(--sv-text-muted);
+    font-weight: 500;
+    font-family: var(--sv-font-mono);
+}
+
+.meta-branch {
+    font-family: var(--sv-font-mono);
+    font-size: var(--sv-text-xs);
+    padding: 2px 8px;
+    background: var(--sv-accent-subtle);
+    border: 1px solid var(--sv-accent);
+    border-radius: var(--sv-radius-sm);
+    color: var(--sv-accent);
+}
+
+.meta-status {
+    font-size: var(--sv-text-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 2px 8px;
+    border-radius: var(--sv-radius-sm);
+}
+
+.meta-status-draft {
+    background: var(--sv-warning-subtle);
+    color: var(--sv-warning);
+    border: 1px solid var(--sv-warning);
+}
+
+.meta-status-ready,
+.meta-status-approved {
+    background: var(--sv-success-subtle);
+    color: var(--sv-success);
+    border: 1px solid var(--sv-success);
+}
+
+.meta-status-in-progress {
+    background: var(--sv-accent-subtle);
+    color: var(--sv-accent);
+    border: 1px solid var(--sv-accent);
+}
+
+.meta-date {
+    color: var(--sv-text-secondary);
+    font-family: var(--sv-font-mono);
+}
+
+.spec-file-link {
+    font-size: var(--sv-text-sm);
+    margin-bottom: var(--sv-space-4);
+    display: flex;
+    align-items: center;
+    gap: var(--sv-space-2);
+}
+
+.spec-file-ref {
+    font-family: var(--sv-font-mono);
+    font-size: var(--sv-text-xs);
+    color: var(--sv-text-muted);
+    padding: 2px 10px;
+    border: 1px solid var(--sv-border);
+    border-radius: var(--sv-radius-sm);
+    text-decoration: none;
+    transition: all var(--sv-transition-fast);
+    cursor: pointer;
+}
+
+.spec-file-ref:hover {
+    color: var(--sv-accent);
+    border-color: var(--sv-accent);
+    background: var(--sv-accent-subtle);
+}
+
+.spec-input {
+    font-size: var(--sv-text-sm);
+    color: var(--sv-text-secondary);
+    padding: var(--sv-space-2) var(--sv-space-3);
+    margin: var(--sv-space-2) 0 var(--sv-space-4) 0;
+    background: var(--sv-bg-secondary);
+    border-left: 3px solid var(--sv-accent);
+    border-radius: 0 var(--sv-radius-sm) var(--sv-radius-sm) 0;
+    font-style: italic;
+}
+
+.spec-input .meta-label {
+    font-style: normal;
+    margin-right: var(--sv-space-1);
+}
+
+/* ============================================
+   Links
+   ============================================ */
+
+.spec-md a {
+    color: var(--sv-accent);
+    text-decoration: none;
+    transition: color var(--sv-transition-fast);
+}
+
+.spec-md a:hover {
+    text-decoration: underline;
+    color: var(--sv-accent-hover);
+}
+
+/* ============================================
+   Horizontal rules
+   ============================================ */
+
+.spec-md hr {
+    border: none;
+    border-top: 1px solid var(--sv-border);
+    margin: var(--sv-space-4) 0;
+}
+
+/* ============================================
+   Images
+   ============================================ */
+
+.spec-md img {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--sv-radius-md);
+    margin: var(--sv-space-4) 0;
+    box-shadow: var(--sv-shadow-sm);
+}
+
+/* ============================================
+   Strong and emphasis
+   ============================================ */
+
+.spec-md strong {
+    font-weight: 600;
+    color: var(--sv-text-primary);
+}
+
+.spec-md em {
+    font-style: italic;
+}
+
+/* ============================================
+   State-based hiding (completed specs)
+   ============================================ */
+
+/* Hide DRAFT badge when spec is completed or archived */
+body[data-spec-status="completed"] .meta-status-draft,
+body[data-spec-status="archived"] .meta-status-draft {
+    display: none;
+}
+
+/* Suppress in-content metadata that the structured header already shows.
+   The .spec-meta bar (synthesized by preprocessSpecMetadata), the .spec-input
+   callout, and any stray .meta-branch chips all duplicate fields the header
+   already renders from spec-context.json. When that header is active
+   (App.tsx sets body[data-has-spec-context="true"]), hide them. */
+body[data-has-spec-context="true"] .spec-meta,
+body[data-has-spec-context="true"] .spec-input,
+body[data-has-spec-context="true"] .meta-branch {
+    display: none;
+}
+
+/* ============================================
+   Structured Header (spec-context driven)
+   ============================================ */
+
+.spec-header {
+    margin: 0;
+    padding: var(--sv-space-3) var(--sv-content-padding);
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+    border-bottom: 1px solid var(--sv-border);
+    background: var(--sv-bg-primary);
+    flex-shrink: 0;
+}
+
+/* Title is the page anchor: largest type, page-level weight, sits above the
+   metadata cluster so the eye lands on the spec name first, not on the badge. */
+.spec-header-title {
+    margin: 0;
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: var(--sv-header-title);
+    line-height: 1.2;
+    letter-spacing: -0.015em;
+}
+
+/* Glance-metadata cluster: badge · branch · date all flow inline at the same
+   density. No margin-left:auto orphaning the date — the · separator carries
+   the visual rhythm instead. */
+.spec-header-badges {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Hide the first H1 when structured header provides the title.
+   Body attribute is set by App.tsx so the rule survives DOM hierarchy changes
+   (the spec-header is no longer always a sibling of .spec-md). */
+body[data-has-spec-context="true"] .spec-md h1:first-of-type {
+    display: none;
+}
+
+.spec-header-branch {
+    font-family: var(--sv-font-mono);
+    font-size: var(--sv-text-xs);
+    padding: 2px 8px;
+    /* Neutral terminal metadata — the old --purple (symbolIcon color) renders
+       off-theme (orange) in many themes. */
+    background: var(--sv-bg-elevated);
+    border: 1px solid var(--sv-border);
+    border-radius: var(--sv-radius-sm);
+    color: var(--sv-text-secondary);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.spec-header-branch .codicon {
+    font-size: 12px;
+}
+
+/* Created-date inline with the badge cluster — glance metadata, not a heading.
+   The leading middot is a pseudo-element so it doesn't pollute the DOM tree
+   or screen-reader output (already aria-labelled on the parent). */
+.spec-header-date {
+    font-family: var(--sv-font-mono);
+    font-size: var(--sv-text-xs);
+    color: var(--sv-text-muted);
+    white-space: nowrap;
+}
+
+.spec-header-date::before {
+    content: '· ';
+    color: var(--sv-border);
+}
+
+/* ============================================
+   Spec Badge (primary/heading color)
+   ============================================ */
+
+.spec-badge {
+    font-size: var(--sv-text-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 3px 10px;
+    border-radius: var(--sv-radius-sm);
+    font-family: var(--sv-font-mono);
+    background: color-mix(in srgb, var(--sv-header-title) 15%, transparent);
+    color: var(--sv-header-title);
+    border: 1px solid color-mix(in srgb, var(--sv-header-title) 30%, transparent);
+}
+
+.spec-badge--completed,
+body[data-spec-status="completed"] .spec-badge {
+    background: var(--vscode-charts-green, var(--sv-success));
+    color: var(--sv-bg-primary);
+    border-color: var(--vscode-charts-green, var(--sv-success));
+    font-weight: 800;
+}
+
+/* Active — subtle accent hint so a live working spec reads distinct from
+   the unstyled default / DRAFT / ARCHIVED neutrals, without competing with
+   the in-progress tier. */
+.spec-badge--active {
+    background: color-mix(in srgb, var(--sv-accent) 6%, transparent);
+    color: var(--sv-text-primary);
+    border-color: color-mix(in srgb, var(--sv-accent) 30%, transparent);
+}
+
+.spec-badge--archived,
+body[data-spec-status="archived"] .spec-badge {
+    background: var(--sv-bg-secondary);
+    color: var(--sv-text-muted);
+    border-color: var(--sv-border);
+}
+
+.spec-badge--tasks-done,
+body[data-spec-status="tasks-done"] .spec-badge {
+    background: var(--sv-success-subtle);
+    color: var(--sv-success);
+    border-color: color-mix(in srgb, var(--sv-success) 30%, transparent);
+}
+
+/* In-progress statuses — specifying / planning / tasking / implementing.
+   Accent-tinted fill so "work in progress" reads distinct from completed-green.
+   Gentle border breath via spec-badge-working keyframe signals live work. */
+.spec-badge--specifying,
+.spec-badge--planning,
+.spec-badge--tasking,
+.spec-badge--implementing {
+    background: color-mix(in srgb, var(--sv-accent) 15%, transparent);
+    color: var(--sv-accent);
+    border-color: color-mix(in srgb, var(--sv-accent) 40%, transparent);
+    animation: sv-spec-badge-working 2.5s ease-in-out infinite;
+}
+
+/* Intermediate-done statuses — a phase finished, workflow continues. */
+.spec-badge--specified,
+.spec-badge--planned,
+.spec-badge--ready-to-implement {
+    background: var(--sv-success-subtle);
+    color: var(--sv-success);
+    border-color: color-mix(in srgb, var(--sv-success) 30%, transparent);
+}
+
+/* Draft / pre-work — muted, not as dim as archived. */
+.spec-badge--draft {
+    background: color-mix(in srgb, var(--sv-text-secondary) 10%, transparent);
+    color: var(--sv-text-secondary);
+    border-color: color-mix(in srgb, var(--sv-text-secondary) 30%, transparent);
+}

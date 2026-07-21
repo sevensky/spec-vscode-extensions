@@ -1,0 +1,640 @@
+/**
+ * SpecKit Companion - Activity Panel Styles
+ * Card-stack layout: Approach, Phases, Tasks, Decisions, Concerns, Files.
+ * Each card is hidden by its component when its data is absent.
+ *
+ * Substep timing inside Phases is intentionally NOT rendered — the on-disk
+ * substep timestamps are AI-typed and unreliable. Only step-level durations
+ * (extension-stamped) are shown.
+ */
+
+.activity-panel {
+    padding: var(--sv-space-5) var(--sv-space-6);
+    overflow-y: auto;
+    max-width: 880px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--sv-space-4);
+}
+
+.activity-empty {
+    padding: var(--sv-space-6);
+    color: var(--sv-text-secondary);
+    font-size: var(--sv-text-sm);
+    text-align: center;
+    border: 1px dashed var(--sv-border);
+    border-radius: var(--sv-radius-md);
+    background: var(--sv-bg-secondary);
+}
+
+/* ============================================
+   Generic card chrome
+   ============================================ */
+
+.activity-card {
+    background: var(--sv-bg-secondary);
+    border: 1px solid var(--sv-border);
+    border-radius: var(--sv-radius-md);
+    overflow: hidden;
+}
+
+.activity-card__title {
+    display: flex;
+    align-items: baseline;
+    gap: var(--sv-space-2);
+    padding: var(--sv-space-3) var(--sv-space-4);
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: var(--sv-text-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border-bottom: 1px solid var(--sv-border);
+    background: var(--sv-bg-elevated);
+}
+
+.activity-card__count {
+    color: var(--sv-text-muted);
+    font-weight: 500;
+    font-size: 0.78rem;
+    letter-spacing: 0;
+}
+
+.activity-card__body {
+    padding: var(--sv-space-4);
+    color: var(--sv-text-body);
+    font-size: var(--sv-text-sm);
+    line-height: var(--sv-leading-snug);
+}
+
+/* ============================================
+   Approach card
+   ============================================ */
+
+.activity-approach__text {
+    margin: 0 0 var(--sv-space-3);
+    color: var(--sv-text-primary);
+}
+
+.activity-approach__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sv-space-2);
+    align-items: center;
+    margin-bottom: var(--sv-space-2);
+}
+
+.activity-approach__last-action {
+    margin: var(--sv-space-2) 0 0;
+    color: var(--sv-text-secondary);
+    font-size: 0.82rem;
+}
+
+.activity-approach__last-action-label {
+    color: var(--sv-text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+}
+
+.activity-status-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border-radius: 999px;
+    border: 1px solid var(--sv-border);
+    color: var(--sv-text-secondary);
+}
+
+.activity-status-pill.is-completed {
+    color: var(--sv-success);
+    border-color: color-mix(in srgb, var(--sv-success) 50%, transparent);
+    background: color-mix(in srgb, var(--sv-success) 12%, transparent);
+}
+
+.activity-status-pill.is-implementing,
+.activity-status-pill.is-planning,
+.activity-status-pill.is-tasking,
+.activity-status-pill.is-specifying {
+    color: var(--sv-accent);
+    border-color: color-mix(in srgb, var(--sv-accent) 50%, transparent);
+    background: color-mix(in srgb, var(--sv-accent) 12%, transparent);
+}
+
+.activity-status-pill.is-archived {
+    color: var(--sv-text-muted);
+    border-color: var(--sv-border);
+    background: var(--sv-bg-hover);
+}
+
+.activity-checkpoint {
+    display: inline-flex;
+    align-items: center;
+    color: var(--sv-success);
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.activity-pr-link {
+    color: var(--sv-accent);
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-decoration: none;
+    border-bottom: 1px dashed color-mix(in srgb, var(--sv-accent) 50%, transparent);
+    padding-bottom: 1px;
+}
+
+.activity-pr-link:hover {
+    border-bottom-style: solid;
+}
+
+/* ============================================
+   Phases card
+   ============================================ */
+
+/* Overall span header: started · total · ended */
+.phases-overall {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sv-space-5);
+    padding-bottom: var(--sv-space-3);
+    margin-bottom: var(--sv-space-4);
+    border-bottom: 1px solid var(--sv-border);
+}
+
+.phases-overall__stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.phases-overall__label {
+    font-size: 0.66rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--sv-text-muted);
+}
+
+.phases-overall__value {
+    font-size: var(--sv-text-sm);
+    font-weight: 600;
+    color: var(--sv-text-primary);
+    font-variant-numeric: tabular-nums;
+}
+
+/* Vertical timeline: phases stacked top-to-bottom on a left spine, one node each */
+.phases-track {
+    display: flex;
+    flex-direction: column;
+}
+
+.phases-step {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1, 4px);
+    padding: 0 0 var(--sv-space-4) var(--sv-space-5);
+}
+
+.phases-step:last-child {
+    padding-bottom: 0;
+}
+
+/* Spine segment — one per step; consecutive steps form a continuous line. */
+.phases-step::before {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--sv-border);
+}
+
+.phases-step:first-child::before { top: 0.4em; }
+.phases-step:last-child::before { bottom: auto; height: 0.4em; }
+
+/* Node dot centered on the spine. */
+.phases-step::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.3em;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--sv-success);
+    box-shadow: 0 0 0 3px var(--sv-bg-elevated);
+}
+
+.phases-step.is-in-flight::after {
+    background: var(--sv-accent);
+    animation: sv-phases-pulse 2s ease-in-out infinite;
+}
+
+.phases-step__heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--sv-space-3);
+    margin: 0;
+}
+
+@keyframes sv-phases-pulse {
+    0%, 100% { box-shadow: 0 0 0 3px var(--sv-bg-elevated), 0 0 0 0 color-mix(in srgb, var(--sv-accent) 60%, transparent); }
+    50%      { box-shadow: 0 0 0 3px var(--sv-bg-elevated), 0 0 0 6px color-mix(in srgb, var(--sv-accent) 0%, transparent); }
+}
+
+.phases-step__name {
+    font-size: var(--sv-text-sm);
+    font-weight: 700;
+    color: var(--sv-text-primary);
+    text-transform: capitalize;
+}
+
+/* Active time, right-aligned next to the step name */
+.phases-step__time {
+    font-size: var(--sv-text-sm);
+    font-weight: 600;
+    color: var(--sv-text-secondary);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.phases-step.is-in-flight .phases-step__time {
+    color: var(--sv-accent);
+}
+
+/* Muted subline under the name (multi-day start date) */
+.phases-step__sub {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sv-space-2);
+    margin: 2px 0 var(--space-1, 4px) 0;
+    font-size: 0.7rem;
+    color: var(--sv-text-muted);
+    font-variant-numeric: tabular-nums;
+}
+
+.phases-event {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--sv-space-2);
+    padding: 2px 0;
+    font-size: var(--sv-text-sm);
+    color: var(--sv-text-body);
+}
+
+.phases-event--empty {
+    color: var(--sv-text-muted);
+    font-style: italic;
+    font-size: 0.74rem;
+}
+
+.phases-event__name {
+    color: var(--sv-text-primary);
+    font-weight: 500;
+    font-family: var(--sv-font-mono);
+    font-size: 0.82em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.phases-event__time {
+    color: var(--sv-text-muted);
+    font-size: 0.72rem;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+/* ============================================
+   Actor badge (shared)
+   ============================================ */
+
+.activity-actor-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 1px 7px;
+    font-family: var(--sv-font-mono);
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border-radius: var(--sv-radius-sm);
+    border: 1px solid color-mix(in srgb, var(--sv-text-secondary) 45%, transparent);
+    background: var(--sv-bg-secondary);
+    color: var(--sv-text-secondary);
+    line-height: 1.4;
+}
+
+.activity-actor-badge.is-extension {
+    color: var(--sv-accent);
+    border-color: color-mix(in srgb, var(--sv-accent) 60%, transparent);
+    background: color-mix(in srgb, var(--sv-accent) 15%, transparent);
+}
+
+.activity-actor-badge.is-cli {
+    color: var(--sv-warning);
+    border-color: color-mix(in srgb, var(--sv-warning) 50%, transparent);
+    background: color-mix(in srgb, var(--sv-warning) 12%, transparent);
+}
+
+.activity-actor-badge.is-sdd {
+    color: var(--sv-success);
+    border-color: color-mix(in srgb, var(--sv-success) 50%, transparent);
+    background: color-mix(in srgb, var(--sv-success) 12%, transparent);
+}
+
+.activity-actor-badge.is-ai {
+    color: var(--sv-purple);
+    border-color: color-mix(in srgb, var(--sv-purple) 50%, transparent);
+    background: color-mix(in srgb, var(--sv-purple) 12%, transparent);
+}
+
+.activity-actor-badge.is-user {
+    color: var(--sv-text-primary);
+    border-color: var(--sv-border-hover);
+    background: var(--sv-bg-hover);
+}
+
+/* ============================================
+   Tasks card
+   ============================================ */
+
+.task-row {
+    padding: var(--sv-space-2) 0;
+    border-bottom: 1px solid var(--sv-border);
+}
+
+.task-row:first-child { padding-top: 0; }
+.task-row:last-child  { padding-bottom: 0; border-bottom: none; }
+
+.task-row__head {
+    display: flex;
+    align-items: baseline;
+    gap: var(--sv-space-2);
+    flex-wrap: wrap;
+}
+
+.task-row__id {
+    font-family: var(--sv-font-mono);
+    font-size: 0.82rem;
+    color: var(--sv-text-secondary);
+    font-weight: 600;
+}
+
+.task-row__status {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 1px 7px;
+    border-radius: 999px;
+    border: 1px solid var(--sv-border);
+}
+
+.task-row__status.is-done {
+    color: var(--sv-success);
+    border-color: color-mix(in srgb, var(--sv-success) 50%, transparent);
+    background: color-mix(in srgb, var(--sv-success) 12%, transparent);
+}
+
+.task-row__status.is-done-concerns {
+    color: var(--sv-warning);
+    border-color: color-mix(in srgb, var(--sv-warning) 50%, transparent);
+    background: color-mix(in srgb, var(--sv-warning) 12%, transparent);
+}
+
+.task-row__did {
+    color: var(--sv-text-body);
+    font-size: 0.86rem;
+    flex: 1 1 16em;
+    min-width: 0;
+}
+
+.task-row__files {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: var(--sv-space-2);
+}
+
+.task-row__file {
+    font-family: var(--sv-font-mono);
+    font-size: 0.7rem;
+    padding: 1px 7px;
+    border: 1px solid var(--sv-border);
+    background: var(--sv-bg-primary);
+    color: var(--sv-text-secondary);
+    border-radius: var(--sv-radius-sm);
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.task-row__file:hover {
+    color: var(--sv-accent);
+    border-color: color-mix(in srgb, var(--sv-accent) 50%, transparent);
+}
+
+.task-row__concerns {
+    margin: var(--sv-space-2) 0 0;
+    padding-left: var(--sv-space-4);
+    color: var(--sv-warning);
+    font-size: 0.82rem;
+}
+
+.task-row__concerns li { margin-bottom: 2px; }
+
+/* ============================================
+   Decisions / Concerns lists
+   ============================================ */
+
+.activity-list {
+    margin: 0;
+    padding-left: var(--sv-space-4);
+    color: var(--sv-text-body);
+}
+
+.activity-list li {
+    margin-bottom: var(--sv-space-2);
+}
+
+.activity-list li:last-child {
+    margin-bottom: 0;
+}
+
+.activity-task-chip {
+    display: inline-block;
+    font-family: var(--sv-font-mono);
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--sv-text-secondary);
+    padding: 1px 6px;
+    border: 1px solid var(--sv-border);
+    border-radius: var(--sv-radius-sm);
+    margin-right: var(--sv-space-2);
+    background: var(--sv-bg-primary);
+}
+
+.activity-concern__note {
+    color: var(--sv-text-body);
+}
+
+/* ============================================
+   Files card
+   ============================================ */
+
+.activity-files {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.activity-files__item {
+    width: 100%;
+    text-align: left;
+    font-family: var(--sv-font-mono);
+    font-size: 0.82rem;
+    padding: 4px 8px;
+    background: transparent;
+    color: var(--sv-text-body);
+    border: 1px solid transparent;
+    border-radius: var(--sv-radius-sm);
+    cursor: pointer;
+}
+
+.activity-files__item:hover {
+    background: var(--sv-bg-hover);
+    border-color: var(--sv-border);
+    color: var(--sv-accent);
+}
+
+/* ============================================
+   Activity toggle button in nav-primary
+   ============================================ */
+
+.activity-toggle {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border: none;
+    background: transparent;
+    color: var(--sv-text-secondary);
+    cursor: pointer;
+    font-family: var(--sv-font-mono);
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border-radius: var(--sv-radius-sm);
+    transition: color var(--sv-transition-fast), background var(--sv-transition-fast), box-shadow var(--sv-transition-fast);
+}
+
+.activity-toggle:hover {
+    color: var(--sv-text-primary);
+    background: var(--sv-bg-hover);
+}
+
+.activity-toggle[aria-pressed='true'] {
+    color: var(--sv-text-primary);
+    background: transparent;
+    box-shadow: inset 0 0 0 1.5px var(--sv-accent);
+    font-weight: 700;
+}
+
+/* ── Review comments card ─────────────────────────────────────── */
+.comments-doc-group {
+    margin-bottom: 12px;
+}
+
+.comments-doc-group:last-child {
+    margin-bottom: 0;
+}
+
+.comments-doc-group__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.comments-doc-group__label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--sv-text-secondary);
+}
+
+.comments-run-btn {
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.72rem;
+    padding: 2px 8px;
+    border-radius: var(--sv-radius-sm);
+    color: var(--accent, #4a9eff);
+    background: color-mix(in srgb, var(--accent, #4a9eff) 14%, transparent);
+    transition: background var(--sv-transition-fast);
+}
+
+.comments-run-btn:hover {
+    background: color-mix(in srgb, var(--accent, #4a9eff) 26%, transparent);
+}
+
+.comments-list .comment-item {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.comment-status {
+    flex: 0 0 auto;
+    font-size: 0.6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 1px 6px;
+    border-radius: 999px;
+    line-height: 1.4;
+}
+
+.comment-status--pending {
+    color: var(--sv-warning);
+    background: color-mix(in srgb, var(--sv-warning) 16%, transparent);
+}
+
+.comment-status--applied {
+    color: var(--sv-text-secondary);
+    background: var(--sv-bg-hover);
+}
+
+.comment-jump {
+    flex: 0 0 auto;
+    border: none;
+    cursor: pointer;
+    font-family: var(--vscode-editor-font-family, monospace);
+    font-size: 0.68rem;
+    color: var(--accent, #4a9eff);
+    background: transparent;
+    padding: 0;
+    text-decoration: underline;
+}
+
+.comment-text {
+    flex: 1 1 auto;
+    min-width: 0;
+}

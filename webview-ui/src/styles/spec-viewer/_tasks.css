@@ -1,0 +1,195 @@
+/**
+ * SpecKit Companion - Task List Styles
+ * Task lists, checkboxes, and progress bars
+ */
+
+/* ============================================
+   Section Progress Bar (after h3 headings)
+   ============================================ */
+
+.spec-md .section-progress {
+  display: none;
+  align-items: center;
+  gap: var(--sv-space-3);
+  margin: var(--sv-space-2) 0 var(--sv-space-3) 0;
+}
+
+.spec-md .section-progress-bar {
+  flex: 1;
+  height: 4px;
+  background: var(--sv-border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.spec-md .section-progress-fill {
+  height: 100%;
+  background: var(--sv-accent);
+  border-radius: 2px;
+  transition: width var(--sv-transition-normal) ease;
+}
+
+.spec-md .section-progress-fill.complete {
+  background: var(--sv-success);
+}
+
+.spec-md .section-progress-text {
+  font-size: var(--sv-text-xs);
+  font-weight: 600;
+  color: var(--sv-text-muted);
+  white-space: nowrap;
+}
+
+/* ============================================
+   Task List Container
+   ============================================ */
+
+/* Task list container - simple list */
+.spec-md ul:has(.task-item),
+.spec-md ul.task-list-simple {
+  list-style: none;
+  padding-left: 0;
+  margin: var(--sv-space-2) 0 var(--sv-space-4) 0;
+}
+
+/* ============================================
+   Task Item - Simple Style
+   ============================================ */
+
+.spec-md li.task-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--sv-space-2);
+  padding: 2px 0;
+  padding-right: 24px; /* room for absolute-positioned + button */
+  margin: 0;
+  background: transparent;
+  border: none;
+  /* Only the background animates — animating the hover margin/padding (the bleed
+     trick below) shifts the row under the cursor and causes a hover flicker. */
+  transition: background-color var(--sv-transition-fast);
+  list-style: none;
+  font-size: inherit;
+  line-height: 1.5;
+  cursor: help;
+  position: relative; /* anchor .line-add-btn (absolute, right:0) */
+}
+
+/* Comment slot inside a task line wraps to its own row, aligned under task text */
+.spec-md li.task-item .line-comment-slot {
+  flex-basis: 100%;
+  margin-left: calc(16px + var(--sv-space-2)); /* checkbox width + gap */
+}
+
+/* Collapse empty slot — prevents a phantom flex row on wrapping tasks (spec 112) */
+.spec-md li.task-item .line-comment-slot:empty {
+  display: none;
+}
+
+/* Task text inside a task line — keep it flexing alongside the checkbox.
+   Tighter line-height than the surrounding prose so a wrapping task doesn't
+   visually bloat into a pseudo-paragraph (spec 112). */
+.spec-md li.task-item .task-text {
+  /* flex-basis 0 (not auto): auto resolves to the text's max-content width, which
+     with the row's flex-wrap pushes the whole label onto its own line below the
+     checkbox. basis 0 lets it sit beside the checkbox and wrap internally (#331). */
+  flex: 1 1 0;
+  min-width: 0;
+  line-height: 1.4;
+}
+
+.spec-md li.task-item:hover {
+  background: var(--sv-bg-hover);
+  margin: 0 calc(-1 * var(--sv-space-2));
+  padding: 2px var(--sv-space-2);
+  padding-right: 24px; /* restore + button slot — shorthand above clobbers it (spec 112) */
+  border-radius: var(--sv-radius-sm);
+}
+
+/* Completed task - keep readable, checkmark is enough */
+.spec-md li.task-item.checked {
+  /* No opacity change - keep fully visible */
+}
+
+.spec-md li.task-item.checked .task-text {
+  /* Keep normal color - green checkmark indicates completion */
+  color: var(--sv-text-body);
+}
+
+/* ============================================
+   Custom Checkbox Styling
+   ============================================ */
+
+.spec-md li.task-item input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  /* Inherit the text font so `1.4em` below tracks the real line-height at every
+     font size — form controls default to ~13.3px, freezing the offset (#331). */
+  font: inherit;
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  margin: calc((1.4em - 16px) / 2) 0 0 0;
+  border: 2px solid var(--sv-border-checkbox);
+  border-radius: 50%;
+  background: var(--sv-bg-checkbox);
+  cursor: pointer;
+  flex-shrink: 0;
+  position: relative;
+  transition: all var(--sv-transition-fast);
+}
+
+.spec-md li.task-item input[type="checkbox"]:hover {
+  border-color: var(--sv-accent);
+  background: var(--sv-accent-subtle);
+}
+
+.spec-md li.task-item input[type="checkbox"]:checked {
+  background: var(--sv-success);
+  border-color: var(--sv-success);
+}
+
+.spec-md li.task-item input[type="checkbox"]:checked::after {
+  content: "✓";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+/* ============================================
+   Task Details Grouping (Do/Verify/Leverage)
+   ============================================ */
+
+.task-details {
+  border-left: 2px solid var(--sv-border);
+  margin-left: 12px;
+  padding-left: 12px;
+  margin-top: 4px;
+  margin-bottom: 12px;
+}
+
+.task-details .line {
+  padding: 2px 0;
+}
+
+/* ============================================
+   In Progress Badge
+   ============================================ */
+
+.task-item.in-progress .task-text::after {
+  content: "IN PROGRESS";
+  font-size: var(--sv-text-xs);
+  font-weight: 600;
+  padding: 1px 6px;
+  margin-left: 8px;
+  border-radius: var(--sv-radius-sm);
+  background: var(--sv-accent-subtle);
+  color: var(--sv-accent);
+  vertical-align: middle;
+}

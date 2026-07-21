@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="zh" data-spec-status="planning">
+	<head>
+		<meta charset="UTF-8">
+		<meta content="width=device-width, initial-scale=1.0" name="viewport">
+		<title>Spec Viewer Preview</title>
+		<style>
+		:root { color-scheme: dark; }
+		body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background: #1e1e1e; color: #d4d4d4; margin: 0; }
+		#root { display: contents; }
+		</style>
+	</head>
+	<body>
+		<div id="root" data-page="spec-viewer" data-locale="zh"></div>
+		<script>
+			const sampleMd = `# 示例变更：CSS 架构重构
+
+## Purpose
+\`spec-viewer\` 富面板样式预览。将 spec-viewer CSS 拆分为 partials，对齐 speckit-companion 文件结构。
+
+## 1. 基础设施与配置
+
+- [x] 1.1 确认火山方舟 callback 的可达性要求
+- [x] 1.2 给 bairuiapi 配置公网域名 + HTTPS
+- [ ] 1.3 新增配置项 \`VOLC_CALLBACK_BASE\`
+- [ ] 1.4 确认火山方舟 callback 的安全机制
+
+## 2. 实现
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | string | 火山任务 ID |
+| status | enum | pending/done/error |
+
+\`\`\`go
+func HandleCallback(w http.ResponseWriter, r *http.Request) {
+    log.Println("callback received")
+}
+\`\`\`
+
+> [!note]
+> 这是一个 note callout。
+
+### Given / When / Then
+
+| Given | When | Then |
+|-------|------|------|
+| 服务已启动 | 收到回调 | 写入 DB |
+| 服务未启动 | 收到回调 | 返回 503 |
+
+\`\`\`mermaid
+graph LR
+    A[火山方舟] -->|callback| B(bairuiapi)
+    B --> C[(DB)]
+\`\`\`
+`;
+
+			const mockPayload = {
+				changeName: 'preview-change',
+				status: 'tasking',
+				step: 'tasks',
+				agent: 'claude',
+				currentDoc: 'specs',
+				docs: [
+					{ type: 'proposal', exists: true, content: '# Proposal' },
+					{ type: 'design', exists: true, content: '# Design' },
+					{ type: 'tasks', exists: true, content: '# Tasks' },
+					{ type: 'specs', exists: true, content: sampleMd },
+				],
+				history: [
+					{ step: 'propose', status: 'proposed', at: '2025-06-20T10:00:00Z', agent: 'claude' },
+					{ step: 'plan', status: 'designed', at: '2025-06-20T11:00:00Z', agent: 'claude' },
+				],
+				footer: [
+					{ id: 'advance', label: 'Advance', variant: 'primary' },
+					{ id: 'complete', label: 'Complete', variant: 'secondary' },
+				],
+				reviewComments: [],
+				approach: '测试用',
+				decisions: ['决策1'],
+				concerns: [],
+				filesModified: ['app.css'],
+				taskSummaries: [
+					{ id: '1.1', status: 'done', did: '拆分 CSS' },
+				],
+			};
+
+			window.acquireVsCodeApi = () => ({
+				postMessage: (msg) => {
+					if (msg?.command === 'ready') {
+						setTimeout(() => {
+							window.postMessage({ command: 'state', payload: mockPayload }, '*');
+						}, 50);
+					}
+				},
+				getState: () => null,
+				setState: () => {},
+			});
+		</script>
+		<script src="./src/index.tsx" type="module"></script>
+		<!-- 诊断脚本：2 秒后输出关键元素的计算样式 -->
+		<script>
+			window.addEventListener('load', () => {
+				setTimeout(() => {
+					const diag = document.createElement('div');
+					diag.id = 'diag';
+					diag.style.cssText = 'position:fixed;top:0;right:0;width:400px;max-height:100vh;overflow:auto;background:#1a1a2e;color:#0f0;font-family:monospace;font-size:11px;padding:8px;z-index:9999;border-left:2px solid #333;white-space:pre-wrap';
+
+					const out = [];
+					const check = (sel, label) => {
+						const el = document.querySelector(sel);
+						if (!el) { out.push(`❌ ${label} (${sel}): NOT FOUND`); return; }
+						const s = getComputedStyle(el);
+						out.push(`✅ ${label} (${sel}):`);
+						out.push(`   display=${s.display} font-size=${s.fontSize} font-family=${s.fontFamily.substring(0,40)}`);
+						out.push(`   margin=${s.margin} padding=${s.padding}`);
+						out.push(`   color=${s.color} bg=${s.backgroundColor.substring(0,30)}`);
+						out.push(`   border=${s.borderTop.substring(0,30)}`);
+						out.push('');
+					};
+
+					check('.spec-md', 'spec-md container');
+					check('.spec-md h1', 'H1');
+					check('.spec-md h2', 'H2');
+					check('.spec-md h3', 'H3');
+					check('.spec-md p', 'P');
+					check('.spec-md ul', 'UL');
+					check('.spec-md li', 'LI');
+					check('.spec-md pre.code-block', 'CODE BLOCK');
+					check('.spec-md table', 'TABLE');
+					check('.spec-md table th', 'TH');
+					check('.spec-md blockquote', 'BLOCKQUOTE');
+					check('.spec-md .line', 'LINE');
+					check('.spec-md .line-add-btn', '+ BUTTON');
+					check('.spec-md .mermaid', 'MERMAID');
+					check('#spec-toc', 'TOC');
+
+					// token 检查
+					const root = getComputedStyle(document.documentElement);
+					out.push('=== TOKENS ===');
+					out.push(`--sv-text-primary: ${root.getPropertyValue('--sv-text-primary')}`);
+					out.push(`--sv-accent: ${root.getPropertyValue('--sv-accent')}`);
+					out.push(`--sv-success: ${root.getPropertyValue('--sv-success')}`);
+					out.push(`--sv-border: ${root.getPropertyValue('--sv-border')}`);
+					out.push(`--sv-bg-secondary: ${root.getPropertyValue('--sv-bg-secondary')}`);
+					out.push(`--sv-space-4: ${root.getPropertyValue('--sv-space-4')}`);
+
+					diag.textContent = out.join('\n');
+					document.body.appendChild(diag);
+				}, 2000);
+			});
+		</script>
+	</body>
+</html>

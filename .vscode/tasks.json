@@ -38,6 +38,13 @@
         "panel": "dedicated"
       },
       "label": "pnpm: watch"
+    },
+    {
+      "type": "npm",
+      "script": "--- WEBVIEW ---",
+      "problemMatcher": [],
+      "label": "npm: --- WEBVIEW ---",
+      "detail": "--- --- --- --- ---"
     }
   ]
 }

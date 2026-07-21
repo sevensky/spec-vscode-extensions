@@ -1,0 +1,28 @@
+/**
+ * spec-viewer 富面板样式聚合器
+ *
+ * 从 speckit-companion/webview/styles/spec-viewer/ 完整复制，
+ * token 替换为 --sv- 前缀，选择器 #markdown-content → .spec-md。
+ */
+
+@import "./_tokens.css";
+@import "./_animations.css";
+@import "./_base.css";
+@import "./_primitives.css";
+@import "./_buttons.css";
+@import "./_typography.css";
+@import "./_line-actions.css";
+@import "./_editor.css";
+@import "./_refinements.css";
+@import "./_tasks.css";
+@import "./_content.css";
+@import "./_code.css";
+@import "./_tables.css";
+@import "./_callouts.css";
+@import "./_activity.css";
+@import "./_navigation.css";
+@import "./_footer.css";
+@import "./_staleness.css";
+@import "./_modal.css";
+@import "./_install-banner.css";
+@import "./_toc.css";

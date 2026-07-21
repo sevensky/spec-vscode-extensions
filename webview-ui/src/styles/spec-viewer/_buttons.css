@@ -1,0 +1,121 @@
+/**
+ * SpecKit Companion - Standalone Button Styles
+ * Terminal/techy primitive: squared, monospace + uppercase, color-flip on hover
+ * (no lift, no glow). See docs/DESIGN.md. The .actions-scoped styles in
+ * _footer.css mirror these when inside .actions.
+ */
+
+button.primary,
+button.secondary,
+button.ghost,
+button.enhancement,
+button.destructive {
+    padding: 6px 14px;
+    border-radius: var(--sv-radius-sm);
+    cursor: pointer;
+    font-family: var(--sv-font-mono);
+    font-size: 12.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: background var(--sv-transition-fast) ease,
+                color var(--sv-transition-fast) ease,
+                border-color var(--sv-transition-fast) ease;
+    white-space: nowrap;
+}
+
+button.primary {
+    background: var(--accent-strong);
+    color: var(--vscode-button-foreground, #ffffff);
+    border: 1px solid var(--accent-strong);
+    padding: 8px 24px;
+}
+
+button.primary:hover {
+    background: var(--sv-accent-hover);
+    border-color: var(--sv-accent-hover);
+}
+
+button.primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Color-flip: outline at rest, fills with the accent on hover. */
+button.secondary {
+    background: transparent;
+    border: 1.5px solid var(--sv-border);
+    color: var(--sv-text-secondary);
+}
+
+button.secondary:hover {
+    background: var(--sv-accent);
+    border-color: var(--sv-accent);
+    color: var(--vscode-button-foreground, #ffffff);
+}
+
+button.ghost {
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--sv-text-secondary);
+}
+
+button.ghost:hover {
+    background: var(--sv-accent-subtle);
+    color: var(--sv-accent);
+}
+
+button.enhancement {
+    background: var(--sv-bg-elevated);
+    border: 1px solid var(--sv-border);
+    color: var(--sv-text-primary);
+}
+
+button.enhancement .icon {
+    font-size: 13px;
+}
+
+button.enhancement:hover {
+    background: var(--sv-accent);
+    border-color: var(--sv-accent);
+    color: var(--vscode-button-foreground, #ffffff);
+}
+
+/* Destructive variant — danger/delete affordance. Use with useInlineConfirm
+   for the two-click confirm pattern when the operation can't be undone. */
+button.destructive {
+    background: transparent;
+    border: 1.5px solid var(--error, var(--sv-border));
+    color: var(--error, var(--sv-text-primary));
+}
+
+button.destructive:hover {
+    background: var(--error, var(--sv-bg-hover));
+    color: #ffffff;
+}
+
+button.destructive:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Loading/"Generating…" state — disabled button with a spinner.
+   Reuses the shared `spin` keyframe from _animations.css. */
+button.is-loading {
+    opacity: 0.7;
+    cursor: progress;
+}
+
+.btn-spinner {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: sv-spin 0.7s linear infinite;
+    flex: 0 0 auto;
+}
