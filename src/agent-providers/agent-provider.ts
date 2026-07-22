@@ -146,11 +146,65 @@ export class CodebuddyCliProvider extends CliTerminalProvider {
 	protected readonly terminalTitle = "OpenSpec - CodeBuddy";
 }
 
-/** Trae 终端派 provider（binary: trae-cli） */
-export class TraeCliProvider extends CliTerminalProvider {
+/**
+ * Trae Chat 派：走 Trae IDE 内部命令发送 prompt 到 AI 窗口。
+ * Trae IDE 不暴露 workbench.action.chat.open，用自己的 icube.* 体系。
+ * 候选命令按优先级逐一尝试，首个成功的即用。
+ */
+export class TraeChatProvider implements AgentProvider {
+	readonly type = "chat" as const;
 	readonly id = "trae" as const;
-	protected readonly cliBinary = "trae-cli";
-	protected readonly terminalTitle = "OpenSpec - Trae";
+
+	async executeInTerminal(prompt: string, _title: string): Promise<void> {
+		const { commands, window, env, workspace, Uri } = await import("vscode");
+		const { join } = await import("node:path");
+		const { homedir } = await import("node:os");
+
+		const config = workspace.getConfiguration("openspec-for-agent");
+		const mode = config.get<string>("traeSendMode") ?? "clipboard";
+
+		if (mode === "prompt-file") {
+			// 模式 2：写文件 + 打开编辑器 + 发短指令给 AI
+			const dir = join(homedir(), ".openspec-agent", ".tmp");
+			await workspace.fs.createDirectory(Uri.file(dir));
+			const now = new Date();
+			const ts = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}-${String(now.getHours()).padStart(2, "0")}${String(now.getMinutes()).padStart(2, "0")}${String(now.getSeconds()).padStart(2, "0")}`;
+			const filePath = join(dir, `review-${ts}.prompt`);
+			await workspace.fs.writeFile(
+				Uri.file(filePath),
+				new TextEncoder().encode(prompt)
+			);
+
+			// 打开编辑器让用户看到完整 prompt
+			const doc = await workspace.openTextDocument(Uri.file(filePath));
+			await window.showTextDocument(doc);
+
+			const instruction = `请读取文件 ${filePath} 的完整内容并执行其中的指令。`;
+
+			// 唯一验证过能真正发到 AI 窗口的命令（会逐字符空格展开，但 AI 能还原路径）
+			// 其他命令（icube.component.sendMessage / addToChat 等）不报错但实际不发送
+			await commands.executeCommand(
+				"icube.chat.sendToAgentNonBlocking",
+				instruction
+			);
+
+			await window.showInformationMessage(
+				"Prompt 已打开并发送给 AI（AI 将读取文件执行指令）。"
+			);
+			return;
+		}
+
+		// 模式 1（clipboard，默认）：纯剪贴板 + 打开 AI 面板
+		await env.clipboard.writeText(prompt);
+		try {
+			await commands.executeCommand("workbench.panel.chat.view.ai-chat.open");
+		} catch {
+			// 命令不存在时忽略，继续走剪贴板流程
+		}
+		await window.showInformationMessage(
+			"Prompt 已复制到剪贴板，请在 AI 窗口 Ctrl+V 粘贴发送。"
+		);
+	}
 }
 
 /**
@@ -207,7 +261,7 @@ export class UnsupportedAgentProvider implements AgentProvider {
 const providerMap: Record<AgentId, AgentProvider> = {
 	claude: new ClaudeCliProvider(),
 	codebuddy: new CodebuddyCliProvider(),
-	trae: new TraeCliProvider(),
+	trae: new TraeChatProvider(),
 	codex: new CodexCliProvider(),
 	"github-copilot": new CopilotProvider(),
 	zcode: new UnsupportedAgentProvider(

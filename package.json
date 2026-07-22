@@ -96,6 +96,16 @@
           ],
           "description": "%config.desc.aiAgent%"
         },
+        "openspec-for-agent.traeSendMode": {
+          "type": "string",
+          "default": "clipboard",
+          "enum": [
+            "clipboard",
+            "prompt-file"
+          ],
+          "description": "Trae AI 发送模式：clipboard=写剪贴板+打开面板（需手动粘贴）；prompt-file=写临时文件+发送路径到AI（AI读取文件）",
+          "scope": "window"
+        },
         "openspec-for-agent.chatLanguage": {
           "type": "string",
           "default": "English",
@@ -348,6 +358,11 @@
         "icon": "$(question)"
       },
       {
+        "command": "openspec-for-agent.diagnoseChatCommands",
+        "title": "Diagnose Chat Commands (调试用)",
+        "category": "%command.category%"
+      },
+      {
         "command": "openspec-for-agent.spec.openSource",
         "title": "%command.title.spec_openSource%",
         "category": "OpenSpec"
@@ -434,6 +449,11 @@
         },
         {
           "command": "openspec-for-agent.prompts.run",
+          "when": "view == openspec-for-agent.views.specExplorer && viewItem == change",
+          "group": "7_modification@6"
+        },
+        {
+          "command": "openspec-for-agent.prompts.run",
           "when": "view == openspec-for-agent.views.promptsExplorer && viewItem == prompt-runnable",
           "group": "inline"
         },
@@ -471,6 +491,17 @@
         },
         {
           "command": "openspec-for-agent.settings.openGlobalConfig"
+        },
+        {
+          "command": "openspec-for-agent.diagnoseChatCommands"
+        },
+        {
+          "command": "openspec-for-agent.spec.reviewChange",
+          "when": "workspaceFolderCount > 0"
+        },
+        {
+          "command": "openspec-for-agent.prompts.run",
+          "when": "workspaceFolderCount > 0"
         }
       ]
     }

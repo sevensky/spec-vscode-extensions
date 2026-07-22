@@ -126,6 +126,12 @@ export class ConfigManager {
 		if (raw === "claude") {
 			return "claude";
 		}
+		if (raw === "trae") {
+			return "trae";
+		}
+		if (raw === "codebuddy") {
+			return "codebuddy";
+		}
 		return "github-copilot";
 	}
 

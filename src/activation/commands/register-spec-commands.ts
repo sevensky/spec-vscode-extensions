@@ -13,6 +13,8 @@ import { readPromptFile } from "../../utils/openspec-prompt-utils";
 import { SpecViewerProvider } from "../../providers/spec-viewer-provider";
 /** 提取 change 名的前缀正则（兼容 "openspec/changes/<name>/..." 与 "changes/<name>/..."） */
 const CHANGES_PREFIX = /^(?:openspec\/)?changes\//;
+/** 诊断命令用的关键词匹配正则 */
+const CHAT_CMD_REGEX = /chat|ai|trae|assistant|message|prompt|ask|llm/i;
 
 interface SpecCommandItem {
 	label?: string;
@@ -209,4 +211,24 @@ export const registerSpecCommands = (
 			reviewChangeCommandHandler(services, specExplorer)
 		)
 	);
+
+	// 临时诊断：列出所有 chat/ai/trae/assistant 相关命令
+	const diagCmd = commands.registerCommand(
+		"openspec-for-agent.diagnoseChatCommands",
+		async () => {
+			const allCmds = await commands.getCommands(true);
+			const matched = allCmds.filter((c) => CHAT_CMD_REGEX.test(c)).sort();
+			const msg = `找到 ${matched.length} 个相关命令:\n${matched.join("\n")}`;
+			outputChannel.appendLine(msg);
+			outputChannel.show();
+			const item = await window.showInformationMessage(
+				`找到 ${matched.length} 个相关命令，已输出到 Output`,
+				"查看 Output"
+			);
+			if (item) {
+				outputChannel.show();
+			}
+		}
+	);
+	context.subscriptions.push(diagCmd);
 };

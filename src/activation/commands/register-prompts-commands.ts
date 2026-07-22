@@ -112,6 +112,12 @@ export const registerPromptsCommands = (
 						}
 					}
 
+					// 没有 resourceUri（如从 change 右键触发）→ 调 Trae 原生 prompt 选择器
+					if (!targetUri) {
+						await commands.executeCommand("workbench.action.chat.run.prompt");
+						return;
+					}
+
 					if (!targetUri) {
 						targetUri = window.activeTextEditor?.document.uri;
 					}
