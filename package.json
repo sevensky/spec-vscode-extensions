@@ -229,6 +229,12 @@
         "icon": "$(archive)"
       },
       {
+        "command": "openspec-for-agent.spec.reviewChange",
+        "title": "%command.title.spec_reviewChange%",
+        "category": "%command.category%",
+        "icon": "$(comment-discussion)"
+      },
+      {
         "command": "openspec-for-agent.spec.copyName",
         "title": "%command.title.spec_copyName%",
         "category": "%command.category%",
@@ -420,6 +426,11 @@
           "command": "openspec-for-agent.spec.archiveChange",
           "when": "view == openspec-for-agent.views.specExplorer && viewItem == change",
           "group": "7_modification@4"
+        },
+        {
+          "command": "openspec-for-agent.spec.reviewChange",
+          "when": "view == openspec-for-agent.views.specExplorer && viewItem == change",
+          "group": "7_modification@5"
         },
         {
           "command": "openspec-for-agent.prompts.run",

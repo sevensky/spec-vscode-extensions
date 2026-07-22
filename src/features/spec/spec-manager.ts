@@ -16,6 +16,10 @@ import { sendPromptToChat } from "../../utils/chat-prompt-runner";
 import { readPromptFile } from "../../utils/openspec-prompt-utils";
 import { CreateSpecInputController } from "./create-spec-input-controller";
 
+// 数字前缀提取（如 "0722-xxx" → "0722"），用于 changes 列表倒序排序。
+// 提到顶层作用域避免 sort 回调内重复创建正则（biome useTopLevelRegex）。
+const LEADING_DIGITS = /^(\d+)/;
+
 export type SpecDocumentType = "requirements" | "design" | "tasks";
 
 export class SpecManager {
@@ -50,7 +54,9 @@ export class SpecManager {
 			this.outputChannel.appendLine(
 				`[SpecManager] Failed to open Create Spec dialog: ${message}`
 			);
-			window.showErrorMessage(t("error.openCreateSpecDialogFailed", { msg: String(message) }));
+			window.showErrorMessage(
+				t("error.openCreateSpecDialogFailed", { msg: String(message) })
+			);
 		}
 	}
 
@@ -143,7 +149,9 @@ This document has not been created yet.`;
 			this.outputChannel.appendLine(
 				`[SpecManager] Failed to delete spec: ${error}`
 			);
-			window.showErrorMessage(t("error.deleteSpecFailed", { error: String(error) }));
+			window.showErrorMessage(
+				t("error.deleteSpecFailed", { error: String(error) })
+			);
 		}
 	}
 
@@ -178,7 +186,30 @@ This document has not been created yet.`;
 
 	async getChanges(): Promise<string[]> {
 		const changes = await this.getDirectories("changes");
-		return changes.filter((name) => name !== "archive");
+		// 倒序排序：数字前缀（如 0722-xxx）排前且近期优先，字母前缀（如 add-change-xxx）排后。
+		// 用自然比较：以数字开头的按数值降序，其余按字典序降序；数字组整体在字母组前。
+		return changes
+			.filter((name) => name !== "archive")
+			.sort((a, b) => {
+				const aNum = a.match(LEADING_DIGITS);
+				const bNum = b.match(LEADING_DIGITS);
+				if (aNum && bNum) {
+					// 都是数字前缀：先按前缀数值降序，相同则全名降序兜底
+					const aVal = Number(aNum[1]);
+					const bVal = Number(bNum[1]);
+					if (aVal !== bVal) {
+						return bVal - aVal;
+					}
+					return b.localeCompare(a);
+				}
+				if (aNum && !bNum) {
+					return -1; // 数字前缀排前
+				}
+				if (!aNum && bNum) {
+					return 1;
+				}
+				return b.localeCompare(a); // 都是字母前缀：字典序降序
+			});
 	}
 
 	async getSpecList(): Promise<string[]> {

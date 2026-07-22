@@ -3,6 +3,7 @@
   "command.title.spec_refresh": "刷新 Specs",
   "command.title.spec_delete": "删除 Spec",
   "command.title.spec_archiveChange": "归档变更",
+  "command.title.spec_reviewChange": "审查变更",
   "command.title.spec_copyName": "复制名称",
   "command.title.spec_createGitHubIssue": "创建 GitHub Issue",
   "command.title.spec_createDetailedDesign": "创建详细设计",

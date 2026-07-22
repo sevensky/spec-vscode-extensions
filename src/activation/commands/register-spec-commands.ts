@@ -6,6 +6,7 @@ import type { ExtensionServices } from "../extension-services";
 import { createDetailedDesignCommandHandler } from "../../features/spec/commands/create-detailed-design";
 import { createGitHubIssueCommandHandler } from "../../features/spec/commands/create-github-issue";
 import { updateSpecsFromDetailedDesignCommandHandler } from "../../features/spec/commands/update-specs-from-detailed-design";
+import { reviewChangeCommandHandler } from "../../features/spec/commands/review-change";
 import { sendPromptToChat } from "../../utils/chat-prompt-runner";
 import { ConfigManager } from "../../utils/config-manager";
 import { readPromptFile } from "../../utils/openspec-prompt-utils";
@@ -202,6 +203,10 @@ export const registerSpecCommands = (
 		commands.registerCommand(
 			"openspec-for-agent.spec.createGitHubIssue",
 			createGitHubIssueCommandHandler(services)
+		),
+		commands.registerCommand(
+			"openspec-for-agent.spec.reviewChange",
+			reviewChangeCommandHandler(services, specExplorer)
 		)
 	);
 };

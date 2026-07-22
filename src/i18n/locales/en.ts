@@ -25,17 +25,21 @@ export const en: Record<string, string> = {
 	"error.openMcpConfigFailed": "Failed to open MCP config: {msg}",
 	"error.initPromptSystemFailed": "Failed to initialize prompt system: {error}",
 	"error.runCopilotFailed": "Failed to run Copilot: {error}",
-	"error.updateSpecsFromDesignFailed": "Failed to update specs from detailed design: {msg}",
-	"error.openCreateSpecDialogFailed": "Failed to open Create Spec dialog: {msg}",
+	"error.updateSpecsFromDesignFailed":
+		"Failed to update specs from detailed design: {msg}",
+	"error.openCreateSpecDialogFailed":
+		"Failed to open Create Spec dialog: {msg}",
 	"error.deleteSpecFailed": "Failed to delete spec: {error}",
 	"error.readArchivePromptFailed": "Failed to read archive prompt: {msg}",
+	"error.readReviewPromptFailed": "Failed to run review: {msg}",
 
 	// ── error（确定性提示）──
 	"error.noPromptSelected": "No prompt file selected",
 	"error.determineItemName": "Could not determine item name.",
 	"error.determineChangeId": "Could not determine change ID.",
 	"error.parentDirTraversal": "Parent directory traversal is not allowed.",
-	"error.missingPromptTemplate": "Missing packaged prompt template: {path} ({detail})",
+	"error.missingPromptTemplate":
+		"Missing packaged prompt template: {path} ({detail})",
 	"error.unreadableFile": "Missing or unreadable {label}: {path} ({detail})",
 	"error.readPromptFile": "Failed to read prompt file.",
 	"error.unableOpenCreateSpec": "Unable to open Create Spec dialog",
@@ -61,19 +65,28 @@ export const en: Record<string, string> = {
 	"prompt.invalidChars": "Invalid characters in file name",
 	"prompt.relativeSegments": "Relative segments are not allowed",
 	"prompt.openWorkspaceToCreate": "Open a workspace to create prompts.",
-	"prompt.deprecationWarning": "The prompt file '{legacy}' has been renamed to '{current}'. Please update your references.",
-	"prompt.migrationError": "OpenSpec v1 prompt files not found (current agent: {agent}).\n\nRequired: {requiredPath}\n\nPossible causes and fixes:\n\n1. OpenSpec v1 not initialized yet:\n   npm install -g openspec@latest\n   cd {workspace}\n   openspec init\n\n2. Global config delivery set to \"skills\" (command files skipped):\n   Check ~/.config/openspec/config.json, change \"delivery\" to \"both\", then re-run:\n   openspec init --force\n\n3. Required workflow not in profile:\n   Ensure config.json workflows include \"propose\" (generates propose command file).\n\nFor more information, see README.md in your workspace.",
-	"prompt.legacyDeprecation": "⚠️ Using legacy OpenSpec v0.x prompt file: {legacy}\n\nPlease migrate to OpenSpec v1 by running 'openspec init' in your workspace.\nThis will create the new prompt file: {current}\n\nLegacy support will be removed in a future release.",
-	"prompt.templatePlaceholder": "Describe your prompt here. This file will be sent to Copilot when executed.",
+	"prompt.deprecationWarning":
+		"The prompt file '{legacy}' has been renamed to '{current}'. Please update your references.",
+	"prompt.migrationError":
+		'OpenSpec v1 prompt files not found (current agent: {agent}).\n\nRequired: {requiredPath}\n\nPossible causes and fixes:\n\n1. OpenSpec v1 not initialized yet:\n   npm install -g openspec@latest\n   cd {workspace}\n   openspec init\n\n2. Global config delivery set to "skills" (command files skipped):\n   Check ~/.config/openspec/config.json, change "delivery" to "both", then re-run:\n   openspec init --force\n\n3. Required workflow not in profile:\n   Ensure config.json workflows include "propose" (generates propose command file).\n\nFor more information, see README.md in your workspace.',
+	"prompt.legacyDeprecation":
+		"⚠️ Using legacy OpenSpec v0.x prompt file: {legacy}\n\nPlease migrate to OpenSpec v1 by running 'openspec init' in your workspace.\nThis will create the new prompt file: {current}\n\nLegacy support will be removed in a future release.",
+	"prompt.templatePlaceholder":
+		"Describe your prompt here. This file will be sent to Copilot when executed.",
 
 	// ── spec（Spec 管理）──
-	"spec.unsavedInput": "You have unsaved spec input. Close the dialog and discard your changes?",
-	"spec.unsavedInputDetail": "Choose Cancel to resume editing and keep your current input.",
+	"spec.unsavedInput":
+		"You have unsaved spec input. Close the dialog and discard your changes?",
+	"spec.unsavedInputDetail":
+		"Choose Cancel to resume editing and keep your current input.",
 
 	// ── steering（Steering 管理）──
-	"steering.globalExists": "Global configuration file (~/.github/copilot-instructions.md) already exists. Overwrite?",
-	"steering.agentsExists": "Project AGENTS.md (openspec/AGENTS.md) already exists. Overwrite?",
-	"steering.saveGuard": "Are you sure you want to save changes to this agent file?",
+	"steering.globalExists":
+		"Global configuration file (~/.github/copilot-instructions.md) already exists. Overwrite?",
+	"steering.agentsExists":
+		"Project AGENTS.md (openspec/AGENTS.md) already exists. Overwrite?",
+	"steering.saveGuard":
+		"Are you sure you want to save changes to this agent file?",
 
 	// ── mcp / settings ──
 	"mcp.configNotFound": "MCP config not found at {path}.",
@@ -82,7 +95,8 @@ export const en: Record<string, string> = {
 	"task.executeFailed": "Failed to execute task: {msg}",
 
 	// ── claude service ──
-	"claude.notInstalled": 'Claude Code CLI ("claude") is not installed or not in PATH. Please install Claude Code and retry, or switch aiAgent back to github-copilot / codex in settings.',
+	"claude.notInstalled":
+		'Claude Code CLI ("claude") is not installed or not in PATH. Please install Claude Code and retry, or switch aiAgent back to github-copilot / codex in settings.',
 
 	// ── TreeView: spec-explorer ──
 	"treeview.changes": "Changes",
@@ -105,14 +119,16 @@ export const en: Record<string, string> = {
 	"treeview.projectInstructions": "Project Instructions",
 	"treeview.projectAgents": "Project Agents",
 	"treeview.openWorkspaceToManagePrompts": "Open a workspace to manage prompts",
-	"treeview.openWorkspaceToManageInstructions": "Open a workspace to manage instructions",
+	"treeview.openWorkspaceToManageInstructions":
+		"Open a workspace to manage instructions",
 	"treeview.openWorkspaceToManageAgents": "Open a workspace to manage agents",
 	"treeview.globalPromptsDirNotFound": "Global prompts directory not found",
 	"treeview.noPromptsFound": "No prompts found",
 	"treeview.addPromptsUnder": "Add prompts under {label}",
 	"treeview.openPrompt": "Open Prompt",
 	"treeview.loadingPrompts": "Loading prompts...",
-	"treeview.createPromptsHint": "Create prompts under the configured prompts directory",
+	"treeview.createPromptsHint":
+		"Create prompts under the configured prompts directory",
 	"treeview.locatedAt": "{label} located at {path}",
 
 	// ── TreeView: steering-explorer ──

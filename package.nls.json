@@ -3,6 +3,7 @@
   "command.title.spec_refresh": "Refresh Specs",
   "command.title.spec_delete": "Delete Spec",
   "command.title.spec_archiveChange": "Archive Change",
+  "command.title.spec_reviewChange": "Review Change",
   "command.title.spec_copyName": "Copy Name",
   "command.title.spec_createGitHubIssue": "Create GitHub Issue",
   "command.title.spec_createDetailedDesign": "Create Detailed Design",
